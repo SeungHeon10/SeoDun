@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>로그인</title>
+<link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+	<div class="mainview">
+        <div class="title">
+            <h1><a href="/" class="seodun">SeoDun</a></h1>
+        </div>
+        <div class="loginbox">
+	        <form th:action="@{/login}" method="post">
+	            <div class="inputid">
+	                <input type="text" class="input" name="username" placeholder="  아이디 입력 ..." autofocus required="required">
+	            </div>
+	            <div class="inputpw">
+	                <input type="password" class="input" name="password" placeholder="  비밀번호 입력 ..." required="required">
+	            </div>
+				<div class="remember_box">
+					<input type="checkbox" id="remember_login" name="remember_login"><label for="remember_login">자동 로그인</label>
+				</div>
+	            <div class="loginbutton">
+	                <input type="submit" class="login" id="login" value="로그인">
+	            </div>
+	        </form>
+        </div>
+        <div class="menu">
+            <div class="find">
+                <a href="#">비밀번호 찾기</a>
+            </div>
+            <div class="find">
+                <a href="#">아이디 찾기</a>
+            </div>
+            <div class="find">
+                <a href="/membership">회원가입</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

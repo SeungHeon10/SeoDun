@@ -1,0 +1,18 @@
+@charset "UTF-8";
+.loginMenu {
+	display: flex;
+	align-items: center;
+}
+.login_link{
+	color: #495057;
+	font-size: 16px;
+}
+.login_link:hover{
+	text-decoration: none;
+}
+.navbar-align{
+	gap: 10px;
+}
+.text-dark{
+	font-size: 15px;
+}
