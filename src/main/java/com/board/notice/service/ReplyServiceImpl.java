@@ -31,21 +31,20 @@ public class ReplyServiceImpl implements ReplyService {
 		List<Reply> list = replyRepository.findAll();
 		return list.stream().map(reply -> new ReplyResponseDTO(reply)).toList();
 	}
-	
-//	댓글 등록
+
 	@Override
 	@Transactional
 	public void register(ReplyRequestDTO replyRequestDTO) {
 		// 부모 댓글 정보 (대댓글의 상위 댓글)
 		Reply parent = null;
 		// 대댓글의 상위 정보 있을 시 정보 가져오는 로직
-		if(replyRequestDTO.getParent_id() != 0) {
-			parent = replyRepository.findById(replyRequestDTO.getParent_id()).orElseThrow(() -> new EntityNotFoundException("해당 댓글은 존재하지 않습니다."));
+		if(replyRequestDTO.getParent() != null) {
+			parent = replyRepository.findById(replyRequestDTO.getParent().getRno()).orElseThrow(() -> new EntityNotFoundException("해당 댓글은 존재하지 않습니다."));
 		}
 		// 게시글 정보
-		Board board = boardRepository.findById(replyRequestDTO.getBoard_id()).orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
+		Board board = boardRepository.findById(replyRequestDTO.getBoard().getBno()).orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
 		// 회원 정보
-		User user = userRepository.findById(replyRequestDTO.getUser_id()).orElseThrow(() -> new UsernameNotFoundException("해당 회원은 존재하지 않습니다."));
+		User user = userRepository.findById(replyRequestDTO.getUser().getId()).orElseThrow(() -> new UsernameNotFoundException("해당 회원은 존재하지 않습니다."));
 		Reply reply = Reply.builder()
 				.content(replyRequestDTO.getContent())
 				.writer(replyRequestDTO.getWriter())
@@ -54,8 +53,7 @@ public class ReplyServiceImpl implements ReplyService {
 				.build();
 		replyRepository.save(reply);
 	}
-	
-//	댓글 수정
+
 	@Override
 	@Transactional
 	public void update(ReplyRequestDTO replyRequestDTO) {
@@ -66,17 +64,11 @@ public class ReplyServiceImpl implements ReplyService {
 		// 댓글 DB 반영
 		replyRepository.save(reply);
 	}
-	
-//	댓글 삭제
+
 	@Override
 	@Transactional
 	public void delete(int rno) {
-		// 삭제할 댓글 찾기
-		Reply reply = replyRepository.findById(rno).orElseThrow(() -> new EntityNotFoundException("해당 댓글은 존재하지 않습니다."));
-		// 댓글 소프트 삭제 메서드
-		reply.toggleIsDeleted();
-		// 댓글 DB 반영
-		replyRepository.save(reply);
+
 	}
 
 }

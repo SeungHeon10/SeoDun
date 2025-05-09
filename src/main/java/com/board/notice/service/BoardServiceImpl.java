@@ -79,11 +79,9 @@ public class BoardServiceImpl implements BoardService{
 	@Override
 	@Transactional
 	public void delete(int bno) {
-		// 삭제할 게시글 찾기
 		Board board = boardRepository.findById(bno).orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
 		// 게시글 소프트 삭제 메서드
 		board.toggleIsDeleted();
-		// 게시글 DB 반영
 		boardRepository.save(board);
 	}
 
