@@ -18,6 +18,7 @@ public class BoardRequestDTO {
 	private String writer; // 게시글 작성자
     private String category; // 게시글 카테고리
     private String filePath; // 게시글 첨부파일 경로
+    private boolean filechanged; // 업로드 파일 변경여부
     private String tags; // 게시글 태그 (콤마로 저장)
     private String userId; // 게시글 작성자 id
 }

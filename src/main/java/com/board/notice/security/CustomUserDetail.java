@@ -2,14 +2,10 @@ package com.board.notice.security;
 
 import java.util.Collection;
 import java.util.List;
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import com.board.notice.entity.User;
-import com.board.notice.enums.Role;
-
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
