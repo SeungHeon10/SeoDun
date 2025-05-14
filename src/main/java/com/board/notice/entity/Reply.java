@@ -2,9 +2,6 @@ package com.board.notice.entity;
 
 import org.hibernate.annotations.Where;
 
-import com.board.notice.dto.request.ReplyRequestDTO;
-
-import jakarta.annotation.Generated;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

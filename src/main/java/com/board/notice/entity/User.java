@@ -1,8 +1,11 @@
 package com.board.notice.entity;
 
+import org.hibernate.annotations.Where;
+
 import com.board.notice.dto.request.UserRequestDTO;
 import com.board.notice.enums.Role;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -19,6 +22,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @Builder
+@Where(clause = "is_deleted = false")
 public class User extends BaseEntity{
 	@Id
 	private String id;
@@ -26,6 +30,8 @@ public class User extends BaseEntity{
 	private String name;
 	private String pno;
 	private String email;
+	@Column(columnDefinition = "TINYINT(1) DEFAULT 0")
+	private boolean emailVerified;
 	@Enumerated(EnumType.STRING)
 	private Role role;
 	
@@ -38,6 +44,11 @@ public class User extends BaseEntity{
 	    }
 		
 		this.password = newPassword;
+	}
+	
+//	이메일 인증 확인여부 변경
+	public void changeEmailVerified() {
+		this.emailVerified = true;
 	}
 	
 //	회원 정보 수정

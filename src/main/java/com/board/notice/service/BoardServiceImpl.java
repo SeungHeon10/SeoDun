@@ -49,8 +49,6 @@ public class BoardServiceImpl implements BoardService{
 		Board board = boardRepository.findById(bno).orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
 		// 조회수 증가 메서드
 		board.increaseViewCount();
-		// DB 반영
-		boardRepository.save(board);
 		return new BoardResponseDTO(board);
 	}
 	
@@ -135,8 +133,6 @@ public class BoardServiceImpl implements BoardService{
 		Board board = boardRepository.findById(boardRequestDTO.getBno()).orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
 		// 게시글 수정 메서드
 		board.update(boardRequestDTO);
-		// 게시글 DB 반영
-		boardRepository.save(board);
 	}
 	
 //	게시글 삭제하기
@@ -146,7 +142,6 @@ public class BoardServiceImpl implements BoardService{
 		Board board = boardRepository.findById(bno).orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
 		// 게시글 소프트 삭제 메서드
 		board.toggleIsDeleted();
-		boardRepository.save(board);
 	}
 
 }

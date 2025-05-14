@@ -62,7 +62,6 @@ public class UserServiceImpl implements UserService{
 		User user = userRepository.findById(userDTO.getId()).orElseThrow(() -> new UsernameNotFoundException("해당 회원은 존재하지 않습니다."));
 		// 회원 수정 메서드
 		user.update(userDTO);	
-		userRepository.save(user);
 	}
 
 //	회원 삭제
@@ -72,13 +71,12 @@ public class UserServiceImpl implements UserService{
 		User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("해당 회원은 존재하지 않습니다."));
 		// 회원 소프트 삭제 메서드
 		user.toggleIsDeleted();
-		userRepository.save(user);
 	}
 
 //	아이디 중복 여부
 	@Override
 	public boolean isDuplicationId(String id) {
-		User user = userRepository.findById(id).orElse(new User("", null, null, null, null, null));
+		User user = userRepository.findById(id).orElse(new User("", null, null, null, null, false, null));
 		boolean isDuplicate = user.getId().isEmpty() ? true : false;
 		
 		return isDuplicate;

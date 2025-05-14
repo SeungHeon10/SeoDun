@@ -15,53 +15,55 @@ import java.io.IOException;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/board")
+@RequestMapping("/api/boards")
 public class BoardRestController {
 	private final BoardService boardService;
-	
+
 //	게시글 전체 조회
-	@GetMapping("/list")
+	@GetMapping
 	public ResponseEntity<List<BoardResponseDTO>> list() {
 		List<BoardResponseDTO> list = boardService.list();
 		return ResponseEntity.ok(list);
 	}
-	
+
 //	게시글 상세보기
-	@GetMapping("/detail/{bno}")
+	@GetMapping("/{bno}")
 	public ResponseEntity<BoardResponseDTO> detail(@PathVariable("bno") int bno) {
 		BoardResponseDTO boardResponseDTO = boardService.detail(bno);
 		return ResponseEntity.ok(boardResponseDTO);
 	}
-	
+
 //	게시글 등록하기
-	@PostMapping("/register")
-	public ResponseEntity<String> register(@ModelAttribute BoardRequestDTO boardRequestDTO
-										, @RequestParam("file") MultipartFile file) throws IOException {
-		boardService.register(boardRequestDTO , file);
+	@PostMapping
+	public ResponseEntity<String> register(@ModelAttribute BoardRequestDTO boardRequestDTO,
+			@RequestParam("file") MultipartFile file) throws IOException {
+		boardService.register(boardRequestDTO, file);
 		return ResponseEntity.ok("게시글이 등록되었습니다.");
 	}
-	
+
 //	게시글 수정하기
-	@PostMapping("/update")
-	public ResponseEntity<String> update(@ModelAttribute BoardRequestDTO boardRequestDTO
-									, @RequestParam("file") MultipartFile file) throws IOException {
-		boardService.update(boardRequestDTO , file);
+	@PutMapping("/{bno}")
+	public ResponseEntity<String> update(@PathVariable("bno") int bno, @ModelAttribute BoardRequestDTO boardRequestDTO,
+			@RequestParam("file") MultipartFile file) throws IOException {
+		boardService.update(boardRequestDTO, file);
 		return ResponseEntity.ok("게시글이 수정되었습니다.");
 	}
-	
+
 //	게시글 삭제하기
-	@PostMapping("/delete/{bno}")
+	@DeleteMapping("/{bno}")
 	public ResponseEntity<String> delete(@PathVariable("bno") int bno) {
 		boardService.delete(bno);
 		return ResponseEntity.ok("게시글이 삭제되었습니다.");
 	}
-	
+
 }

@@ -32,6 +32,7 @@ public class ReplyServiceImpl implements ReplyService {
 		return list.stream().map(reply -> new ReplyResponseDTO(reply)).toList();
 	}
 
+//	댓글 등록
 	@Override
 	@Transactional
 	public void register(ReplyRequestDTO replyRequestDTO) {
@@ -54,6 +55,7 @@ public class ReplyServiceImpl implements ReplyService {
 		replyRepository.save(reply);
 	}
 
+//	댓글 수정
 	@Override
 	@Transactional
 	public void update(ReplyRequestDTO replyRequestDTO) {
@@ -61,14 +63,14 @@ public class ReplyServiceImpl implements ReplyService {
 		Reply reply = replyRepository.findById(replyRequestDTO.getRno()).orElseThrow(() -> new EntityNotFoundException("해당 댓글은 존재하지 않습니다."));
 		// 댓글 수정 메서드
 		reply.update(replyRequestDTO.getContent());
-		// 댓글 DB 반영
-		replyRepository.save(reply);
 	}
 
+//	댓글 삭제
 	@Override
 	@Transactional
 	public void delete(int rno) {
-
+		Reply reply = replyRepository.findById(rno).orElseThrow(() -> new EntityNotFoundException("해당 댓글은 존재하지 않습니다."));
+		reply.toggleIsDeleted();
 	}
 
 }

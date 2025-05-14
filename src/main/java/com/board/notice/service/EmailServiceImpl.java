@@ -6,20 +6,25 @@ import java.util.UUID;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMailMessage;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.board.notice.entity.EmailToken;
+import com.board.notice.entity.User;
 import com.board.notice.repository.EmailRepository;
+import com.board.notice.repository.UserRepository;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
 	private final EmailRepository emailRepository;
+	private final UserRepository userRepository;
 	private final JavaMailSender javaMailSender;
 
 //	이메일 인증 토큰 보내기
@@ -33,40 +38,42 @@ public class EmailServiceImpl implements EmailService {
 					.expiryDate(LocalDateTime.now().plusMinutes(10)).build();
 			emailRepository.save(emailToken);
 
-			String content = """
-					<div
-					style="max-width:600px; margin:0 auto; padding:20px; font-family:Arial, sans-serif; background-color:#ffffff; border:1px solid #e0e0e0;">
-						<h2 style="color:#333333;">[SeoDun] 이메일 인증 요청</h2>
+			String content = String.format(
+					"""
+							<div
+							style="max-width:600px; margin:0 auto; padding:20px; font-family:Arial, sans-serif; background-color:#ffffff; border:1px solid #e0e0e0;">
+								<h2 style="color:#333333;">[SeoDun] 이메일 인증 요청</h2>
 
-						<p style="font-size:14px; color:#555555; margin-bottom: 50px;">
-							안녕하세요 !<br>
-							회원가입을 완료하려면 아래 버튼을 클릭해 이메일 인증을 진행해주세요.
-						</p>
+								<p style="font-size:14px; color:#555555; margin-bottom: 50px;">
+									안녕하세요 !<br>
+									회원가입을 완료하려면 아래 버튼을 클릭해 이메일 인증을 진행해주세요.
+								</p>
 
-						<div style="margin:30px 0; text-align:center;">
-							<a href="http://localhost:8080/auth/confirm?token=abc123"
-								style="display:inline-block; background-color:#4CAF50; color:white; padding:12px 24px; text-decoration:none; border-radius:4px; font-weight:bold;">
-								이메일 인증하기
-							</a>
-						</div>
+								<div style="margin:30px 0; text-align:center;">
+									<a href="http://localhost:8080/auth/confirm?token=%s"
+										style="display:inline-block; background-color:#4CAF50; color:white; padding:12px 24px; text-decoration:none; border-radius:4px; font-weight:bold;">
+										이메일 인증하기
+									</a>
+								</div>
 
-						<p style="font-size:12px; color:#999999; margin-top: 50px;">
-							본 메일은 회원가입 과정에서 자동으로 발송된 메일입니다.<br>
-							인증 링크는 10분 동안만 유효하니 시간내에 인증을 완료해주세요.
-						</p>
+								<p style="font-size:12px; color:#999999; margin-top: 50px;">
+									본 메일은 회원가입 과정에서 자동으로 발송된 메일입니다.<br>
+									인증 링크는 10분 동안만 유효하니 시간내에 인증을 완료해주세요.
+								</p>
 
-						<hr style="border:none; border-top:1px solid #e0e0e0; margin:30px 0;">
+								<hr style="border:none; border-top:1px solid #e0e0e0; margin:30px 0;">
 
-						<p style="font-size:12px; color:#999999; text-align:center;">
-							© 2025 SeoDun. All rights reserved.
-						</p>
-					</div>
-					""";
+								<p style="font-size:12px; color:#999999; text-align:center;">
+									© 2025 SeoDun. All rights reserved.
+								</p>
+							</div>
+							""",
+					token);
 			MimeMessage message = javaMailSender.createMimeMessage();
 			MimeMessageHelper helper;
 			helper = new MimeMessageHelper(message, true, "UTF-8");
 			helper.setTo(email);
-			helper.setFrom("hun0018@gmail.com");
+			helper.setFrom("sh120404@naver.com");
 			helper.setSubject("[SeoDun] 이메일 인증 요청");
 			helper.setText(content, true);
 
@@ -80,15 +87,46 @@ public class EmailServiceImpl implements EmailService {
 	@Override
 	@Transactional
 	public void confirmToken(String token) {
+		// DB에서 토큰 검색
+		EmailToken emailToken = emailRepository.findById(token)
+				.orElseThrow(() -> new EntityNotFoundException("해당 토큰을 찾을 수 없습니다."));
 
+		// 이미 인증된 토큰인지 확인
+		if (emailToken.isConfirmed() == true) {
+			throw new IllegalStateException("이미 인증된 토큰입니다.");
+		}
+
+		// 인증 시간 만료된 토큰인지 확인
+		if (emailToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+			throw new IllegalStateException("인증 시간이 만료된 토큰입니다.");
+		}
+
+		// 토큰 인증 확인 변경
+		emailToken.changeConfirmed();
+
+		// 해당 회원 찾아서 이메일 인증 완료 처리
+		User user = userRepository.findByEmail(emailToken.getEmail())
+				.orElseThrow(() -> new UsernameNotFoundException("해당 회원은 존재하지 않습니다."));
+		user.changeEmailVerified();
 	}
 
-//	토큰 만료 확인
+//	이메일 인증 토큰 재전송
 	@Override
 	@Transactional
-	public boolean isTokenExpired(String token) {
-
-		return false;
+	public void resendVerificationEmail(String email) {
+		// emailToken 검색
+		EmailToken emailToken = emailRepository.findByEmail(email)
+				.orElseThrow(() -> new EntityNotFoundException("해당 토큰을 찾을 수 없습니다."));
+		
+		// 이미 인증된 토큰인지 확인
+		if (emailToken.isConfirmed() == true) {
+			throw new IllegalStateException("이미 인증된 회원입니다.");
+		}
+		
+		// emailToken 무효화 메서드
+		emailToken.isValid();
+		
+		// 이메일 인증 토큰 보내기
+		sendVerificationEmail(email);
 	}
-
 }
