@@ -20,56 +20,56 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/user")
+@RequestMapping(value = "/users")
 public class UserRestController {
 	private final UserService userService;
-	
+
 //	회원 전체 조회
-	@GetMapping("/list")
+	@GetMapping
 	public ResponseEntity<List<UserResponseDTO>> list() {
 		List<UserResponseDTO> list = userService.list();
-		
+
 		return ResponseEntity.ok(list);
 	}
-	
+
 //	회원 상세보기
-	@GetMapping("/detail/{id}")
+	@GetMapping("/{id}")
 	public ResponseEntity<UserResponseDTO> detail(@PathVariable("id") String id) {
 		UserResponseDTO userResponseDTO = userService.detail(id);
-		
+
 		return ResponseEntity.ok(userResponseDTO);
 	}
-	
+
 //	회원 등록하기
-	@PostMapping("/register")
+	@PostMapping
 	public ResponseEntity<String> register(@RequestBody UserRequestDTO userRequestDTO) {
 		userService.register(userRequestDTO);
-		
+
 		return ResponseEntity.ok("회원가입이 완료되었습니다!");
 	}
-	
+
 //	회원 수정하기
-	@PutMapping("/update/{id}")
-	public ResponseEntity<String> update(@RequestBody UserRequestDTO userRequestDTO) {
+	@PutMapping("/{id}")
+	public ResponseEntity<String> update(@PathVariable("id") String id, @RequestBody UserRequestDTO userRequestDTO) {
 		userService.update(userRequestDTO);
-		
+
 		return ResponseEntity.ok("수정이 완료되었습니다!");
 	}
-	
+
 //	회원 삭제하기
-	@DeleteMapping("/delete/{id}")
+	@DeleteMapping("/{id}")
 	public ResponseEntity<String> delete(@PathVariable("id") String id) {
 		userService.delete(id);
-		
+
 		return ResponseEntity.ok("삭제가 완료되었습니다!");
 	}
-	
+
 //	아이디 중복 확인
-	@GetMapping("/findId/{id}")
+	@GetMapping("/exists/{id}")
 	public ResponseEntity<Boolean> checkDuplicateId(@PathVariable("id") String id) {
 		boolean isDuplicate = userService.isDuplicationId(id);
-		
+
 		return ResponseEntity.ok(isDuplicate);
 	}
-	
+
 }

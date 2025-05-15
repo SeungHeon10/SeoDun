@@ -50,6 +50,14 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
 	}
 	
+//	IllegalStateException 처리
+	@ExceptionHandler(IllegalStateException.class)
+	public ResponseEntity<Map<String, String>> handleIllegalStateException(IllegalStateException exception){
+		Map<String, String> error = new HashMap<String, String>();
+		error.put("message", exception.getMessage());
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+	}
+	
 //	RuntimeException 처리
 	@ExceptionHandler(RuntimeException.class)
 	public ResponseEntity<Map<String, String>> handleRuntime(RuntimeException exception){
