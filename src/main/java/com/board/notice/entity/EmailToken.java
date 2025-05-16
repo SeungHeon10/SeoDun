@@ -20,17 +20,19 @@ import lombok.ToString;
 @AllArgsConstructor
 @Builder
 @Where(clause = "is_deleted = false")
-public class EmailToken {
+public class EmailToken extends BaseEntity{
 	@Id
 	private String token; // uuid 형식의 키
 	@Column(nullable = false)
 	private String email; // 인증받을 사용자 이메일
 	@Column(nullable = false)
 	private LocalDateTime expiryDate; // 토큰의 만료시간
+	@Builder.Default
 	@Column(nullable = false , columnDefinition = "TINYINT(1) DEFAULT 0")
-	private boolean isConfirmed; // 인증 확인여부
-	@Column(nullable = false , columnDefinition = "TINYINT(1) DEFAULT 0")
-	private boolean isValid; // 토큰 유효 여부
+	private boolean isConfirmed = false; // 인증 확인여부
+	@Builder.Default
+	@Column(nullable = false , columnDefinition = "TINYINT(1) DEFAULT 1")
+	private boolean isValid = true; // 토큰 유효 여부
 	
 	// 인증 확인여부 변경
 	public void changeConfirmed() {

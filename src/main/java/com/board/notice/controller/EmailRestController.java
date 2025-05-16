@@ -22,7 +22,7 @@ public class EmailRestController {
 	
 //	이메일 인증 토큰 보내기
 	@PostMapping
-	public ResponseEntity<String> sendEmail(@RequestParam String email) {
+	public ResponseEntity<String> sendEmail(@RequestParam("email") String email) {
 		emailService.sendVerificationEmail(email);
 		return ResponseEntity.ok("인증 메일이 전송되었습니다.");
 	}
@@ -36,7 +36,7 @@ public class EmailRestController {
 	
 //	이메일 인증 토큰 재전송
 	@PostMapping("/verification-tokens")
-	public ResponseEntity<String> resendEmail(@RequestParam String email) {
+	public ResponseEntity<String> resendEmail(@RequestParam("email") String email) {
 		emailService.resendVerificationEmail(email);
 		return ResponseEntity.ok("인증 메일이 재전송 되었습니다.");
 	}

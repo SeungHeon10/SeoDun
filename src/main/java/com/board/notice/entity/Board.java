@@ -33,12 +33,15 @@ public class Board extends BaseEntity {
 	@Column(columnDefinition = "TEXT")
 	private String content; // 게시글 본문
 	private String writer; // 게시글 작성자
+	@Builder.Default
 	@Column(columnDefinition = "INT DEFAULT 0")
-	private int viewCount; // 게시글 조회수
+	private int viewCount = 0; // 게시글 조회수
+	@Builder.Default
 	@Column(columnDefinition = "INT DEFAULT 0")
-    private int commentCount; // 게시글 댓글수
+    private int commentCount = 0; // 게시글 댓글수
+	@Builder.Default
     @Column(columnDefinition = "TINYINT(1) DEFAULT 0")
-    private boolean isPinned; // 게시글 상단고정여부
+    private boolean isPinned = false; // 게시글 상단고정여부
     private String category; // 게시글 카테고리
     private String filePath; // 게시글 첨부파일 경로
     private String tags; // 게시글 태그 (콤마로 저장)

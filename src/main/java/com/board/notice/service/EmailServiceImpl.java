@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMailMessage;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,9 +20,12 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EmailServiceImpl implements EmailService {
 	private final EmailRepository emailRepository;
 	private final UserRepository userRepository;
@@ -30,6 +34,7 @@ public class EmailServiceImpl implements EmailService {
 //	이메일 인증 토큰 보내기
 	@Override
 	@Transactional
+	@Async
 	public void sendVerificationEmail(String email) {
 		try {
 			// 토큰 생성 후 DB 반영
@@ -50,7 +55,7 @@ public class EmailServiceImpl implements EmailService {
 								</p>
 
 								<div style="margin:30px 0; text-align:center;">
-									<a href="http://localhost:8080/auth/confirm?token=%s"
+									<a href="http://localhost:8080/auth/emails/verification-tokens/%s"
 										style="display:inline-block; background-color:#4CAF50; color:white; padding:12px 24px; text-decoration:none; border-radius:4px; font-weight:bold;">
 										이메일 인증하기
 									</a>
@@ -79,6 +84,7 @@ public class EmailServiceImpl implements EmailService {
 
 			javaMailSender.send(message);
 		} catch (MessagingException e) {
+			log.error("이메일 인증 전송 실패 - 대상: {}, 메시지: {}", email, e.getMessage(), e);
 			e.printStackTrace();
 		}
 	}
@@ -103,7 +109,11 @@ public class EmailServiceImpl implements EmailService {
 
 		// 토큰 인증 확인 변경
 		emailToken.changeConfirmed();
-
+		// 토큰 무효화
+		emailToken.invalidate();
+		// 토큰 소프트 삭제
+		emailToken.markAsDeleted();;
+		
 		// 해당 회원 찾아서 이메일 인증 완료 처리
 		User user = userRepository.findByEmail(emailToken.getEmail())
 				.orElseThrow(() -> new UsernameNotFoundException("해당 회원은 존재하지 않습니다."));
@@ -124,7 +134,9 @@ public class EmailServiceImpl implements EmailService {
 		}
 		
 		// emailToken 무효화 메서드
-		emailToken.isValid();
+		emailToken.invalidate();
+		// 해당 토큰 소프트 삭제처리
+		emailToken.markAsDeleted();;
 		
 		// 이메일 인증 토큰 보내기
 		sendVerificationEmail(email);

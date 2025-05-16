@@ -46,7 +46,7 @@ public class BoardRestController {
 //	게시글 등록하기
 	@PostMapping
 	public ResponseEntity<String> register(@ModelAttribute BoardRequestDTO boardRequestDTO,
-			@RequestParam("file") MultipartFile file) throws IOException {
+			@RequestParam(value = "file" , required = false) MultipartFile file) throws IOException {
 		boardService.register(boardRequestDTO, file);
 		return ResponseEntity.ok("게시글이 등록되었습니다.");
 	}

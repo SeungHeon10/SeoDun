@@ -72,7 +72,7 @@ public class ReplyServiceImpl implements ReplyService {
 	@Transactional
 	public void delete(int bno, int rno) {
 		Reply reply = replyRepository.findByRnoAndBoard_Bno(rno, bno).orElseThrow(() -> new EntityNotFoundException("해당 게시글에 해당 댓글이 없습니다."));
-		reply.toggleIsDeleted();
+		reply.markAsDeleted();;
 	}
 
 }

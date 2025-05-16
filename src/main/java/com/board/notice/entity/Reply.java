@@ -30,8 +30,9 @@ public class Reply extends BaseEntity {
 	@Column(columnDefinition = "TEXT")
 	private String content; // 댓글 내용
 	private String writer; // 댓글 작성자
+	@Builder.Default
 	@Column(columnDefinition = "INT DEFAULT 0")
-	private int likeCount; // 댓글 좋아요
+	private int likeCount = 0; // 댓글 좋아요
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "parent_id")
 	private Reply parent; // 댓글 부모 (대댓글을 위한)

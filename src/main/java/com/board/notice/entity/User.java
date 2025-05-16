@@ -25,15 +25,16 @@ import lombok.ToString;
 @Where(clause = "is_deleted = false")
 public class User extends BaseEntity{
 	@Id
-	private String id;
-	private String password;
-	private String name;
-	private String pno;
-	private String email;
+	private String id; // 회원 아이디
+	private String password; // 회원 비밀번호
+	private String name; // 회원 이름
+	private String pno; // 회원 휴대폰 번호
+	private String email; // 회원 이메일
+	@Builder.Default
 	@Column(columnDefinition = "TINYINT(1) DEFAULT 0")
-	private boolean emailVerified;
+	private boolean emailVerified = false; // 회원 이메일 인증 여부
 	@Enumerated(EnumType.STRING)
-	private Role role;
+	private Role role; // 권한
 	
 //	비밀번호 변경
 	public void changePassword(String newPassword) {
