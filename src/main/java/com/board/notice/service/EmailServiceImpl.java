@@ -2,6 +2,7 @@ package com.board.notice.service;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMailMessage;
@@ -30,12 +31,14 @@ public class EmailServiceImpl implements EmailService {
 	private final EmailRepository emailRepository;
 	private final UserRepository userRepository;
 	private final JavaMailSender javaMailSender;
+	
+	private final EmailService emailService;
 
 //	이메일 인증 토큰 보내기
 	@Override
 	@Transactional
 	@Async
-	public void sendVerificationEmail(String email) {
+	public CompletableFuture<Boolean> sendVerificationEmail(String email) {
 		try {
 			// 토큰 생성 후 DB 반영
 			String token = UUID.randomUUID().toString();
@@ -83,9 +86,9 @@ public class EmailServiceImpl implements EmailService {
 			helper.setText(content, true);
 
 			javaMailSender.send(message);
+			return CompletableFuture.completedFuture(true);
 		} catch (MessagingException e) {
-			log.error("이메일 인증 전송 실패 - 대상: {}, 메시지: {}", email, e.getMessage(), e);
-			e.printStackTrace();
+			return CompletableFuture.completedFuture(false);
 		}
 	}
 
@@ -139,6 +142,6 @@ public class EmailServiceImpl implements EmailService {
 		emailToken.markAsDeleted();;
 		
 		// 이메일 인증 토큰 보내기
-		sendVerificationEmail(email);
+		emailService.sendVerificationEmail(email);
 	}
 }

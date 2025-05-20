@@ -3,6 +3,8 @@ package com.board.notice.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,7 @@ public class UserServiceImpl implements UserService{
 	
 //	회원 상세보기
 	@Override
+	@Cacheable(value = "userDetail", key = "#id", unless = "#result == null")
 	public UserResponseDTO detail(String id) {
 		User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("해당 회원은 존재하지 않습니다."));
 		
@@ -58,6 +61,7 @@ public class UserServiceImpl implements UserService{
 //	회원 수정
 	@Override
 	@Transactional
+	@CacheEvict(value = "userDetail", key = "#userDTO.id")
 	public void update(UserRequestDTO userDTO) {
 		User user = userRepository.findById(userDTO.getId()).orElseThrow(() -> new UsernameNotFoundException("해당 회원은 존재하지 않습니다."));
 		// 회원 수정 메서드
@@ -67,6 +71,7 @@ public class UserServiceImpl implements UserService{
 //	회원 삭제
 	@Override
 	@Transactional
+	@CacheEvict(value = "userDetail", key = "#id")
 	public void delete(String id) {
 		User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("해당 회원은 존재하지 않습니다."));
 		// 회원 소프트 삭제 메서드
