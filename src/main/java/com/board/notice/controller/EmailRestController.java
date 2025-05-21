@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.board.notice.service.EmailSenderService;
 import com.board.notice.service.EmailService;
 
 import lombok.RequiredArgsConstructor;
@@ -21,11 +22,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class EmailRestController {
 	private final EmailService emailService;
+	private final EmailSenderService emailSenderService;
 	
 //	이메일 인증 토큰 보내기
 	@PostMapping
 	public CompletableFuture<ResponseEntity<String>> sendEmail(@RequestParam("email") String email) {
-		return emailService.sendVerificationEmail(email).thenApply(success -> {
+		return emailSenderService.sendVerificationEmail(email).thenApply(success -> {
 			if(success) {
 				log.info("✅ 인증 메일 전송 성공 - 대상: {}", email);
 				return ResponseEntity.ok("인증 메일이 전송되었습니다.");

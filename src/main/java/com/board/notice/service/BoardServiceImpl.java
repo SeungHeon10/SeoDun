@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +32,6 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 public class BoardServiceImpl implements BoardService {
 	private final BoardRepository boardRepository;
 	private final UserRepository userRepository;
-	private final BoardService boardService;
 	private final S3Client s3Client;
 
 	@Value("${cloud.aws.s3.bucket}")
@@ -44,23 +44,16 @@ public class BoardServiceImpl implements BoardService {
 
 		return list.stream().map(board -> new BoardResponseDTO(board)).toList();
 	}
-	
-//	게시글 캐싱
-	@Override
-	@Cacheable(value = "boardContent", key = "#bno", unless = "#result == null")
-	public Board getBoardContentOnly(int bno) {
-		Board board = boardRepository.findById(bno)
-				.orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
-		return board;
-	}
 
 //	게시글 상세보기
 	@Override
 	@Transactional
 	public BoardResponseDTO detail(int bno) {
-		Board board = boardService.getBoardContentOnly(bno);
+		Board board = boardRepository.findById(bno)
+				.orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
 		// 조회수 증가 메서드
 		board.increaseViewCount();
+		
 		return new BoardResponseDTO(board);
 	}
 
@@ -104,7 +97,6 @@ public class BoardServiceImpl implements BoardService {
 //	게시글 수정하기
 	@Override
 	@Transactional
-	@CacheEvict(value = "boardContent", key = "#boardRequestDTO.bno") // 성능최적화를 해야 하거나 캐시 최신화가 꼭 필요할 때는 @CachePut
 	public void update(BoardRequestDTO boardRequestDTO, MultipartFile file) throws IOException {
 		// 변경한 파일이 null이 아닐 경우에만 실행
 		if (file != null && !file.isEmpty()) {
@@ -131,12 +123,12 @@ public class BoardServiceImpl implements BoardService {
 //	게시글 삭제하기
 	@Override
 	@Transactional
-	@CacheEvict(value = "boardContent", key = "#bno")
 	public void delete(int bno) {
 		Board board = boardRepository.findById(bno)
 				.orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
 		// 게시글 소프트 삭제 메서드
-		board.markAsDeleted();;
+		board.markAsDeleted();
+		;
 	}
 
 }

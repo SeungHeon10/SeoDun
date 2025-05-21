@@ -27,7 +27,7 @@ public class SecurityConfig {
 		// URL 접근 권한 설정
 	    .authorizeHttpRequests(auth -> auth
 	        // /home, /login, 정적 리소스(css/js 등)은 모두 접근 허용
-	        .requestMatchers("/auth/emails/**", "/", "/login", "/user/register", "/membership", "/succ-member", "/.well-known/**", "/css/**", "/fonts/**", "/img/**", "/js/**").permitAll()
+	        .requestMatchers("/api/boards/**", "/", "/login", "/user/register", "/membership", "/succ-member", "/.well-known/**", "/css/**", "/fonts/**", "/img/**", "/js/**").permitAll()
 	        // 나머지 모든 요청은 로그인한 사용자만 접근 가능
 	        .anyRequest().authenticated()
 	    )

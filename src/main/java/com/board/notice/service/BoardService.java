@@ -12,8 +12,6 @@ import com.board.notice.entity.Board;
 public interface BoardService {
 //	게시글 전체 조회
 	List<BoardResponseDTO> list();
-//	게시글 캐싱
-	Board getBoardContentOnly(int bno);
 //	게시글 상세보기
 	BoardResponseDTO detail(int bno);
 //	게시글 등록
