@@ -1,5 +1,7 @@
 package com.board.notice.dto.response;
 
+import java.io.Serializable;
+
 import com.board.notice.entity.User;
 
 import lombok.AllArgsConstructor;

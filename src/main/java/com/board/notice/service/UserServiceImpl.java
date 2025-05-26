@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService{
 	
 //	회원 상세보기
 	@Override
-	@Cacheable(value = "userDetail", key = "#id", unless = "#result == null")
+	@Cacheable(value = "userDetail", key = "#p0", unless = "#result == null")
 	public UserResponseDTO detail(String id) {
 		User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("해당 회원은 존재하지 않습니다."));
 		
@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService{
 //	회원 수정
 	@Override
 	@Transactional
-	@CacheEvict(value = "userDetail", key = "#userDTO.id")
+	@CacheEvict(value = "userDetail", key = "#p0")
 	public void update(UserRequestDTO userDTO) {
 		User user = userRepository.findById(userDTO.getId()).orElseThrow(() -> new UsernameNotFoundException("해당 회원은 존재하지 않습니다."));
 		// 회원 수정 메서드
@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService{
 //	회원 삭제
 	@Override
 	@Transactional
-	@CacheEvict(value = "userDetail", key = "#id")
+	@CacheEvict(value = "userDetail", key = "#p0")
 	public void delete(String id) {
 		User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("해당 회원은 존재하지 않습니다."));
 		// 회원 소프트 삭제 메서드

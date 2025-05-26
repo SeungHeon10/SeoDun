@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
 
 @Configuration
 @EnableCaching
@@ -17,10 +19,12 @@ public class RedisConfig {
 
 	@Bean
 	public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
-		RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig();
-		defaultConfig.entryTtl(Duration.ofMinutes(10)); // 기본 TTL 10분
-		defaultConfig.disableCachingNullValues(); // null값 제외
-		
+		RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
+				.entryTtl(Duration.ofMinutes(10)) // 기본 TTL 10분
+				.disableCachingNullValues() // null값 제외
+				.serializeValuesWith(RedisSerializationContext.SerializationPair
+						.fromSerializer(new GenericJackson2JsonRedisSerializer()));
+
 		// 개별 TTL 적용
 		Map<String, RedisCacheConfiguration> cacheConfigs = new HashMap<String, RedisCacheConfiguration>();
 		cacheConfigs.put("userDetail", defaultConfig.entryTtl(Duration.ofMinutes(30))); // boardContent TTL 10분
