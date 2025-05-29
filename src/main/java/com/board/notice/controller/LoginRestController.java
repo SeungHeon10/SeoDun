@@ -1,5 +1,7 @@
 package com.board.notice.controller;
 
+import java.time.Duration;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -45,8 +47,9 @@ public class LoginRestController {
 
 			ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
 					.httpOnly(true)
+					.secure(false) // 배포시 true로 변경
 					.path("/")
-					.maxAge(7 * 24 * 60 * 60)
+					.maxAge(Duration.ofDays(7))
 					.build();
 
 			return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE , cookie.toString()).body(new TokenResponseDTO(refreshToken));

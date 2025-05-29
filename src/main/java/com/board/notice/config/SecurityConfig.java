@@ -14,6 +14,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.board.notice.security.jwt.JwtAuthFilter;
 import com.board.notice.security.jwt.JwtUtil;
+import com.board.notice.security.oauth2.CustomOAuth2UserService;
+import com.board.notice.security.oauth2.OAuth2LoginSuccessHandler;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +24,8 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 	private final UserDetailsService userDetailsService;
 	private final JwtUtil jwtUtil;
+	private final CustomOAuth2UserService auth2UserService;
+	private final OAuth2LoginSuccessHandler successHandler;
 	
 	@Bean
 	public SecurityFilterChain customFilterChain(HttpSecurity http) throws Exception {
@@ -87,6 +91,12 @@ public class SecurityConfig {
 	    .exceptionHandling(ex -> ex
 	        // 권한 없는 사용자 접근 시 보여줄 커스텀 403 에러 페이지
 	        .accessDeniedPage("/error-403.html")
+	    )
+	    
+	    // OAuth2 설정
+	    .oauth2Login(oauth -> oauth
+	    	.userInfoEndpoint(user -> user.userService(auth2UserService))
+	    	.successHandler(successHandler)
 	    )
 	    
 	    .addFilterBefore(new JwtAuthFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
