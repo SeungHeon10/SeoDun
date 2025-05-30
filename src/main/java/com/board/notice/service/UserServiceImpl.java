@@ -1,6 +1,7 @@
 package com.board.notice.service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.cache.annotation.CacheEvict;
@@ -10,11 +11,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.board.notice.dto.request.SocialUserRequestDTO;
 import com.board.notice.dto.request.UserRequestDTO;
 import com.board.notice.dto.response.UserResponseDTO;
 import com.board.notice.entity.User;
 import com.board.notice.enums.Role;
 import com.board.notice.repository.UserRepository;
+import com.board.notice.security.oauth2.CustomOAuth2User;
 
 import lombok.RequiredArgsConstructor;
 
@@ -48,12 +51,33 @@ public class UserServiceImpl implements UserService{
 	public void register(UserRequestDTO userDTO) {
 		User user = User.builder()
 		.id(userDTO.getId())
-		.name(userDTO.getName())
 		.password(passwordEncoder.encode(userDTO.getPassword()))
+		.name(userDTO.getName())
 		.pno(userDTO.getPno())
 		.email(userDTO.getEmail())
 		.role(Role.ROLE_USER)
 		.build();
+		
+		userRepository.save(user);
+	}
+	
+//	회원 등록(소셜)
+	@Override
+	@Transactional
+	public void registerSocial(SocialUserRequestDTO userRequestDTO, CustomOAuth2User oAuth2User) {
+		String id = oAuth2User.getProvider() + "_" + oAuth2User.getProviderId();
+		String password = UUID.randomUUID().toString();
+		
+		User user = User.builder()
+				.id(id)
+				.password(passwordEncoder.encode(password))
+				.name(userRequestDTO.getName())
+				.pno(userRequestDTO.getPno())
+				.email(oAuth2User.getEmail())
+				.provider(oAuth2User.getProvider())
+				.providerId(oAuth2User.getProviderId())
+				.role(Role.ROLE_USER)
+				.build();
 		
 		userRepository.save(user);
 	}
@@ -81,10 +105,11 @@ public class UserServiceImpl implements UserService{
 //	아이디 중복 여부
 	@Override
 	public boolean isDuplicationId(String id) {
-		User user = userRepository.findById(id).orElse(new User("", null, null, null, null, false, null));
+		User user = userRepository.findById(id).orElse(new User("", null, null, null, null, null, null, false, null));
 		boolean isDuplicate = user.getId().isEmpty() ? true : false;
 		
 		return isDuplicate;
 	}
+
 
 }

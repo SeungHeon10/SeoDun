@@ -59,7 +59,7 @@ public class LoginRestController {
 	}
 	
 //	accessToken 재생성 API
-	@PostMapping("/refresh-token")
+	@PostMapping("/token")
 	public ResponseEntity<?> refreshToken(@CookieValue("refreshToken") String refreshToken) {
 		if(jwtUtil.isTokenValid(refreshToken)) {
 			String id = jwtUtil.getId(refreshToken);

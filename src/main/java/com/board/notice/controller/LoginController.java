@@ -23,6 +23,13 @@ public class LoginController {
 		return "membership";
 	}
 	
+//	소셜 추가정보 입력 페이지
+	@GetMapping("/signup-extra")
+	public String signupExtraPage() {
+		return "membership-extra";
+	}
+	
+	
 //	회원가입 완료 시 페이지 이동
 	@GetMapping("/succ-member")
 	public String succMemberPage() {

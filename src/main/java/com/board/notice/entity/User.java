@@ -30,6 +30,8 @@ public class User extends BaseEntity{
 	private String name; // 회원 이름
 	private String pno; // 회원 휴대폰 번호
 	private String email; // 회원 이메일
+	private String provider; // 어떤 플랫폼으로 로그인 했는지 
+    private String providerId; // 해당 플랫폼 고유 ID 
 	@Builder.Default
 	@Column(columnDefinition = "TINYINT(1) DEFAULT 0")
 	private boolean emailVerified = false; // 회원 이메일 인증 여부
