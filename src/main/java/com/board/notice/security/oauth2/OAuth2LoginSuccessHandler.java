@@ -33,7 +33,6 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 		String email = oAuth2User.getEmail();
 
 		User user = userRepository.findByEmail(email).orElse(null);
-
 		if (user != null) {
 			String accessToken = jwtUtil.createToken(user.getId(), user.getRole());
 			String refreshToken = jwtUtil.createRefreshToken(user.getId(), user.getRole());
@@ -42,10 +41,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 					.secure(false).maxAge(Duration.ofDays(7)).build();
 			response.addHeader("Set-Cookie", cookie.toString());
 
-			TokenResponseDTO tokenResponseDTO = new TokenResponseDTO(accessToken);
-			response.setContentType("application/json");
-			response.setCharacterEncoding("UTF-8");
-			response.getWriter().write(objectMapper.writeValueAsString(tokenResponseDTO));
+			response.sendRedirect("/social-login-success?token=" + accessToken);
 		} else {
 			request.getSession().setAttribute("oauthUser", oAuth2User);
 			response.sendRedirect("/signup-extra");

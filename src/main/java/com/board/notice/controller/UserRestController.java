@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.board.notice.dto.request.SocialUserRequestDTO;
 import com.board.notice.dto.request.UserRequestDTO;
 import com.board.notice.dto.response.UserResponseDTO;
+import com.board.notice.security.CustomUserDetail;
 import com.board.notice.security.oauth2.CustomOAuth2User;
 import com.board.notice.service.UserService;
 
@@ -88,6 +90,12 @@ public class UserRestController {
 		boolean isDuplicate = userService.isDuplicationId(id);
 
 		return ResponseEntity.ok(isDuplicate);
+	}
+	
+//	로그인 회원 정보 가져오기
+	@GetMapping("/me")
+	public ResponseEntity<UserResponseDTO> getCurrentUser(@AuthenticationPrincipal CustomUserDetail userDetails) {
+	    return ResponseEntity.ok(new UserResponseDTO(userDetails.getUsername(), userDetails.getName(), userDetails.getPno(), userDetails.getEmail()));
 	}
 
 }

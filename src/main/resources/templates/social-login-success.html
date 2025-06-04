@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>로그인 중...</title>
+</head>
+<body>
+  <script>
+    const urlParams = new URLSearchParams(location.search);
+    const token = urlParams.get('token');
+
+    if (token) {
+      localStorage.setItem('accessToken', token);
+      // 필요 시 쿠키도 확인해서 refreshToken 처리 가능
+      // 이후 메인 페이지로 이동
+      location.href = "/";
+    } else {
+      alert("로그인 중 문제가 발생했습니다.");
+    }
+  </script>
+</body>
+</html>

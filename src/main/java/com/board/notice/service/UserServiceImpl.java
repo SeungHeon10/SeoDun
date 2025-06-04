@@ -49,6 +49,8 @@ public class UserServiceImpl implements UserService{
 	@Override
 	@Transactional
 	public void register(UserRequestDTO userDTO) {
+		
+		
 		User user = User.builder()
 		.id(userDTO.getId())
 		.password(passwordEncoder.encode(userDTO.getPassword()))

@@ -16,21 +16,26 @@ public class CustomUserDetail implements UserDetails{
 	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		// TODO Auto-generated method stub
 		return List.of(new SimpleGrantedAuthority(user.getRole().name()));
 	}
 	@Override
 	public String getPassword() {
-		// TODO Auto-generated method stub
 		return user.getPassword();
 	}
 	@Override
 	public String getUsername() {
-		// TODO Auto-generated method stub
 		return user.getId();
 	}
 	
 	public String getName() {
         return user.getName();
     }
+	
+	public String getPno() {
+		return user.getPno();
+	}
+	
+	public String getEmail() {
+		return user.getEmail();
+	}
 }

@@ -4,7 +4,6 @@ import java.time.Duration;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -12,6 +11,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.board.notice.dto.request.LoginRequestDTO;
@@ -20,10 +22,6 @@ import com.board.notice.enums.Role;
 import com.board.notice.security.jwt.JwtUtil;
 
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,7 +50,7 @@ public class LoginRestController {
 					.maxAge(Duration.ofDays(7))
 					.build();
 
-			return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE , cookie.toString()).body(new TokenResponseDTO(refreshToken));
+			return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE , cookie.toString()).body(new TokenResponseDTO(token));
 		} catch (AuthenticationException e) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 정보가 올바르지 않습니다. 다시 시도해주세요.");
 		}
@@ -70,5 +68,5 @@ public class LoginRestController {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("해당 RefreshToken은 유효하지 않은 토큰입니다.");
 		}
 	}
-
+	
 }

@@ -1,7 +1,6 @@
 // 아이디 중복여부
 async function fetchUserId(id) {
-	console.log("실행")
-	const response = await fetch(`/user/findId/${id}`);
+	const response = await fetch(`/users/exists/${id}`);
 
 	if (!response.ok) {
 		throw new Error("서버 오류 발생");
@@ -17,11 +16,13 @@ document.getElementById("id").addEventListener("input", async function() {
 
 	const isDuplicationId = document.getElementById("isDuplicationId");
 	const isInvalidId = document.getElementById("isInvalidId");
+	const vaildId = document.getElementById("vaildId");
 
 	// 빈 값일 경우: 모든 메시지 초기화 후 종료
 	if (id === "") {
 		isDuplicationId.textContent = "";
 		isInvalidId.textContent = "";
+		vaildId.textContent = "";
 		return;
 	}
 
@@ -30,16 +31,28 @@ document.getElementById("id").addEventListener("input", async function() {
 	isInvalidId.textContent = isValid ? "" : "아이디는 4자 이상 20자 이내의 영문 또는 숫자여야 합니다.";
 
 	// 유효하지 않으면 중복 검사하지 않음
-	if (!isValid) return;
+	if (!isValid) {
+		vaildId.textContent = "";
+		isDuplicationId.textContent = "";
+		return;
+	}
 
 	// 중복 검사
 	const isDuplicate = await fetchUserId(id);
-	isDuplicationId.textContent = isDuplicate ? "" : "이미 존재하는 아이디입니다.";
+	if(isDuplicate){
+		vaildId.textContent = "사용 가능한 아이디입니다.";
+		vaildId.style.color = "blue";
+		isDuplicationId.textContent = "";
+	} else {
+		isDuplicationId.textContent = "이미 존재하는 아이디입니다.";
+		isDuplicationId.style.color = "red";
+		vaildId.textContent = "";
+	}
 });
 
 // 비밀번호 유효성 검사
 function isValidPassword(password) {
-	const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,20}$/;
+	const regex = /^(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,20}$/;
 	return regex.test(password);
 }
 
@@ -58,7 +71,7 @@ passwordInput.addEventListener("input", function() {
 		return;
 	}
 
-	isInvalidPw.textContent = isValidPassword(password) ? "" : "비밀번호는 4자 이상 20자 이내로 입력 가능합니다.";
+	isInvalidPw.textContent = isValidPassword(password) ? "" : "비밀번호는 8자 이상 20자 이내로 입력 가능합니다.";
 
 	// 비밀번호 확인도 동시에 비교 (동기화)
 	validatePasswordMatch();
@@ -191,7 +204,7 @@ async function fetchUserRegister() {
 			email: email
 		}
 
-		const response = await fetch('/users/register', {
+		const response = await fetch('/users', {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(userDTO)

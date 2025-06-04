@@ -16,3 +16,6 @@
 .text-dark{
 	font-size: 15px;
 }
+#userMenu{
+	display: none;
+}

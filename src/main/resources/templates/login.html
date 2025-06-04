@@ -11,7 +11,7 @@
             <h1><a href="/" class="seodun">SeoDun</a></h1>
         </div>
         <div class="loginbox">
-	        <form th:action="@{/login}" method="post">
+	        <form th:action="@{/login}" id="loginForm" method="post">
 	            <div class="inputid">
 	                <input type="text" class="input" name="username" placeholder="  아이디 입력 ..." autofocus required="required">
 	            </div>
@@ -23,7 +23,7 @@
 				</div>
 	            <div class="loginbutton">
 	                <input type="submit" class="login" id="login" value="로그인">
-					<a href="/oauth2/authorization/kakao">
+					<a id="kakao_login" href="#">
 					        <img src="https://developers.kakao.com/assets/img/about/logos/kakaologin/kr/kakao_account_login_btn_medium_wide.png"
 					             alt="카카오 로그인" />
 					    </a>
@@ -42,5 +42,6 @@
             </div>
         </div>
     </div>
+	<script src="/js/login.js"></script>
 </body>
 </html>
