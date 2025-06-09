@@ -1,6 +1,7 @@
 package com.board.notice.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -49,8 +50,6 @@ public class UserServiceImpl implements UserService{
 	@Override
 	@Transactional
 	public void register(UserRequestDTO userDTO) {
-		
-		
 		User user = User.builder()
 		.id(userDTO.getId())
 		.password(passwordEncoder.encode(userDTO.getPassword()))
@@ -107,11 +106,22 @@ public class UserServiceImpl implements UserService{
 //	아이디 중복 여부
 	@Override
 	public boolean isDuplicationId(String id) {
-		User user = userRepository.findById(id).orElse(new User("", null, null, null, null, null, null, false, null));
-		boolean isDuplicate = user.getId().isEmpty() ? true : false;
+		User user = userRepository.findById(id).orElse(null);
+		boolean isDuplicate = user == null ? true : false;
 		
 		return isDuplicate;
 	}
 
+//	이메일 중복 여부
+	@Override
+	public String isDuplicationEmail(String email) {
+		User user = userRepository.findByEmail(email).orElse(null);
+
+		if(user != null) {
+			return user.getProvider() != null ? "소셜 가입된 이메일입니다. 소셜 로그인을 이용해주세요." : "이미 가입된 이메일 입니다.";
+		} else {
+			return "사용 가능한 이메일 입니다.";
+		}
+	}
 
 }

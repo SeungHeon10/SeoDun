@@ -12,6 +12,7 @@ import com.board.notice.dto.response.TokenResponseDTO;
 import com.board.notice.entity.User;
 import com.board.notice.repository.UserRepository;
 import com.board.notice.security.jwt.JwtUtil;
+import com.board.notice.service.RefreshTokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.ServletException;
@@ -24,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 	private final UserRepository userRepository;
 	private final JwtUtil jwtUtil;
-	private final ObjectMapper objectMapper;
+	private final RefreshTokenService refreshTokenService;
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -41,7 +42,10 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 					.secure(false).maxAge(Duration.ofDays(7)).build();
 			response.addHeader("Set-Cookie", cookie.toString());
 
-			response.sendRedirect("/social-login-success?token=" + accessToken);
+			refreshTokenService.saveRefreshToken(user.getId(), refreshToken, Duration.ofDays(7));
+			
+			response.setContentType("text/html;charset=UTF-8");
+			response.getWriter().write("<script>window.name = '" + accessToken + "'; window.location.href = '/html/social-login-success.html';</script>");
 		} else {
 			request.getSession().setAttribute("oauthUser", oAuth2User);
 			response.sendRedirect("/signup-extra");

@@ -23,6 +23,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -85,11 +87,19 @@ public class UserRestController {
 	}
 
 //	아이디 중복 확인
-	@GetMapping("/exists/{id}")
+	@GetMapping("/exists/id/{id}")
 	public ResponseEntity<Boolean> checkDuplicateId(@PathVariable("id") String id) {
 		boolean isDuplicate = userService.isDuplicationId(id);
 
 		return ResponseEntity.ok(isDuplicate);
+	}
+	
+//	이메일 중복 확인
+	@GetMapping("/exists/email/{email}")
+	public ResponseEntity<String> checkDuplicateEmail(@PathVariable("email") String email) {
+		String msg = userService.isDuplicationEmail(email);
+		
+		return ResponseEntity.ok(msg);
 	}
 	
 //	로그인 회원 정보 가져오기

@@ -1,3 +1,5 @@
+import { fetchWithAuth } from "/js/fetchWithAuth.js";
+
 document.addEventListener("DOMContentLoaded", function() {
 	var ctx = document.getElementById("chartjs-dashboard-line").getContext("2d");
 	var gradient = ctx.createLinearGradient(0, 0, 0, 225);
@@ -210,21 +212,21 @@ document.addEventListener("DOMContentLoaded", function() {
 	});
 });
 document.addEventListener("DOMContentLoaded", async function() {
-	const token = localStorage.getItem("accessToken");
-	
-	if(token){
-		const response = await fetch("/users/me" , {
-			headers : { Authorization: `Bearer ${token}` }
+	try {
+		const response = await fetchWithAuth("/users/me", {
+			method: "GET"
 		});
-		
-		if(!response.ok){
+
+		if (!response.ok) {
 			throw new Error("서버 오류 발생");
 		}
-		
+
 		const user = await response.json();
-		
+
 		document.getElementById("userName").textContent = user.name + " 님";
 		document.getElementById("loginMenu").style.display = "none";
 		document.getElementById("userMenu").style.display = "block";
+	} catch (e) {
+		console.error("🚨 사용자 정보 가져오기 실패:", e);
 	}
 });

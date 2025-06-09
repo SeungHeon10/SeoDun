@@ -25,4 +25,4 @@ function createCachedFetcher(apiUrl){
 	return { fetchData , clearCache };
 }
 
-export const userFetcher = createCachedFetcher('/user/id/list');
+export const userFetcher = createCachedFetcher('/users/id/list');

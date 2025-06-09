@@ -23,4 +23,6 @@ public interface UserService {
 	void delete(String id);
 //	아이디 중복 여부
 	boolean isDuplicationId(String id);
+//	이메일 중복 여부
+	String isDuplicationEmail(String email);
 }

@@ -1,12 +1,23 @@
 // 아이디 중복여부
 async function fetchUserId(id) {
-	const response = await fetch(`/users/exists/${id}`);
+	const response = await fetch(`/users/exists/id/${id}`);
 
 	if (!response.ok) {
 		throw new Error("서버 오류 발생");
 	}
 
 	return response.json();
+}
+
+// 이메일 중복여부
+async function fetchUserEmail(email) {
+	const response = await fetch(`/users/exists/email/${email}`);
+
+	if (!response.ok) {
+		throw new Error("서버 오류 발생");
+	}
+
+	return response.text();
 }
 
 // 아이디 입력 시 
@@ -138,10 +149,11 @@ document.getElementById("phone").addEventListener("input", function() {
 });
 
 // 이메일 입력 시
-document.getElementsByName("email")[0].addEventListener("input", function() {
+document.getElementsByName("email")[0].addEventListener("input", async function() {
 	const email = this.value.trim();
 	const regex = /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/;
 	const isInvalidEmail = document.getElementById("isInvalidEmail");
+	const isDuplicationEmail = document.getElementById("isDuplicationEmail");
 
 	// 빈 값일 경우: 모든 메시지 초기화 후 종료
 	if (email === "") {
@@ -152,6 +164,22 @@ document.getElementsByName("email")[0].addEventListener("input", function() {
 	//	이메일 유효성 검사
 	const isValid = regex.test(email);
 	isInvalidEmail.textContent = isValid ? "" : "이메일 형식에 맞게 입력 가능합니다.";
+	
+	// 유효하지 않으면 중복검사 x
+	if(!isValid) {
+		isDuplicationEmail.textContent = "";
+		return;
+	}
+	
+	const message = await fetchUserEmail(email);
+	
+	isDuplicationEmail.textContent = message;
+	
+	if(message.includes("가능한")){
+		isDuplicationEmail.style.color = "blue";
+	} else {
+		isDuplicationEmail.style.color = "red";
+	}
 });
 
 // 회원 등록 (가입하기)

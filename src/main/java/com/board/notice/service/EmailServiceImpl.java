@@ -31,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 public class EmailServiceImpl implements EmailService {
 	private final EmailRepository emailRepository;
 	private final UserRepository userRepository;
-	private final EmailSenderService emailSenderService;
+	private final EmailSenderServiceImpl emailSenderService;
 
 //	이메일 인증 확인
 	@Override
