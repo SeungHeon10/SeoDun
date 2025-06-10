@@ -44,8 +44,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
 			refreshTokenService.saveRefreshToken(user.getId(), refreshToken, Duration.ofDays(7));
 			
-			response.setContentType("text/html;charset=UTF-8");
-			response.getWriter().write("<script>window.name = '" + accessToken + "'; window.location.href = '/html/social-login-success.html';</script>");
+			response.sendRedirect("/html/social-login-success.html");
 		} else {
 			request.getSession().setAttribute("oauthUser", oAuth2User);
 			response.sendRedirect("/signup-extra");

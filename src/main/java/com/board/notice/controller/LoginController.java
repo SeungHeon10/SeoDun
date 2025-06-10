@@ -37,10 +37,4 @@ public class LoginController {
 		return "successmembership";
 	}
 	
-//	소셜 로그인 성공시 이동 페이지
-	@GetMapping("/social-login-success")
-	public String socialLoginSuccessPage() {
-	    return "social-login-success";
-	}
-	
 }

@@ -1,4 +1,4 @@
-import { setAccessToken } from "./fetchWithAuth";
+import {setAccessToken} from "./fetchWithAuth.js";
 
 document.getElementById("loginForm").addEventListener("submit", async function(event) {
 	event.preventDefault();
@@ -21,7 +21,6 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
 		if (!response.ok) {
 			throw new Error("서버 오류 발생");
 		}
-
 		const token = await response.json();
 		setAccessToken(token.token);
 

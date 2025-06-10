@@ -1,11 +1,20 @@
-console.log("✅ social-login-success.js loaded as module");
 import { setAccessToken } from "/js/fetchWithAuth.js";
-const token = window.name;
+window.addEventListener("load", async () => {
+	try {
+		const response = await fetch("/token", {
+			method: "POST",
+			credentials: "include"
+		});
 
-if (token) {
-	setAccessToken(token);
-	window.name = "";
-	location.href = "/";
-} else {
-	alert("로그인 중 문제가 발생했습니다.");
-}
+		if (response.ok) {
+			const data = await response.json();
+			setAccessToken(data.token);  
+			location.href = "/";
+		} else {
+			throw new Error("토큰 재발급 실패");
+		}
+	} catch (e) {
+		alert("로그인 실패! 다시 로그인해주세요.");
+		location.href = "/login";
+	}
+});
