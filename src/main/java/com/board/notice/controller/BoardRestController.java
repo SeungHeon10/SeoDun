@@ -14,6 +14,11 @@ import lombok.RequiredArgsConstructor;
 import java.io.IOException;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,8 +36,10 @@ public class BoardRestController {
 
 //	게시글 전체 조회
 	@GetMapping
-	public ResponseEntity<List<BoardResponseDTO>> list() {
-		List<BoardResponseDTO> list = boardService.list();
+	public ResponseEntity<Page<BoardResponseDTO>> list(
+			@PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+		Page<BoardResponseDTO> list = boardService.list(pageable);
+		
 		return ResponseEntity.ok(list);
 	}
 
@@ -46,7 +53,7 @@ public class BoardRestController {
 //	게시글 등록하기
 	@PostMapping
 	public ResponseEntity<String> register(@ModelAttribute BoardRequestDTO boardRequestDTO,
-			@RequestParam(value = "file" , required = false) MultipartFile file) throws IOException {
+			@RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
 		boardService.register(boardRequestDTO, file);
 		return ResponseEntity.ok("게시글이 등록되었습니다.");
 	}

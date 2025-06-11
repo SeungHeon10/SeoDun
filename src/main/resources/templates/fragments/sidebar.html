@@ -1,0 +1,85 @@
+<nav id="sidebar" class="sidebar js-sidebar" th:fragment="left_bar">
+	<div class="sidebar-content js-simplebar">
+		<a class="sidebar-brand" href="/">
+			<span class="align-middle">SeoDun</span>
+		</a>
+
+		<ul class="sidebar-nav">
+			<li class="sidebar-header">
+				게시판
+			</li>
+
+			<li class="sidebar-item active">
+				<a class="sidebar-link" href="/board/list">
+					<i class="align-middle" data-feather="sliders"></i> <span class="align-middle">전체 글
+						보기</span>
+				</a>
+			</li>
+
+			<li class="sidebar-item">
+				<a class="sidebar-link" href="#">
+					<i class="align-middle" data-feather="book"></i> <span class="align-middle">자유</span>
+				</a>
+			</li>
+
+			<li class="sidebar-item">
+				<a class="sidebar-link" href="#">
+					<i class="align-middle" data-feather="book"></i> <span class="align-middle">학습</span>
+				</a>
+			</li>
+
+			<li class="sidebar-item">
+				<a class="sidebar-link" href="#">
+					<i class="align-middle" data-feather="book"></i> <span class="align-middle">질문답변</span>
+				</a>
+			</li>
+
+			<li class="sidebar-item">
+				<a class="sidebar-link" href="#">
+					<i class="align-middle" data-feather="book"></i> <span class="align-middle">정보공유</span>
+				</a>
+			</li>
+
+			<li class="sidebar-item">
+				<a class="sidebar-link" href="#">
+					<i class="align-middle" data-feather="book"></i> <span class="align-middle">건의사항</span>
+				</a>
+			</li>
+
+			<li sec:authorize="hasRole('ROLE_ADMIN')" class="sidebar-header">
+				관리자 메뉴
+			</li>
+
+			<li sec:authorize="hasRole('ROLE_ADMIN')" class="sidebar-item">
+				<a class="sidebar-link" href="#">
+					<i class="align-middle" data-feather="square"></i> <span class="align-middle">회원관리</span>
+				</a>
+			</li>
+
+			<li sec:authorize="hasRole('ROLE_ADMIN')" class="sidebar-item">
+				<a class="sidebar-link" href="#">
+					<i class="align-middle" data-feather="check-square"></i> <span
+						class="align-middle">게시글관리</span>
+				</a>
+			</li>
+
+			<li class="sidebar-header">
+				Plugins & Addons
+			</li>
+
+			<li class="sidebar-item">
+				<a class="sidebar-link" href="charts-chartjs.html">
+					<i class="align-middle" data-feather="bar-chart-2"></i> <span
+						class="align-middle">Charts</span>
+				</a>
+			</li>
+
+			<li class="sidebar-item">
+				<a class="sidebar-link" href="maps-google.html">
+					<i class="align-middle" data-feather="map"></i> <span class="align-middle">Maps</span>
+				</a>
+			</li>
+		</ul>
+
+	</div>
+</nav>

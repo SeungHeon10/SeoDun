@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,10 +41,10 @@ public class BoardServiceImpl implements BoardService {
 
 //	게시글 전체조회
 	@Override
-	public List<BoardResponseDTO> list() {
-		List<Board> list = boardRepository.findAll();
-
-		return list.stream().map(board -> new BoardResponseDTO(board)).toList();
+	public Page<BoardResponseDTO> list(Pageable pageable) {
+		Page<Board> list = boardRepository.findAll(pageable);
+		
+		return list.map(BoardResponseDTO::fromEntity);
 	}
 
 //	게시글 상세보기
@@ -62,8 +64,8 @@ public class BoardServiceImpl implements BoardService {
 	@Transactional
 	public void register(BoardRequestDTO boardRequestDTO, MultipartFile file) throws IOException {
 		String filePath = null;
-
-		if (!(file.isEmpty())) {
+		System.out.println(boardRequestDTO.getUserId());
+		if (file != null) {
 			// 확장자 추출
 			String filename = file.getOriginalFilename();
 			String extension = filename.substring(filename.lastIndexOf("."));

@@ -3,6 +3,8 @@ package com.board.notice.service;
 import java.io.IOException;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.board.notice.dto.request.BoardRequestDTO;
@@ -11,7 +13,7 @@ import com.board.notice.entity.Board;
 
 public interface BoardService {
 //	게시글 전체 조회
-	List<BoardResponseDTO> list();
+	Page<BoardResponseDTO> list(Pageable pageable);
 //	게시글 상세보기
 	BoardResponseDTO detail(int bno);
 //	게시글 등록

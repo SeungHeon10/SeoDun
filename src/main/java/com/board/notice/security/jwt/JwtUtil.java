@@ -24,8 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class JwtUtil {
-	private final SecretKey secretKey = Keys
-			.hmacShaKeyFor("yourVerySecureKeyThatIsAtLeast32BytesLong!!!".getBytes(StandardCharsets.UTF_8));
 	private final long accessTokenTime = 1000 * 60 * 30;
 	private final long refreshTokenTime = 1000 * 60 * 60 * 24 * 7;
 

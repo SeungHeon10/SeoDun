@@ -38,7 +38,7 @@ public class SecurityConfig {
 		// URL 접근 권한 설정
 	    .authorizeHttpRequests(auth -> auth
 	        // /home, /login, 정적 리소스(css/js 등)은 모두 접근 허용
-	        .requestMatchers("/users/**", "/", "/login", "/token", "/logout", "/signup-extra", "/membership", "/succ-member", "/social-login-success.html", "/.well-known/**", "/css/**", "/fonts/**", "/html/**", "/img/**", "/js/**").permitAll()
+	        .requestMatchers("board/**", "/api/boards/**", "/users/**", "/", "/login", "/token", "/logout", "/signup-extra", "/membership", "/succ-member", "/social-login-success.html", "/.well-known/**", "/css/**", "/fonts/**", "/html/**", "/img/**", "/js/**").permitAll()
 	        // 나머지 모든 요청은 로그인한 사용자만 접근 가능
 	        .anyRequest().authenticated()
 	    )
@@ -47,6 +47,7 @@ public class SecurityConfig {
 	    .sessionManagement(session -> session
 	    	.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 	    )
+	    .logout(logout -> logout.disable())
 
 	    // 예외 처리 설정
 	    .exceptionHandling(ex -> ex

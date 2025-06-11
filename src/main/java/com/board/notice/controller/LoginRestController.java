@@ -61,8 +61,8 @@ public class LoginRestController {
 
 //	accessToken 재생성 API
 	@PostMapping("/token")
-	public ResponseEntity<?> refreshToken(@CookieValue("refreshToken") String refreshToken) {
-		if (jwtUtil.isTokenValid(refreshToken)) {
+	public ResponseEntity<?> refreshToken(@CookieValue(name = "refreshToken", required = false) String refreshToken) {
+		if (refreshToken != null && jwtUtil.isTokenValid(refreshToken)) {
 			String id = jwtUtil.getId(refreshToken);
 			Role role = jwtUtil.getRole(refreshToken);
 			String newAccessToken = jwtUtil.createToken(id, role);
