@@ -33,9 +33,55 @@
 						</div>
 						<div class="boardTopOption">
 							<div class="boardCount">
-								<p class="count"><strong>100</strong> 개의 글</p>
+								<p class="count"><strong id="count-number"></strong> 개의 글</p>
 							</div>
 							<div class="boardOption">
+
+							</div>
+							<div class="boardOption">
+								<div class="search-bar">
+									<a href="#" id="search-menu"><i class="bi bi-list search-icon-left"></i></a>
+									<input type="text" placeholder="검색어를 입력하세요" class="search-input" id="searchInput">
+									<a href="#" id="search-btn"><i class="bi bi-search search-icon-right"></i></a>
+								</div>
+								<!-- 검색 메뉴 박스 -->
+								<div class="search-mode-panel" id="searchModePanel">
+									<div class="panel-header"><i class="bi bi-search me-2"></i> 검색 범위</div>
+									<hr class="search-mode-hr" />
+									<ul class="search-mode-list">
+										<li class="mode-item active" data-mode="title">
+											<span>제목</span>
+										</li>
+										<li class="mode-item" data-mode="title_content">
+											<span>제목 + 본문</span>
+										</li>
+										<li class="mode-item" data-mode="content">
+											<span>본문</span>
+										</li>
+										<li class="mode-item" data-mode="writer">
+											<span>작성자</span>
+										</li>
+									</ul>
+								</div>
+
+								<button class="btn btn-outline-secondary dropdown-toggle" type="button"
+									id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+									정렬 기준
+								</button>
+								<ul class="dropdown-menu" aria-labelledby="sortDropdown">
+									<li><a class="dropdown-item active text-success" href="#" data-sort="createdAt"
+											data-direction="desc">최신순</a></li>
+									<li><a class="dropdown-item" href="#" data-sort="createdAt"
+											data-direction="asc">오래된순</a></li>
+									<li><a class="dropdown-item" href="#" data-sort="viewCount"
+											data-direction="desc">조회수 높은순</a></li>
+									<li><a class="dropdown-item" href="#" data-sort="viewCount" data-direction="asc">조회수
+											낮은순</a></li>
+									<li><a class="dropdown-item" href="#" data-sort="commentCount"
+											data-direction="desc">댓글 많은순</a></li>
+									<li><a class="dropdown-item" href="#" data-sort="commentCount"
+											data-direction="asc">댓글 적은순</a></li>
+								</ul>
 								<button class="btn btn-outline-secondary dropdown-toggle" type="button"
 									id="pageSizeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
 									10개씩

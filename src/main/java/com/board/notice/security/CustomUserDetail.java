@@ -8,9 +8,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.board.notice.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class CustomUserDetail implements UserDetails{
 	private User user;
 	

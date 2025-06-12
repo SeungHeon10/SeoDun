@@ -37,8 +37,10 @@ public class BoardRestController {
 //	게시글 전체 조회
 	@GetMapping
 	public ResponseEntity<Page<BoardResponseDTO>> list(
-			@PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-		Page<BoardResponseDTO> list = boardService.list(pageable);
+			@PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+			,@RequestParam(name = "mode", defaultValue = "title") String mode
+			,@RequestParam(name = "keyword", defaultValue = "") String keyword) {
+		Page<BoardResponseDTO> list = boardService.list(pageable, mode, keyword);
 		
 		return ResponseEntity.ok(list);
 	}

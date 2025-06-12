@@ -44,7 +44,7 @@ document.getElementById("logoutLink").addEventListener("click", async function(e
 		}
 
 		setAccessToken(null);
-		
+
 		location.href = "/";
 	} catch (e) {
 		console.error(e.message);

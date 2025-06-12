@@ -55,6 +55,9 @@ public class ReplyServiceImpl implements ReplyService {
 				.parent(parent)
 				.build();
 		replyRepository.save(reply);
+		
+		// 게시글 댓글 증가 메서드
+		board.increaseCommentCount();
 	}
 
 //	댓글 수정
@@ -72,7 +75,11 @@ public class ReplyServiceImpl implements ReplyService {
 	@Transactional
 	public void delete(int bno, int rno) {
 		Reply reply = replyRepository.findByRnoAndBoard_Bno(rno, bno).orElseThrow(() -> new EntityNotFoundException("해당 게시글에 해당 댓글이 없습니다."));
-		reply.markAsDeleted();;
+		reply.markAsDeleted();
+		
+		Board board = boardRepository.findById(bno).orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
+		// 게시글의 댓글수 감소
+		board.decreaseCommentCount();
 	}
 
 }

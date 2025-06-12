@@ -41,10 +41,25 @@ public class BoardServiceImpl implements BoardService {
 
 //	게시글 전체조회
 	@Override
-	public Page<BoardResponseDTO> list(Pageable pageable) {
-		Page<Board> list = boardRepository.findAll(pageable);
-		
-		return list.map(BoardResponseDTO::fromEntity);
+	public Page<BoardResponseDTO> list(Pageable pageable, String mode, String keyword) {
+		if (keyword == null || keyword.trim().isEmpty() || "undefined".equals(keyword)) {
+			// 검색어 없으면 전체 목록
+			return boardRepository.findAll(pageable).map(BoardResponseDTO::fromEntity);
+		}
+
+		switch (mode) {
+		case "title":
+			return boardRepository.findByTitleContaining(keyword, pageable).map(BoardResponseDTO::fromEntity);
+		case "content":
+			return boardRepository.findByContentContaining(keyword, pageable).map(BoardResponseDTO::fromEntity);
+		case "title_content":
+			return boardRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable)
+					.map(BoardResponseDTO::fromEntity);
+		case "writer":
+			return boardRepository.findByWriterContaining(keyword, pageable).map(BoardResponseDTO::fromEntity);
+		default:
+			return boardRepository.findAll(pageable).map(BoardResponseDTO::fromEntity);
+		}
 	}
 
 //	게시글 상세보기
@@ -55,7 +70,7 @@ public class BoardServiceImpl implements BoardService {
 				.orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
 		// 조회수 증가 메서드
 		board.increaseViewCount();
-		
+
 		return new BoardResponseDTO(board);
 	}
 

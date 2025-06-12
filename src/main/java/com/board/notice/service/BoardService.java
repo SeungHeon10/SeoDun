@@ -13,7 +13,7 @@ import com.board.notice.entity.Board;
 
 public interface BoardService {
 //	게시글 전체 조회
-	Page<BoardResponseDTO> list(Pageable pageable);
+	Page<BoardResponseDTO> list(Pageable pageable, String mode, String keyword);
 //	게시글 상세보기
 	BoardResponseDTO detail(int bno);
 //	게시글 등록
