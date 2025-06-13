@@ -1,6 +1,8 @@
 import { fetchWithAuth, setAccessToken } from "/js/fetchWithAuth.js";
 
 document.addEventListener("DOMContentLoaded", async function() {
+	checkViewport();
+	window.addEventListener('resize', checkViewport);
 	try {
 		const res = await fetch("/token", {
 			method: "POST",
@@ -50,3 +52,16 @@ document.getElementById("logoutLink").addEventListener("click", async function(e
 		console.error(e.message);
 	}
 });
+
+function checkViewport() {
+	const content = document.querySelector('[data-gap-target]');
+	if (!content) return;
+
+	if (window.innerWidth <= 1440) {
+		content.classList.add('gap-4');
+		content.classList.remove('gap-5');
+	} else {
+		content.classList.add('gap-5');
+		content.classList.remove('gap-4');
+	}
+}
