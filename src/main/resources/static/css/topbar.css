@@ -1,0 +1,165 @@
+@charset "UTF-8";
+
+:root {
+	--main-color: #727c72;
+	--main-color-light-10: #f2f3f2;
+	--main-color-light-30: #d8dad8;
+	--main-color-light-transparent: rgba(114, 124, 114, 0.2);
+}
+
+.topbar {
+	background-color: var(--main-color-light-30);
+	padding: 1rem 2rem;
+	border-radius: 30px;
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	position: sticky;
+	top: 0;
+	z-index: 999;
+	gap: 15px;
+}
+
+.search-box {
+	background-color: var(--main-color-light-10);
+	border-radius: 2rem;
+	padding: 0.5rem 1rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	width: 300px;
+}
+
+.search-box input {
+	border: none;
+	background: transparent;
+	outline: none;
+	width: 100%;
+}
+
+.icon-group {
+	display: flex;
+	gap: 15px;
+}
+
+.icon-group i {
+	font-size: 1.5rem;
+	margin-left: 1rem;
+	color: #333;
+	cursor: pointer;
+}
+
+.menu-toggle {
+	position: relative;
+	z-index: 999;
+	border: none;
+	background: none;
+	font-size: 1.3rem;
+	cursor: pointer;
+	margin-right: 1rem;
+	display: none;
+}
+
+/*스몰 휴대폰 (최대 375px) */
+@media (min-width: 0px) and (max-width: 320px) {
+	.topbar {
+		padding: 1rem;
+		gap: 10px;
+	}
+
+	.menu-toggle {
+		display: block;
+		margin-right: 2rem;
+	}
+
+	.icon-group {
+		gap: 8px;
+	}
+
+	.icon-group i {
+		font-size: 1.2rem;
+		margin-left: 0.5rem;
+	}
+}
+
+/*미디움 휴대폰 (최대 375px) */
+@media (min-width: 321px) and (max-width: 375px) {
+	.topbar {
+		padding: 1rem;
+		gap: 10px;
+	}
+
+	.menu-toggle {
+		display: block;
+		margin-right: 3rem;
+	}
+
+	.icon-group i {
+		font-size: 1.2rem;
+		margin-left: 0.5rem;
+	}
+}
+
+/*라지 휴대폰 (최대 425px) */
+@media (min-width: 376px) and (max-width: 425px) {
+	.topbar {
+		padding: 1rem;
+		gap: 10px;
+	}
+
+	.menu-toggle {
+		display: block;
+		margin-right: 3rem;
+	}
+
+	.icon-group i {
+		font-size: 1.2rem;
+		margin-left: 0.5rem;
+	}
+}
+
+/* 테블릿 전용 (최대 768px) */
+@media (min-width: 426px) and (max-width: 768px) {
+	.topbar {
+		padding: 1rem;
+		gap: 10px;
+	}
+
+	.menu-toggle {
+		display: block;
+		margin-right: 11rem;
+	}
+
+	.icon-group i {
+		font-size: 1.2rem;
+		margin-left: 0.5rem;
+	}
+
+	.icon-group i {
+		font-size: 1.3rem;
+	}
+
+	.search-box {
+		width: 200px;
+	}
+}
+
+@media (min-width: 1025px) and (max-width: 1440px) {
+	.topbar {
+		position: fixed;
+		left: 0;
+		width: 100%;
+		align-items: stretch;
+		gap: 0.75rem;
+		padding: 1rem;
+	}
+
+	.icon-group {
+		justify-content: flex-end;
+		align-items: center;
+	}
+
+	.search-box {
+		width: 24%;
+	}
+}

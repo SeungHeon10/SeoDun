@@ -74,5 +74,12 @@ public class BoardRestController {
 		boardService.delete(bno);
 		return ResponseEntity.ok("게시글이 삭제되었습니다.");
 	}
-
+	
+//	인기글 조회
+	@GetMapping("/popular")
+	public ResponseEntity<List<BoardResponseDTO>> popularPosts() {
+		List<BoardResponseDTO> popular = boardService.popularPosts();
+		return ResponseEntity.ok(popular);
+	}
+	
 }

@@ -1,0 +1,302 @@
+@charset "UTF-8";
+
+:root {
+	--main-color: #727c72;
+	--main-color-light-10: #f2f3f2;
+	--main-color-light-30: #d8dad8;
+	--main-color-light-transparent: rgba(114, 124, 114, 0.2);
+}
+
+.sidebar {
+	background-color: var(--main-color-light-transparent);
+	height: 100%;
+	padding: 1.6rem 1rem;
+	border-radius: 15px;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 260px;
+	z-index: 1000;
+}
+
+.sidebar h1 {
+	font-size: 1.1rem;
+	font-weight: bold;
+	margin-bottom: 2rem;
+}
+
+.sidebar .menu-item {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	padding: 0.5rem 0.75rem;
+	border-radius: 10px;
+	color: #333;
+	font-size: 0.95rem;
+	margin-bottom: 0.5rem;
+	cursor: pointer;
+	transition: background-color 0.2s;
+}
+
+.sidebar .menu-item i {
+	margin-right: 8px;
+}
+
+.sidebar .menu-item:hover {
+	padding: 0.8rem;
+	border-radius: 30px;
+	background-color: var(--main-color-light-30);
+	font-weight: bold;
+}
+
+.sidebar .menu-item.active {
+	padding: 0.8rem;
+	border-radius: 30px;
+	background-color: var(--main-color);
+	color: #fff;
+	font-weight: bold;
+}
+
+.menu-section {
+	margin-top: 1rem;
+	font-size: 0.85rem;
+	font-weight: bold;
+	color: #666;
+	margin-bottom: 0.5rem;
+}
+
+.myinfo {
+	padding: 0;
+}
+
+.user-info {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 1rem;
+	background-color: var(--main-color-light-transparent);
+	border-radius: 1rem;
+}
+
+.user-info i {
+	color: var(--main-color);
+}
+
+.user-info-profile {
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	gap: 23px;
+}
+
+.small.text-muted {
+	margin-top: 30px;
+}
+
+/*스몰 휴대폰 (최대 375px) */
+@media (min-width: 0px) and (max-width: 320px) {
+	.sidebar {
+		transform: translateX(-100%);
+		transition: transform 0.3s ease-in-out;
+		position: fixed;
+		top: 0;
+		left: 0;
+		height: 100%;
+		min-width: 195px;
+		width: 195px;
+		margin-left: 0px;
+		z-index: 1000;
+	}
+
+	.wrapper.sidebar-open .menu-toggle {
+		margin-right: 6.8rem;
+	}
+
+	.wrapper.sidebar-open .sidebar {
+		transform: translateX(0);
+		background-color: var(--main-color-light-10);
+	}
+
+	.sidebar .menu-item {
+		font-size: 0.8rem;
+		text-align: center;
+		margin-bottom: 0.3rem;
+	}
+
+	.sidebar .menu-item.active {
+		padding: 0.6rem;
+	}
+
+	.sidebar .menu-item:hover {
+		padding: 0.6rem;
+	}
+}
+
+/*미디움 휴대폰 (최대 375px) */
+@media (min-width: 321px) and (max-width: 375px) {
+	.sidebar {
+		transform: translateX(-100%);
+		transition: transform 0.3s ease-in-out;
+		position: fixed;
+		top: 0;
+		left: 0;
+		height: 100%;
+		min-width: 195px;
+		width: 195px;
+		margin-left: 0px;
+		z-index: 1000;
+	}
+
+	.wrapper.sidebar-open .menu-toggle {
+		margin-right: 6.8rem;
+	}
+
+	.wrapper.sidebar-open .sidebar {
+		transform: translateX(0);
+		background-color: var(--main-color-light-10);
+	}
+
+	.sidebar .menu-item {
+		font-size: 0.8rem;
+		text-align: center;
+		margin-bottom: 0.3rem;
+	}
+
+	.sidebar .menu-item.active {
+		padding: 0.6rem;
+	}
+
+	.sidebar .menu-item:hover {
+		padding: 0.6rem;
+	}
+}
+
+/*라지 휴대폰 (최대 425px) */
+@media (min-width: 376px) and (max-width: 425px) {
+	.sidebar {
+		transform: translateX(-100%);
+		transition: transform 0.3s ease-in-out;
+		position: fixed;
+		top: 0;
+		left: 0;
+		height: 100%;
+		min-width: 225px;
+		width: 225px;
+		margin-left: 0px;
+		z-index: 1000;
+	}
+
+	.wrapper.sidebar-open .menu-toggle {
+		margin-right: 6.8rem;
+	}
+
+	.wrapper.sidebar-open .sidebar {
+		transform: translateX(0);
+		background-color: var(--main-color-light-10);
+	}
+
+	.sidebar .menu-item {
+		font-size: 0.8rem;
+		text-align: center;
+		margin-bottom: 0.3rem;
+	}
+
+	.sidebar .menu-item.active {
+		padding: 0.6rem;
+	}
+
+	.sidebar .menu-item:hover {
+		padding: 0.6rem;
+	}
+}
+
+/* 테블릿 전용 (최대 768px) */
+@media (min-width: 426px) and (max-width: 768px) {
+	.sidebar {
+		transform: translateX(-100%);
+		transition: transform 0.3s ease-in-out;
+		position: fixed;
+		top: 0;
+		left: 0;
+		height: 100%;
+		min-width: 225px;
+		width: 225px;
+		margin-left: 0px;
+		z-index: 1000;
+	}
+
+	.wrapper.sidebar-open .main-content {
+		padding-left: 15rem;
+	}
+
+	.wrapper.sidebar-open .menu-toggle {
+		margin-right: 4.8rem;
+	}
+
+	.wrapper.sidebar-open .sidebar {
+		transform: translateX(0);
+	}
+
+	.wrapper.sidebar-open .back-cus button {
+		font-size: 0.56rem;
+	}
+
+	.sidebar .menu-item {
+		font-size: 0.8rem;
+		text-align: center;
+		margin-bottom: 0.3rem;
+	}
+
+	.sidebar .menu-item.active {
+		padding: 0.6rem;
+	}
+
+	.sidebar .menu-item:hover {
+		padding: 0.6rem;
+	}
+}
+
+/* 노트북 전용 (769px ~ 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+	.sidebar {
+		margin-left: 0;
+	}
+
+	.sidebar .menu-item {
+		font-size: 0.9rem;
+		margin: 0.2rem;
+	}
+
+	.sidebar .menu-item:hover {
+		padding: 0.7rem;
+	}
+
+	.sidebar .menu-item.active {
+		padding: 0.7rem;
+	}
+
+	.user-info {
+		gap: 1rem;
+	}
+}
+
+@media (min-width: 1025px) and (max-width: 1440px) {
+	.sidebar {
+		padding: 1.5rem 1rem;
+		display: block;
+	}
+
+	.sidebar .menu-item {
+		font-size: 0.9rem;
+		margin: 0.2rem;
+	}
+
+	.sidebar .menu-item:hover {
+		padding: 0.8rem;
+	}
+
+	.user-info {
+		gap: 1rem;
+	}
+}

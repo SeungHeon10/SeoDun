@@ -2,6 +2,7 @@ package com.board.notice.service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -146,6 +147,14 @@ public class BoardServiceImpl implements BoardService {
 		// 게시글 소프트 삭제 메서드
 		board.markAsDeleted();
 		;
+	}
+
+//	인기글 검색
+	@Override
+	public List<BoardResponseDTO> popularPosts() {
+		List<Board> board = boardRepository.findTop3ByOrderByViewCountDesc();
+		
+		return board.stream().map(BoardResponseDTO::fromEntity).toList();
 	}
 
 }

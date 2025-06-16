@@ -1,5 +1,7 @@
 package com.board.notice.repository;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,4 +19,6 @@ public interface BoardRepository extends JpaRepository<Board, Integer>{
 	Page<Board> findByTitleContainingOrContentContaining(String keyword1, String keyword2, Pageable pageable);
 	// 작성자 검색
 	Page<Board> findByWriterContaining(String keyword, Pageable pageable);
+	// 인기글 검색
+	List<Board> findTop3ByOrderByViewCountDesc();
 }

@@ -22,4 +22,6 @@ public interface BoardService {
 	void update(BoardRequestDTO boardRequestDTO, MultipartFile multipartFile) throws IOException;
 //	게시글 삭제
 	void delete(int bno);
+//	인기글 조회
+	List<BoardResponseDTO> popularPosts();
 }

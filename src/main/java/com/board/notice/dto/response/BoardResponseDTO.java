@@ -42,10 +42,11 @@ public class BoardResponseDTO {
 		this.createdAt = board.getCreatedAt();
 	}
 	
-	public BoardResponseDTO(int bno, String category, String title, int commentCount, String writer, LocalDateTime createdAt, int viewCount) {
+	public BoardResponseDTO(int bno, String category, String title, String content, int commentCount, String writer, LocalDateTime createdAt, int viewCount) {
         this.bno = bno;
         this.category = category;
         this.title = title;
+        this.content = content;
         this.commentCount = commentCount;
         this.writer = writer;
         this.createdAt = createdAt;
@@ -53,7 +54,8 @@ public class BoardResponseDTO {
     }
 
 	public static BoardResponseDTO fromEntity(Board board) {
-		return new BoardResponseDTO(board.getBno(), board.getCategory(),board.getTitle(), board.getCommentCount(), board.getWriter(),
+		return new BoardResponseDTO(board.getBno(), board.getCategory(),board.getTitle(), board.getContent(),board.getCommentCount(), board.getWriter(),
 				board.getCreatedAt(), board.getViewCount());
 	}
+	
 }
