@@ -78,6 +78,7 @@ public class BoardServiceImpl implements BoardService {
 //	게시글 등록하기
 	@Override
 	@Transactional
+	@CacheEvict(value = { "top6Boards", "popularBoards" }, allEntries = true)
 	public void register(BoardRequestDTO boardRequestDTO, MultipartFile file) throws IOException {
 		String filePath = null;
 		System.out.println(boardRequestDTO.getUserId());
@@ -115,6 +116,7 @@ public class BoardServiceImpl implements BoardService {
 //	게시글 수정하기
 	@Override
 	@Transactional
+	@CacheEvict(value = { "top6Boards", "popularBoards" }, allEntries = true)
 	public void update(BoardRequestDTO boardRequestDTO, MultipartFile file) throws IOException {
 		// 변경한 파일이 null이 아닐 경우에만 실행
 		if (file != null && !file.isEmpty()) {
@@ -141,6 +143,7 @@ public class BoardServiceImpl implements BoardService {
 //	게시글 삭제하기
 	@Override
 	@Transactional
+	@CacheEvict(value = { "top6Boards", "popularBoards" }, allEntries = true)
 	public void delete(int bno) {
 		Board board = boardRepository.findById(bno)
 				.orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
@@ -151,10 +154,36 @@ public class BoardServiceImpl implements BoardService {
 
 //	인기글 검색
 	@Override
-	public List<BoardResponseDTO> popularPosts() {
-		List<Board> board = boardRepository.findTop3ByOrderByViewCountDesc();
+	@Cacheable(value = "popularBoards", key = "'popular'", unless = "#result == null")
+	public List<BoardResponseDTO> popularBoards() {
+		List<Board> boards = boardRepository.findTop3ByOrderByViewCountDesc();
 		
-		return board.stream().map(BoardResponseDTO::fromEntity).toList();
+		return boards.stream().map(BoardResponseDTO::fromEntity).toList();
+	}
+
+//	카테고리별 6개의 게시글 조회
+	@Override
+	@Cacheable(value = "top6Boards", key = "#p0", unless = "#result == null")
+	public List<BoardResponseDTO> loadBoardsByCategory(String category) {
+		List<Board> boards = boardRepository.findTop6ByCategoryOrderByCreatedAtDesc(category);
+		
+		return boards.stream().map(BoardResponseDTO::fromEntity).toList();
+	}
+
+//	6개의 전체 게시글 조회
+	@Override
+	@Cacheable(value = "top6Boards", key = "'all'", unless = "#result == null")
+	public List<BoardResponseDTO> loadBoardsByAll() {
+		List<Board> boards = boardRepository.findTop6ByOrderByCreatedAtDesc();
+		
+ 		return boards.stream().map(BoardResponseDTO::fromEntity).toList();
+	}
+
+	@Override
+	public List<BoardResponseDTO> recentBoards() {
+		List<Board> boards = boardRepository.findTop2ByOrderByCreatedAtDesc();
+		
+		return boards.stream().map(BoardResponseDTO::fromEntity).toList();
 	}
 
 }

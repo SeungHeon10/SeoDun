@@ -154,6 +154,12 @@ hr {
 	gap: 5px;
 }
 
+.tab-selected {
+	background-color: var(--main-color) !important;
+	color: white !important;
+	font-weight: 700;
+}
+
 /*스몰 휴대폰 (최대 375px) */
 @media (min-width: 0px) and (max-width: 320px) {
 	.row {

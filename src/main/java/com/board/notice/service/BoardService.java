@@ -23,5 +23,11 @@ public interface BoardService {
 //	게시글 삭제
 	void delete(int bno);
 //	인기글 조회
-	List<BoardResponseDTO> popularPosts();
+	List<BoardResponseDTO> popularBoards();
+//	카테고리별 게시글 조회
+	List<BoardResponseDTO> loadBoardsByCategory(String category);
+//	전체 카테고리 6개 게시글 조회
+	List<BoardResponseDTO> loadBoardsByAll();
+//	최근 2개의 게시글 조회
+	List<BoardResponseDTO> recentBoards();
 }

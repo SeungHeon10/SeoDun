@@ -8,6 +8,9 @@
 	<th:block th:insert="fragments/head :: head"></th:block>
 	<meta charset="UTF-8">
 	<title>SeoDun</title>
+	<link href="/css/index.css" rel="stylesheet">
+	<link href="/css/sidebar.css" rel="stylesheet">
+	<link href="/css/topbar.css" rel="stylesheet">
 </head>
 
 <body>
@@ -29,54 +32,19 @@
 								<div class="round-box">
 									<div class="d-flex back-cus">
 										<button
-											class="btn btn-light rounded-pill px-4 back-color-light30 border-none" data-category="ALL">전체</button>
+											class="btn btn-light rounded-pill px-4 back-color-light30 border-none" data-category="전체">전체</button>
 										<button
-											class="btn btn-light rounded-pill px-4 back-color-light30 border-none" data-category="FREE">자유</button>
+											class="btn btn-light rounded-pill px-4 back-color-light30 border-none" data-category="자유">자유</button>
 										<button
-											class="btn btn-light rounded-pill px-4 back-color-light30 border-none" data-category="STUDY">학습</button>
+											class="btn btn-light rounded-pill px-4 back-color-light30 border-none" data-category="학습">학습</button>
 										<button
-											class="btn btn-light rounded-pill px-4 back-color-light30 border-none" data-category="QA">질문답변</button>
+											class="btn btn-light rounded-pill px-4 back-color-light30 border-none" data-category="질문답변">질문답변</button>
 										<button
-											class="btn btn-light rounded-pill px-4 back-color-light30 border-none" data-category="INFO">정보공유</button>
+											class="btn btn-light rounded-pill px-4 back-color-light30 border-none" data-category="정보공유">정보공유</button>
 									</div>
 									<div>
 										<ul class="list-group list-group-flush rounded" id="boardList">
-											<li
-												class="list-group-item d-flex justify-content-between align-items-center back-color-light10">
-												sad [1]
-												<span
-													class="badge bg-secondary rounded-pill back-color-light30">3</span>
-											</li>
-											<li
-												class="list-group-item d-flex justify-content-between align-items-center back-color-light10">
-												sad [3]
-												<span
-													class="badge bg-secondary rounded-pill back-color-light30">1</span>
-											</li>
-											<li
-												class="list-group-item d-flex justify-content-between align-items-center back-color-light10">
-												sad [7]
-												<span
-													class="badge bg-secondary rounded-pill back-color-light30">7</span>
-											</li>
-											<li
-												class="list-group-item d-flex justify-content-between align-items-center back-color-light10">
-												sad [2]
-												<span
-													class="badge bg-secondary rounded-pill back-color-light30">0</span>
-											</li>
-											<li
-												class="list-group-item d-flex justify-content-between align-items-center back-color-light10">
-												sad [9]
-												<span
-													class="badge bg-secondary rounded-pill back-color-light30">12</span>
-											</li>
-											<li
-												class="list-group-item d-flex justify-content-between align-items-center back-color-light10">
-												sad [3]
-												<span
-													class="badge bg-secondary rounded-pill back-color-light30">12</span>
-											</li>
+											
 										</ul>
 									</div>
 								</div>
@@ -94,33 +62,8 @@
 						<div class="col-lg-6 d-flex flex-column gap-4">
 							<div class="board-box-right">
 								<div class="mb-2">따끈따끈 최신 게시글</div>
-								<div class="round-box-right">
-									<div class="popular-post">
-										<a href="#" class="text-decoration-none text-dark">
-											<div class="post-card">
-												<div class="post-title">제목</div>
-												<div class="post-preview">본문 일부가 여기에 표시됩니다...
-												</div>
-												<div class="post-meta">
-													<i class="fas fa-eye"></i>
-													<span>123</span>
-												</div>
-											</div>
-										</a>
-									</div>
-									<div class="popular-post">
-										<a href="#" class="text-decoration-none text-dark">
-											<div class="post-card">
-												<div class="post-title">제목</div>
-												<div class="post-preview">본문 일부가 여기에 표시됩니다...
-												</div>
-												<div class="post-meta">
-													<i class="fas fa-eye"></i>
-													<span>123</span>
-												</div>
-											</div>
-										</a>
-									</div>
+								<div class="round-box-right" id="recentBoard">
+									
 								</div>
 							</div>
 

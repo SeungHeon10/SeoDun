@@ -1,10 +1,104 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-<meta charset="UTF-8">
-<title>상세보기</title>
+	<th:block th:insert="fragments/head :: head"></th:block>
+	<meta charset="UTF-8">
+	<title>상세보기</title>
+	<link href="/css/sidebar.css" rel="stylesheet">
+	<link href="/css/topbar.css" rel="stylesheet">
+	<link href="/css/board/detail.css" rel="stylesheet">
 </head>
+
 <body>
-상세보기
+	<div class="wrapper">
+		<!-- 사이드바 -->
+		<div th:replace="fragments/sidebar :: left_bar"></div>
+		<div class="main">
+			<!-- 상단바 -->
+			<div th:replace="fragments/navbar :: top_bar"></div>
+			<div class="container">
+				<div class="page-heading">
+					<div class="page-title">
+						<div class="row">
+							<div class="col-12 col-md-6 order-md-1 order-last">
+								<a href="list" class="text-decoration-none">
+									<h3>전체글보기</h3>
+								</a>
+							</div>
+						</div>
+						<section class="section">
+							<div class="card">
+								<div class="card-body">
+									<div
+										class="content-top d-flex justify-content-between align-items-center border-bottom">
+										<div class="content-title">
+
+										</div>
+
+										<div class="content-info">
+											<ul class="list-inline mb-0 content-meta">
+
+											</ul>
+										</div>
+									</div>
+									<div class="content-main">
+
+									</div>
+									<div
+										class="content-menubar d-flex justify-content-between align-items-center mt-4 mb-4">
+										<div class="reply-button">
+											<button type="button" class="btn btn-outline-secondary"
+												id="reply">댓글</button>
+										</div>
+										<div class="action-buttons d-flex gap-2">
+											<button type="button" class="btn btn-outline-secondary">목록</button>
+											<button type="button" class="btn btn-outline-secondary">수정</button>
+											<button type="button" class="btn btn-outline-secondary">삭제</button>
+										</div>
+									</div>
+									<div class="card mb-4">
+										<div class="card-body">
+											<h5 class="card-title">댓글</h5>
+
+											<div class="mb-3 input-reply">
+												<label class="form-label mb-2 text-muted ms-cus"><strong>이승헌</strong></label>
+												<textarea class="form-control" rows="3" placeholder="댓글을 입력하세요..."></textarea>
+											</div>
+
+											<div class="d-flex justify-content-end">
+												<button type="button" class="btn btn-outline-secondary">등록</button>
+											</div>
+										</div>
+									</div>
+
+									<div class="comment-list">
+										<div class="border round p-3 mb-2">
+											<div class="d-flex justify-content-between mb-1">
+												<strong>이승헌</strong>
+												<span class="text-muted small">2025-06-17 15:01</span>
+											</div>
+											<p class="mb-0">이 글 정말 유용하네요. 감사합니다!</p>
+										</div>
+
+										<div class="border round p-3 mb-2">
+											<div class="d-flex justify-content-between mb-1">
+												<strong>관리자</strong>
+												<span class="text-muted small">2025-06-17 15:45</span>
+											</div>
+											<p class="mb-0">좋은 의견 감사합니다. 반영해볼게요!</p>
+										</div>
+									</div>
+
+								</div>
+							</div>
+						</section>
+					</div>
+				</div>
+			</div>
+			<!-- 푸터 -->
+			<div th:replace="fragments/footer :: footer"></div>
+			<script type="module" src="/js/board/detail.js"></script>
 </body>
+
 </html>

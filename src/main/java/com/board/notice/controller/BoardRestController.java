@@ -78,8 +78,28 @@ public class BoardRestController {
 //	인기글 조회
 	@GetMapping("/popular")
 	public ResponseEntity<List<BoardResponseDTO>> popularPosts() {
-		List<BoardResponseDTO> popular = boardService.popularPosts();
+		List<BoardResponseDTO> popular = boardService.popularBoards();
 		return ResponseEntity.ok(popular);
+	}
+	
+//	카테고리별 조회
+	@GetMapping("/category/{category}")
+	public ResponseEntity<List<BoardResponseDTO>> loadBoardsByCategory(@PathVariable("category") String category) {
+		if(category.equals("전체")) {
+			List<BoardResponseDTO> boards = boardService.loadBoardsByAll();
+			return ResponseEntity.ok(boards);
+		} else {
+			List<BoardResponseDTO> boards = boardService.loadBoardsByCategory(category);
+			return ResponseEntity.ok(boards);
+		}
+	}
+	
+//	최신 게시글 조회
+	@GetMapping("/recent")
+	public ResponseEntity<List<BoardResponseDTO>> recentBoards() {
+		List<BoardResponseDTO> recent = boardService.recentBoards();
+		
+		return ResponseEntity.ok(recent);
 	}
 	
 }

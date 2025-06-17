@@ -1,10 +1,15 @@
 import { fetchWithAuth, setAccessToken } from "/js/fetchWithAuth.js";
 
+let activeTab = document.querySelector('[data-category="전체"]'); // 선택된 탭 
+
 // 페이지 로드 시 
 document.addEventListener("DOMContentLoaded", async function() {
 	checkViewport();
 	window.addEventListener('resize', checkViewport);
 	await popularBoard();
+	await loadInitialBoards();
+	loadBoardsByCategory();
+	await recentBoards();
 	try {
 		const res = await fetch("/token", {
 			method: "POST",
@@ -104,7 +109,7 @@ async function popularBoard() {
 		});
 
 	} catch (e) {
-		console.error(e.message);
+		console.error("에러:", e.message);
 	}
 }
 
@@ -116,35 +121,117 @@ function loadBoardsByCategory() {
 	tabList.forEach(tab => {
 		tab.addEventListener("mouseenter", async () => {
 			const category = tab.dataset.category;
+
+			if (activeTab) {
+				activeTab.classList.remove("tab-selected");
+			}
+
+			tab.classList.add("tab-selected");
+			activeTab = tab;
+
 			try {
-				const response = await fetchWithAuth("api/boards/category/{category}");
+				const response = await fetchWithAuth(`api/boards/category/${category}`);
 
 				if (!response.ok) {
 					throw new Error("서버 오류 발생");
 				}
-				
+
 				const boards = await response.json();
-				
+				boardList.innerHTML = "";
+
 				boards.forEach(board => {
 					const li = document.createElement("li");
 					li.classList.add(
-					  "list-group-item",
-					  "d-flex",
-					  "justify-content-between",
-					  "align-items-center",
-					  "back-color-light10"
+						"list-group-item",
+						"d-flex",
+						"justify-content-between",
+						"align-items-center",
+						"back-color-light10"
 					);
-					
+
 					li.innerHTML = `
 					${board.title} [${board.commentCount}]
 					<span class="badge bg-secondary rounded-pill back-color-light30">${board.viewCount}</span>
 					`;
-					
+
 					boardList.appendChild(li);
 				});
 			} catch (e) {
-				console.error(e.message);
+				console.error("에러:", e.message);
 			}
 		});
 	});
+}
+
+// 초기 전체 게시글 가져오기
+async function loadInitialBoards() {
+	const category = "전체";
+	const boardList = document.getElementById("boardList");
+
+	// 초기 "전체" 탭에 select 효과주기
+	activeTab.classList.add("tab-selected");
+
+	try {
+		const response = await fetchWithAuth(`api/boards/category/${category}`);
+
+		if (!response.ok) {
+			throw new Error("서버 오류 발생");
+		}
+
+		const boards = await response.json();
+		boardList.innerHTML = "";
+
+		boards.forEach(board => {
+			const li = document.createElement("li");
+			li.classList.add(
+				"list-group-item",
+				"d-flex",
+				"justify-content-between",
+				"align-items-center",
+				"back-color-light10"
+			);
+
+			li.innerHTML = `
+				${board.title} [${board.commentCount}]
+				<span class="badge bg-secondary rounded-pill back-color-light30">${board.viewCount}</span>
+			`;
+
+			boardList.appendChild(li);
+		});
+	} catch (e) {
+		console.error("초기 로딩 에러:", e.message);
+	}
+}
+
+async function recentBoards() {
+	const recentBoard = document.getElementById("recentBoard");
+	try {
+		const response = await fetchWithAuth("api/boards/recent");
+
+		if (!response.ok) {
+			throw new Error("서버 오류 발생");
+		}
+
+		const boards = await response.json();
+
+		boards.forEach(board => {
+			const divEl = document.createElement("div");
+			divEl.innerHTML = `
+						<a href="#" class="text-decoration-none text-dark">
+							<div class="post-card">
+								<div class="post-title">${board.title}</div>
+								<div class="post-preview">${board.content}</div>
+								<div class="post-meta">
+									<i class="fas fa-eye"></i>
+									<span>${board.viewCount}</span>
+								</div>
+							</div>
+						</a>
+						`;
+
+			recentBoard.appendChild(divEl);
+		});
+	} catch (e) {
+		console.error("에러:", e.message);
+	}
 }

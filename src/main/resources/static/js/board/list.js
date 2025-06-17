@@ -9,6 +9,7 @@ let currentDirection = "desc"; // 현재 정렬 기준
 let currentSearchMode = "title"; // 현재 검색 모드
 let currentKeyword = "";
 
+// 페이지 로드 시
 document.addEventListener("DOMContentLoaded", async () => {
 	const dropdownButton = document.getElementById("pageSizeDropdown");
 	const dropdownItems = document.querySelectorAll("a[data-value]");
@@ -175,7 +176,7 @@ function renderBoardList(boards) {
 		tr.innerHTML = `
 							<td style="text-align: center;">${board.category}</td>
 							<td>
-								<a href="detail" class="board-title-link">
+								<a href="detail/${board.bno}" class="board-title-link">
 									${board.title}
 									<p class="commentCount">[${board.commentCount}]</p>
 								</a>
@@ -235,3 +236,4 @@ function renderPagination(pageInfo) {
 		});
 	});
 }
+

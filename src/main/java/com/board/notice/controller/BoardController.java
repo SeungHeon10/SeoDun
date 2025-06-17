@@ -16,7 +16,7 @@ public class BoardController {
 	}
 	
 //	게시글 상세보기 페이지 이동
-	@GetMapping("/detail")
+	@GetMapping("/detail/{bno}")
 	public String detailPage() {
 		
 		return "board/detail";
@@ -30,7 +30,7 @@ public class BoardController {
 	}
 	
 //	게시글 수정 페이지 이동
-	@GetMapping("/update")
+	@GetMapping("/update/{bno}")
 	public String updatePage() {
 		
 		return "board/update";

@@ -21,4 +21,10 @@ public interface BoardRepository extends JpaRepository<Board, Integer>{
 	Page<Board> findByWriterContaining(String keyword, Pageable pageable);
 	// 인기글 검색
 	List<Board> findTop3ByOrderByViewCountDesc();
+	// 카테고리별 게시글 조회
+	List<Board> findTop6ByCategoryOrderByCreatedAtDesc(String category);
+	// 전체 카테고리 6개 게시글 조회
+	List<Board> findTop6ByOrderByCreatedAtDesc();
+	// 최근 2개의 게시글 조회
+	List<Board> findTop2ByOrderByCreatedAtDesc();
 }

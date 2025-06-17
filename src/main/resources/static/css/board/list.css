@@ -1,7 +1,12 @@
 .container {
-	margin: 30px;
-	max-width: 97%;
-	min-height: 80vh;
+	padding-left: 290px;
+	padding-bottom: 2rem;
+	padding-top: 2rem;
+	max-width: 100%;
+}
+
+.row {
+	margin-bottom: 30px;
 }
 
 .page-heading {
@@ -10,10 +15,12 @@
 
 .section {
 	max-height: 94%;
+	margin-top: 12px;
 }
 
 .card {
 	max-height: 95%;
+	border-radius: 15px;
 }
 
 .page-title {
@@ -61,14 +68,12 @@
 	/* hover 테두리 약간 어둡게 */
 }
 
-/* focus(클릭 후 활성화 상태)일 때도 안정적으로 보이도록 */
 .btn.btn-outline-secondary.dropdown-toggle:focus {
 	background-color: #f8f9fa !important;
 	color: black !important;
 	box-shadow: none;
 }
 
-/* 드롭다운 열려 있는 상태 (.show 클래스가 추가됨) */
 .btn.btn-outline-secondary.dropdown-toggle.show {
 	background-color: white !important;
 	color: black !important;
@@ -140,8 +145,8 @@
 
 .search-mode-panel {
 	position: absolute;
-	top: 150px;
-	right: 570px;
+	top: 170px;
+	right: 555px;
 	width: 220px;
 	background: white;
 	border-radius: 12px;
