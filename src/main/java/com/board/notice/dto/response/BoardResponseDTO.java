@@ -25,7 +25,7 @@ public class BoardResponseDTO {
 	private String category; // 게시글 카테고리
 	private String filePath; // 게시글 첨부파일 경로
 	private String tags; // 게시글 태그 (콤마로 저장)
-	private String userId; // 게시글 작성자 id
+	private UserResponseDTO userId; // 게시글 작성자 id
 	private LocalDateTime createdAt;
 	
 	public BoardResponseDTO(Board board) {
@@ -38,24 +38,8 @@ public class BoardResponseDTO {
 		this.category = board.getCategory();
 		this.filePath = board.getFilePath();
 		this.tags = board.getTags();
-		this.userId = board.getUserId().getId();
+		this.userId = new UserResponseDTO(board.getUserId());
 		this.createdAt = board.getCreatedAt();
-	}
-	
-	public BoardResponseDTO(int bno, String category, String title, String content, int commentCount, String writer, LocalDateTime createdAt, int viewCount) {
-        this.bno = bno;
-        this.category = category;
-        this.title = title;
-        this.content = content;
-        this.commentCount = commentCount;
-        this.writer = writer;
-        this.createdAt = createdAt;
-        this.viewCount = viewCount;
-    }
-
-	public static BoardResponseDTO fromEntity(Board board) {
-		return new BoardResponseDTO(board.getBno(), board.getCategory(),board.getTitle(), board.getContent(),board.getCommentCount(), board.getWriter(),
-				board.getCreatedAt(), board.getViewCount());
 	}
 	
 }

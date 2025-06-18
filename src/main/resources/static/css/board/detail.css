@@ -23,7 +23,7 @@
 	border-radius: 15px;
 }
 
-.card-title{
+.card-title {
 	margin-bottom: 1rem;
 }
 
@@ -51,34 +51,78 @@
 	color: #ccc;
 }
 
-.content-main{
+.content-main {
 	min-height: 350px;
 	margin-top: 50px;
 	padding-bottom: 50px;
 	border-bottom: 1px solid #dee2e6;
 }
 
-.form-control{
+.form-control {
 	resize: none;
 	border: none;
 	border-radius: 0.7rem;
 }
 
 textarea.form-control:focus {
-  border-color: #d8dad8 !important;   /* 연한 회색 테두리 */
-  box-shadow: #d8dad8!important;     /* 파란 테두리 제거 */
+	border-color: #d8dad8 !important;
+	/* 연한 회색 테두리 */
+	box-shadow: #d8dad8 !important;
+	/* 파란 테두리 제거 */
 }
 
-.round{
+.round {
 	border-radius: .7rem;
 }
 
-.input-reply{
+.input-reply {
 	border: 1px solid #d8dad8;
 	border-radius: .7rem;
 	padding: 15px;
 }
 
-.ms-cus{
+.ms-cus {
 	margin-left: 13px;
 }
+
+.justify-content-center p {
+	margin-bottom: 0px;
+}
+
+.dropdown-menu-end.show {
+	inset: -3px 25px auto auto !important;
+	border-radius: 5px;
+}
+
+.bb-right {
+	border-bottom: 1px solid #d8dad8;
+}
+
+.page-link {
+	min-width: 34px;
+	text-align: center;
+}
+
+.pagination .page-item.active .page-link {
+	background-color: #212121;
+	/* 거의 검정색 */
+	border-color: #212121;
+	border-radius: 10px;
+	color: white;
+}
+
+.pagination .page-link {
+	color: #333;
+	border: none;
+	background-color: transparent;
+}
+
+.pagination .page-link:hover {
+	background-color: #f0f0f0;
+	border-radius: 8px;
+}
+
+.page-item.disabled .page-link{
+	color: #959595;
+}
+

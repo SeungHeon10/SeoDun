@@ -203,7 +203,7 @@ function renderPagination(pageInfo) {
 	const prevDisabled = first ? "disabled" : "";
 	pagination.innerHTML += `
     <li class="page-item ${prevDisabled}">
-      <a class="page-link" href="#" data-page="${number - 1}">&laquo;</a>
+      <a class="page-link" href="#" data-page="${number - 1}">← Previous</a>
     </li>
   `;
 
@@ -221,7 +221,7 @@ function renderPagination(pageInfo) {
 	const nextDisabled = last ? "disabled" : "";
 	pagination.innerHTML += `
     <li class="page-item ${nextDisabled}">
-      <a class="page-link" href="#" data-page="${number + 1}">&raquo;</a>
+      <a class="page-link" href="#" data-page="${number + 1}">Next →</a>
     </li>
   `;
 

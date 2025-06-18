@@ -45,21 +45,21 @@ public class BoardServiceImpl implements BoardService {
 	public Page<BoardResponseDTO> list(Pageable pageable, String mode, String keyword) {
 		if (keyword == null || keyword.trim().isEmpty() || "undefined".equals(keyword)) {
 			// 검색어 없으면 전체 목록
-			return boardRepository.findAll(pageable).map(BoardResponseDTO::fromEntity);
+			return boardRepository.findAll(pageable).map(BoardResponseDTO::new);
 		}
 
 		switch (mode) {
 		case "title":
-			return boardRepository.findByTitleContaining(keyword, pageable).map(BoardResponseDTO::fromEntity);
+			return boardRepository.findByTitleContaining(keyword, pageable).map(BoardResponseDTO::new);
 		case "content":
-			return boardRepository.findByContentContaining(keyword, pageable).map(BoardResponseDTO::fromEntity);
+			return boardRepository.findByContentContaining(keyword, pageable).map(BoardResponseDTO::new);
 		case "title_content":
 			return boardRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable)
-					.map(BoardResponseDTO::fromEntity);
+					.map(BoardResponseDTO::new);
 		case "writer":
-			return boardRepository.findByWriterContaining(keyword, pageable).map(BoardResponseDTO::fromEntity);
+			return boardRepository.findByWriterContaining(keyword, pageable).map(BoardResponseDTO::new);
 		default:
-			return boardRepository.findAll(pageable).map(BoardResponseDTO::fromEntity);
+			return boardRepository.findAll(pageable).map(BoardResponseDTO::new);
 		}
 	}
 
@@ -158,7 +158,7 @@ public class BoardServiceImpl implements BoardService {
 	public List<BoardResponseDTO> popularBoards() {
 		List<Board> boards = boardRepository.findTop3ByOrderByViewCountDesc();
 		
-		return boards.stream().map(BoardResponseDTO::fromEntity).toList();
+		return boards.stream().map(BoardResponseDTO::new).toList();
 	}
 
 //	카테고리별 6개의 게시글 조회
@@ -167,7 +167,7 @@ public class BoardServiceImpl implements BoardService {
 	public List<BoardResponseDTO> loadBoardsByCategory(String category) {
 		List<Board> boards = boardRepository.findTop6ByCategoryOrderByCreatedAtDesc(category);
 		
-		return boards.stream().map(BoardResponseDTO::fromEntity).toList();
+		return boards.stream().map(BoardResponseDTO::new).toList();
 	}
 
 //	6개의 전체 게시글 조회
@@ -176,14 +176,14 @@ public class BoardServiceImpl implements BoardService {
 	public List<BoardResponseDTO> loadBoardsByAll() {
 		List<Board> boards = boardRepository.findTop6ByOrderByCreatedAtDesc();
 		
- 		return boards.stream().map(BoardResponseDTO::fromEntity).toList();
+ 		return boards.stream().map(BoardResponseDTO::new).toList();
 	}
 
 	@Override
 	public List<BoardResponseDTO> recentBoards() {
 		List<Board> boards = boardRepository.findTop2ByOrderByCreatedAtDesc();
 		
-		return boards.stream().map(BoardResponseDTO::fromEntity).toList();
+		return boards.stream().map(BoardResponseDTO::new).toList();
 	}
 
 }

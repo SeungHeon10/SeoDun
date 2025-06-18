@@ -2,6 +2,8 @@ package com.board.notice.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,16 +29,15 @@ public class ReplyServiceImpl implements ReplyService {
 
 //	댓글 전체조회
 	@Override
-	public List<ReplyResponseDTO> list(int bno) {
-		// 선택한 게시글의 댓글 전체 조회 메서드
-		List<Reply> list = replyRepository.findAllByBoard_Bno(bno);
-		return list.stream().map(reply -> new ReplyResponseDTO(reply)).toList();
+	public Page<ReplyResponseDTO> list(int bno, Pageable pageable) {
+
+		return replyRepository.findAllByBoard_Bno(bno, pageable).map(ReplyResponseDTO::new);
 	}
 
 //	댓글 등록
 	@Override
 	@Transactional
-	public void register(int boardId, ReplyRequestDTO replyRequestDTO) {
+	public void register(int bno, ReplyRequestDTO replyRequestDTO) {
 		// 부모 댓글 정보 (대댓글의 상위 댓글)
 		Reply parent = null;
 		// 대댓글의 상위 정보 있을 시 정보 가져오는 로직
@@ -44,7 +45,7 @@ public class ReplyServiceImpl implements ReplyService {
 			parent = replyRepository.findById(replyRequestDTO.getParent_id()).orElseThrow(() -> new EntityNotFoundException("해당 댓글은 존재하지 않습니다."));
 		}
 		// 게시글 정보
-		Board board = boardRepository.findById(boardId).orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
+		Board board = boardRepository.findById(bno).orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
 		// 회원 정보
 		User user = userRepository.findById(replyRequestDTO.getUser_id()).orElseThrow(() -> new UsernameNotFoundException("해당 회원은 존재하지 않습니다."));
 		Reply reply = Reply.builder()

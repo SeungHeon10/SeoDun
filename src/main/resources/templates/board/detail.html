@@ -8,6 +8,8 @@
 	<link href="/css/sidebar.css" rel="stylesheet">
 	<link href="/css/topbar.css" rel="stylesheet">
 	<link href="/css/board/detail.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+	<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </head>
 
 <body>
@@ -22,7 +24,7 @@
 					<div class="page-title">
 						<div class="row">
 							<div class="col-12 col-md-6 order-md-1 order-last">
-								<a href="list" class="text-decoration-none">
+								<a href="/board/list" class="text-decoration-none">
 									<h3>전체글보기</h3>
 								</a>
 							</div>
@@ -62,34 +64,36 @@
 											<h5 class="card-title">댓글</h5>
 
 											<div class="mb-3 input-reply">
-												<label class="form-label mb-2 text-muted ms-cus"><strong>이승헌</strong></label>
-												<textarea class="form-control" rows="3" placeholder="댓글을 입력하세요..."></textarea>
+												<label class="form-label mb-2 text-muted ms-cus">
+													<strong id="reply-writer"></strong></label>
+												<textarea class="form-control" id="reply-content" rows="3"
+													placeholder="댓글을 입력하세요..."></textarea>
 											</div>
 
 											<div class="d-flex justify-content-end">
-												<button type="button" class="btn btn-outline-secondary">등록</button>
+												<button type="button" class="btn btn-outline-secondary"
+													id="registerBtn">등록</button>
 											</div>
 										</div>
 									</div>
-
+									<div class="d-flex gap-2 my-2 ms-3 pb-2 bb-right">
+										<button type="button" class="btn btn-outline-secondary btn-sm border-0"
+											id="sort-latest">
+											최신순
+										</button>
+										<button type="button" class="btn btn-outline-secondary btn-sm border-0"
+											id="sort-oldest">
+											등록순
+										</button>
+									</div>
 									<div class="comment-list">
-										<div class="border round p-3 mb-2">
-											<div class="d-flex justify-content-between mb-1">
-												<strong>이승헌</strong>
-												<span class="text-muted small">2025-06-17 15:01</span>
-											</div>
-											<p class="mb-0">이 글 정말 유용하네요. 감사합니다!</p>
-										</div>
 
-										<div class="border round p-3 mb-2">
-											<div class="d-flex justify-content-between mb-1">
-												<strong>관리자</strong>
-												<span class="text-muted small">2025-06-17 15:45</span>
-											</div>
-											<p class="mb-0">좋은 의견 감사합니다. 반영해볼게요!</p>
-										</div>
 									</div>
-
+									<div class="Pagination_div">
+										<ul class="pagination justify-content-center" id="pagination">
+											<!-- 페이지 버튼들이 JS로 동적으로 들어감 -->
+										</ul>
+									</div>
 								</div>
 							</div>
 						</section>

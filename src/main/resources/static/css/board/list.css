@@ -196,3 +196,31 @@
 	color: white;
 	font-weight: bold;
 }
+
+.page-link {
+	min-width: 34px;
+	text-align: center;
+}
+
+.pagination .page-item.active .page-link {
+	background-color: #212121;
+	/* 거의 검정색 */
+	border-color: #212121;
+	border-radius: 10px;
+	color: white;
+}
+
+.pagination .page-link {
+	color: #333;
+	border: none;
+	background-color: transparent;
+}
+
+.pagination .page-link:hover {
+	background-color: #f0f0f0;
+	border-radius: 8px;
+}
+
+.page-item.disabled .page-link{
+	color: #959595;
+}
