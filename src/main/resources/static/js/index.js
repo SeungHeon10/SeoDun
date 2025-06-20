@@ -89,11 +89,12 @@ async function popularBoard() {
 		}
 
 		const boards = await response.json();
+		popularDiv.innerHTML = "";
 
 		boards.forEach(board => {
 			const divEl = document.createElement("div");
 			divEl.innerHTML = `
-			<a href="#" class="text-decoration-none text-dark">
+			<a href="board/detail/${board.bno}" class="text-decoration-none text-dark">
 				<div class="post-card">
 					<div class="post-title">${board.title}</div>
 					<div class="post-preview">${board.content}</div>
@@ -150,8 +151,10 @@ function loadBoardsByCategory() {
 					);
 
 					li.innerHTML = `
-					${board.title} [${board.commentCount}]
-					<span class="badge bg-secondary rounded-pill back-color-light30">${board.viewCount}</span>
+						<a href="board/detail/${board.bno}" class="text-decoration-none text-dark">
+						${board.title} [${board.commentCount}]
+						</a>
+						<span class="badge bg-secondary rounded-pill back-color-light30">${board.viewCount}</span>
 					`;
 
 					boardList.appendChild(li);
@@ -203,6 +206,7 @@ async function loadInitialBoards() {
 	}
 }
 
+// 최신 글 가져오기
 async function recentBoards() {
 	const recentBoard = document.getElementById("recentBoard");
 	try {
@@ -217,7 +221,7 @@ async function recentBoards() {
 		boards.forEach(board => {
 			const divEl = document.createElement("div");
 			divEl.innerHTML = `
-						<a href="#" class="text-decoration-none text-dark">
+						<a href="board/detail/${board.bno}" class="text-decoration-none text-dark">
 							<div class="post-card">
 								<div class="post-title">${board.title}</div>
 								<div class="post-preview">${board.content}</div>

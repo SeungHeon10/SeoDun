@@ -19,6 +19,7 @@ import lombok.ToString;
 @Builder
 public class ReplyResponseDTO {
 	private int rno; // 댓글 번호(기본키)
+	private int parent_id;
 	private String content; // 댓글 내용
 	private String writer; // 댓글 작성자
 	private int likeCount; // 댓글 좋아요
@@ -28,6 +29,7 @@ public class ReplyResponseDTO {
 	public ReplyResponseDTO(Reply reply) {
 		this.rno = reply.getRno();
 		this.content = reply.getContent();
+		this.parent_id = reply.getParent() != null ? reply.getParent().getRno() : 0;
 		this.writer = reply.getWriter();
 		this.likeCount = reply.getLikeCount();
 		this.createAt = reply.getCreatedAt();

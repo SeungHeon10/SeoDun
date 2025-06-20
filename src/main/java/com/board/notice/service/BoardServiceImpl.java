@@ -2,14 +2,12 @@ package com.board.notice.service;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -66,6 +64,7 @@ public class BoardServiceImpl implements BoardService {
 //	게시글 상세보기
 	@Override
 	@Transactional
+	@CacheEvict(value = { "top6Boards", "popularBoards" }, allEntries = true)
 	public BoardResponseDTO detail(int bno) {
 		Board board = boardRepository.findById(bno)
 				.orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));

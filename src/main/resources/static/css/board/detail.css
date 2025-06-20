@@ -122,7 +122,18 @@ textarea.form-control:focus {
 	border-radius: 8px;
 }
 
-.page-item.disabled .page-link{
+.page-item.disabled .page-link {
 	color: #959595;
 }
 
+.edit-menu {
+	display: none;
+}
+
+.edit-title{
+	flex: 1;
+}
+
+.edit-textarea{
+	border: 1px solid #d8dad8;
+}

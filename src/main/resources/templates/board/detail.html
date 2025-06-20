@@ -34,7 +34,7 @@
 								<div class="card-body">
 									<div
 										class="content-top d-flex justify-content-between align-items-center border-bottom">
-										<div class="content-title">
+										<div class="d-flex align-items-center content-title">
 
 										</div>
 
@@ -45,54 +45,60 @@
 										</div>
 									</div>
 									<div class="content-main">
-
+										
 									</div>
-									<div
-										class="content-menubar d-flex justify-content-between align-items-center mt-4 mb-4">
-										<div class="reply-button">
-											<button type="button" class="btn btn-outline-secondary"
-												id="reply">댓글</button>
-										</div>
-										<div class="action-buttons d-flex gap-2">
-											<button type="button" class="btn btn-outline-secondary">목록</button>
-											<button type="button" class="btn btn-outline-secondary">수정</button>
-											<button type="button" class="btn btn-outline-secondary">삭제</button>
-										</div>
+									<div class="edit-menu mt-4">
+										<button type="button" class="btn btn-outline-secondary" id="returnDetail">목록</button>
+										<button type="button" class="btn btn-outline-secondary">수정</button>
 									</div>
-									<div class="card mb-4">
-										<div class="card-body">
-											<h5 class="card-title">댓글</h5>
-
-											<div class="mb-3 input-reply">
-												<label class="form-label mb-2 text-muted ms-cus">
-													<strong id="reply-writer"></strong></label>
-												<textarea class="form-control" id="reply-content" rows="3"
-													placeholder="댓글을 입력하세요..."></textarea>
-											</div>
-
-											<div class="d-flex justify-content-end">
+									<div class="reply-box">
+										<div
+											class="content-menubar d-flex justify-content-between align-items-center mt-4 mb-4">
+											<div class="reply-button">
 												<button type="button" class="btn btn-outline-secondary"
-													id="registerBtn">등록</button>
+													id="reply">댓글</button>
+											</div>
+											<div class="action-buttons d-flex gap-2">
+												<button type="button" class="btn btn-outline-secondary">목록</button>
+												<button type="button" class="btn btn-outline-secondary" id="edit">수정</button>
+												<button type="button" class="btn btn-outline-secondary" id="delete">삭제</button>
 											</div>
 										</div>
-									</div>
-									<div class="d-flex gap-2 my-2 ms-3 pb-2 bb-right">
-										<button type="button" class="btn btn-outline-secondary btn-sm border-0"
-											id="sort-latest">
-											최신순
-										</button>
-										<button type="button" class="btn btn-outline-secondary btn-sm border-0"
-											id="sort-oldest">
-											등록순
-										</button>
-									</div>
-									<div class="comment-list">
+										<div class="card mb-4">
+											<div class="card-body">
+												<h5 class="card-title">댓글</h5>
 
-									</div>
-									<div class="Pagination_div">
-										<ul class="pagination justify-content-center" id="pagination">
-											<!-- 페이지 버튼들이 JS로 동적으로 들어감 -->
-										</ul>
+												<div class="mb-3 input-reply">
+													<label class="form-label mb-2 text-muted ms-cus">
+														<strong id="reply-writer"></strong></label>
+													<textarea class="form-control" id="reply-content" rows="3"
+														placeholder="댓글을 입력하세요..."></textarea>
+												</div>
+
+												<div class="d-flex justify-content-end">
+													<button type="button" class="btn btn-outline-secondary"
+														id="registerBtn">등록</button>
+												</div>
+											</div>
+										</div>
+										<div class="d-flex gap-2 my-2 ms-3 pb-2 bb-right">
+											<button type="button" class="btn btn-outline-secondary btn-sm border-0"
+												id="sort-latest">
+												최신순
+											</button>
+											<button type="button" class="btn btn-outline-secondary btn-sm border-0"
+												id="sort-oldest">
+												등록순
+											</button>
+										</div>
+										<div class="comment-list">
+
+										</div>
+										<div class="Pagination_div">
+											<ul class="pagination justify-content-center" id="pagination">
+												<!-- 페이지 버튼들이 JS로 동적으로 들어감 -->
+											</ul>
+										</div>
 									</div>
 								</div>
 							</div>

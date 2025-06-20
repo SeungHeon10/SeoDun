@@ -1,8 +1,5 @@
 package com.board.notice.controller;
 
-import java.util.List;
-
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -17,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.board.notice.dto.request.ReplyRequestDTO;
-import com.board.notice.dto.response.ReplyResponseDTO;
+import com.board.notice.dto.response.ReplyPageResponseDTO;
 import com.board.notice.service.ReplyService;
 
 import lombok.RequiredArgsConstructor;
@@ -30,10 +27,11 @@ public class ReplyRestController {
 
 //	댓글 조회
 	@GetMapping
-	public ResponseEntity<Page<ReplyResponseDTO>> list(@PageableDefault(page = 0, size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+	public ResponseEntity<ReplyPageResponseDTO> list(@PageableDefault(page = 0, size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
 			,@PathVariable("bno") int bno) {
-		Page<ReplyResponseDTO> list = replyService.list(bno, pageable);
-		return ResponseEntity.ok(list);
+		ReplyPageResponseDTO replyPage = replyService.list(bno, pageable);
+
+		return ResponseEntity.ok(replyPage);
 	}
 
 //	댓글 등록

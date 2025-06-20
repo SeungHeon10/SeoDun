@@ -7,6 +7,7 @@ let currentSize = 5; // 현재 사이즈
 let currentPage = 0; // 현재 페이지 번호
 let currentSort = "createdAt"; // 현재 정렬 항목
 let currentDirection = "desc"; // 현재 정렬 기준
+let currentMode = "view";
 
 // 페이지 로드 시
 document.addEventListener("DOMContentLoaded", async () => {
@@ -83,28 +84,55 @@ document.getElementById("sort-oldest").addEventListener("click", async (event) =
 	await fetchReplyList(currentSize, currentPage, currentSort, currentDirection);
 });
 
+// 수정버튼 누를 시
+document.getElementById("edit").addEventListener("click", async (event) => {
+	event.preventDefault();
+	
+	currentMode = "edit";
+	
+	await fetchBoardDetail();
+});
+
+document.getElementById("returnDetail").addEventListener("click" , async (event) => {
+	event.preventDefault();
+	
+	currentMode = "view";
+	
+	await fetchBoardDetail();
+})
+
 // 게시글 상세보기
 async function fetchBoardDetail() {
 	try {
 		const res = await fetchWithAuth(`/api/boards/${bno}`);
 		if (!res.ok) throw new Error("서버 오류 발생");
 		const detail = await res.json();
-		renderBoardDetail(detail);
+
+		if (currentMode === "view") {
+			renderDetailView(detail);
+		} else if (currentMode === "edit") {
+			renderEditView(detail);
+		}
 	} catch (e) {
 		console.error("에러:", e.message);
 	}
 }
 
 // 게시글 상세정보 화면에 렌더링
-function renderBoardDetail(detail) {
-	console.log(detail);
+function renderDetailView(detail) {
 	const contentTitle = document.querySelector(".content-title");
 	const contentInfo = document.querySelector(".content-meta");
 	const contentMain = document.querySelector(".content-main");
 	const replyWriter = document.getElementById("reply-writer");
 	const replybtn = document.getElementById("reply");
-
 	const formatted = dayjs(detail.createdAt).format("YYYY-MM-DD HH:mm:ss");
+	const replyBox = document.querySelector(".reply-box");
+	const editMenu = document.querySelector(".edit-menu");
+	
+	replyBox.style.display = "block";
+	editMenu.style.display = "none";
+	contentTitle.classList.remove("w-100");
+	
 	contentTitle.innerHTML = `
 		<p class="mb-0">
 			<strong class="text-primary">[${detail.category}]</strong>
@@ -127,38 +155,131 @@ function renderBoardDetail(detail) {
 	name = `${detail.userId.name}`;
 }
 
+function renderEditView(detail){
+	const contentTitle = document.querySelector(".content-title");
+	const contentInfo = document.querySelector(".content-meta");
+	const contentMain = document.querySelector(".content-main");
+	const replyBox = document.querySelector(".reply-box");
+	const editMenu = document.querySelector(".edit-menu");
+	
+	contentTitle.innerHTML = "";
+	contentInfo.innerHTML = "";
+	contentMain.innerHTML = "";
+	
+	contentTitle.innerHTML = `
+		<div class="mb-0">
+			<select class="form-select" id="categorySelect" value="${detail.category}">
+				<option value="자유">자유</option>
+				<option value="공지">공지</option>
+				<option value="질문답변">질문답변</option>
+				<option value="정보공유">정보공유</option>
+			</select>
+		</div>
+		<div class="edit-title">
+			<input type="text" class="form-control" id="titleInput" value="${detail.title}" placeholder="제목을 입력하세요">
+		</div>
+	`;
+	
+	contentMain.innerHTML = `
+		<textarea class="form-control edit-textarea" id="contentTextarea" rows="10" placeholder="내용을 입력하세요">${detail.content}</textarea>
+	`;
+	
+	replyBox.style.display = "none";
+	editMenu.style.display = "flex";
+	editMenu.style.justifyContent = "flex-end";
+	editMenu.style.gap = "10px";
+	contentTitle.classList.add("w-100");
+}
+
 // 댓글 조회
 async function fetchReplyList(size = currentSize, page = currentPage, sort = currentSort, direction = currentDirection) {
 	try {
 		const res = await fetchWithAuth(`/api/boards/${bno}/replies?size=${size}&page=${page}&sort=${sort},${direction}`);
 		if (!res.ok) throw new Error("서버 오류 발생");
 		const replies = await res.json();
-		renderReplyList(replies.content);
-		renderPagination(replies);
+		console.log(replies);
+		renderReplyList(replies.parentReplies, replies.childReplies);
+		renderPagination(replies.pageInfo);
 	} catch (e) {
 		console.error("에러: ", e.message);
 	}
 }
 
 // 댓글 목록을 렌더링
-function renderReplyList(replies) {
+function renderReplyList(parentReplies, childReplies) {
 	const commentList = document.querySelector(".comment-list");
 	commentList.innerHTML = "";
-	if (replies.length === 0) {
+
+	if (parentReplies.length === 0) {
 		commentList.innerHTML = `
-			<div class="border round p-5 mb-2">
-				<div class="d-flex justify-content-center">
-					<p>등록된 댓글이 없습니다.</p>
+				<div class="border round p-5 mb-2">
+					<div class="d-flex justify-content-center">
+						<p>등록된 댓글이 없습니다.</p>
+					</div>
 				</div>
-			</div>
-		`;
+			`;
 		return;
 	}
 
-	replies.forEach(reply => {
-		const divEl = document.createElement("div");
-		const formatDate = dayjs(reply.createAt).format("YYYY-MM-DD HH:mm:ss");
-		divEl.classList.add("p-3", "mb-2", "bb-right");
+	// childReplies를 map 형태로 구성: { 부모 rno: [자식 댓글 리스트] }
+	const childMap = {};
+	childReplies.forEach(child => {
+		if (!childMap[child.parent_id]) {
+			childMap[child.parent_id] = [];
+		}
+		childMap[child.parent_id].push(child);
+	});
+
+	// 부모 댓글 순회
+	parentReplies.forEach(parent => {
+		// 자식 댓글 배열을 연결
+		parent.children = childMap[parent.rno] || [];
+
+		const element = renderReplyItem(parent); // 자식 포함해서 렌더링
+		commentList.appendChild(element);
+	});
+}
+
+function renderReplyItem(reply, depth = 0) {
+	const divEl = document.createElement("div");
+	const formatDate = dayjs(reply.createAt).format("YYYY-MM-DD HH:mm:ss");
+	divEl.classList.add("p-3", "pe-0", "mb-2", "bb-right");
+
+	if (depth > 0) {
+		divEl.classList.add("ms-5", "border-top", "mt-3"); // 답글 들여쓰기
+		divEl.innerHTML = `
+			<div class="d-flex justify-content-between mb-3 px-2">
+				<strong>${reply.writer}</strong>
+				<span>${formatDate}</span>
+			</div>
+			<div class="d-flex justify-content-between align-items-start px-2 pb-3">
+				<div class="flex-grow-1">
+					<p class="mb-0">${reply.content}</p>
+				</div>
+				<div class="dropdown">
+					<button class="btn btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+						<i class="fa-solid fa-ellipsis-vertical"></i>
+					</button>
+					<ul class="dropdown-menu dropdown-menu-end">
+						<li><a class="dropdown-item" href="#">수정</a></li>
+						<li><a class="dropdown-item text-danger" href="#">삭제</a></li>
+					</ul>
+				</div>
+			</div>
+			<div class="d-flex justify-content-end align-items-center mt-2 px-2">
+				<div class="d-flex gap-2">
+					<button type="button" class="btn btn-outline-light border btn-sm d-flex align-items-center gap-1">
+						<i class="fa-regular fa-thumbs-up text-danger"></i>
+						<span class="text-danger">0</span>
+					</button>
+					<button type="button" class="btn btn-outline-light border btn-sm d-flex align-items-center gap-1">
+						<i class="fa-regular fa-thumbs-down text-primary"></i>
+						<span class="text-primary">0</span>
+					</button>
+				</div>
+			</div>
+		`;
+	} else {
 		divEl.innerHTML = `
 			<div class="d-flex justify-content-between mb-3 px-2">
 				<strong>${reply.writer}</strong>
@@ -192,8 +313,16 @@ function renderReplyList(replies) {
 				</div>
 			</div>
 		`;
-		commentList.appendChild(divEl);
-	});
+	}
+
+	if (Array.isArray(reply.children)) {
+		reply.children.forEach(child => {
+			const childEl = renderReplyItem(child, depth + 1);
+			divEl.appendChild(childEl);
+		});
+	}
+
+	return divEl;
 }
 
 // 댓글 등록
@@ -210,6 +339,7 @@ async function fetchReplyRegister(replyDTO) {
 		const result = await res.text();
 		showToast("✔️ " + result, "success");
 		await fetchReplyList();
+		await fetchBoardDetail();
 	} catch (e) {
 		showToast("❗ 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.", "error");
 		console.error("에러:", e);
@@ -248,7 +378,10 @@ function renderPagination(pageInfo) {
 	const pagination = document.getElementById("pagination");
 	pagination.innerHTML = "";
 
-	const { number, totalPages, first, last } = pageInfo;
+	const number = pageInfo.number;
+	const totalPages = pageInfo.totalPages;
+	const first = pageInfo.first;
+	const last = pageInfo.last;
 
 	// 이전 버튼
 	const prevDisabled = first ? "disabled" : "";

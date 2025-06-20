@@ -9,7 +9,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.board.notice.dto.request.BoardRequestDTO;
 import com.board.notice.dto.response.BoardResponseDTO;
-import com.board.notice.entity.Board;
 
 public interface BoardService {
 //	게시글 전체 조회
