@@ -84,22 +84,52 @@ document.getElementById("sort-oldest").addEventListener("click", async (event) =
 	await fetchReplyList(currentSize, currentPage, currentSort, currentDirection);
 });
 
-// 수정버튼 누를 시
-document.getElementById("edit").addEventListener("click", async (event) => {
+// 상세보기에서 수정버튼 누를 시
+document.getElementById("btn-edit").addEventListener("click", async (event) => {
 	event.preventDefault();
-	
+
 	currentMode = "edit";
-	
+
 	await fetchBoardDetail();
 });
 
-document.getElementById("returnDetail").addEventListener("click" , async (event) => {
+// 수정모드에서 수정 버튼 누를 시
+document.getElementById("btn-back-to-detail").addEventListener("click", async (event) => {
 	event.preventDefault();
-	
+
 	currentMode = "view";
-	
+
 	await fetchBoardDetail();
-})
+});
+
+// 삭제 버튼 누를 시
+document.getElementById("btn-delete").addEventListener("click", async (event) => {
+	event.preventDefault();
+
+	const isConfirmed = confirm("정말 삭제하시겠습니까?");
+	if (!isConfirmed) return;
+	
+	await fetchBoardDelete();
+});
+
+document.getElementById("btn-save-edit").addEventListener("click", async (event) => {
+	event.preventDefault();
+
+	const title = document.getElementById("titleInput");
+	const content = document.getElementById("contentTextarea");
+	const category = document.getElementById("categorySelect");
+
+	const formData = new FormData();
+	formData.append("title", title.value);
+	formData.append("content", content.value);
+	formData.append("category", category.value);
+	//	if (fileInput.files.length > 0) {
+	//		formData.append("file", fileInput.files[0]);
+	//	}
+
+	await fetchBoardEdit(formData);
+});
+
 
 // 게시글 상세보기
 async function fetchBoardDetail() {
@@ -128,11 +158,11 @@ function renderDetailView(detail) {
 	const formatted = dayjs(detail.createdAt).format("YYYY-MM-DD HH:mm:ss");
 	const replyBox = document.querySelector(".reply-box");
 	const editMenu = document.querySelector(".edit-menu");
-	
+
 	replyBox.style.display = "block";
 	editMenu.style.display = "none";
 	contentTitle.classList.remove("w-100");
-	
+
 	contentTitle.innerHTML = `
 		<p class="mb-0">
 			<strong class="text-primary">[${detail.category}]</strong>
@@ -155,17 +185,17 @@ function renderDetailView(detail) {
 	name = `${detail.userId.name}`;
 }
 
-function renderEditView(detail){
+function renderEditView(detail) {
 	const contentTitle = document.querySelector(".content-title");
 	const contentInfo = document.querySelector(".content-meta");
 	const contentMain = document.querySelector(".content-main");
 	const replyBox = document.querySelector(".reply-box");
 	const editMenu = document.querySelector(".edit-menu");
-	
+
 	contentTitle.innerHTML = "";
 	contentInfo.innerHTML = "";
 	contentMain.innerHTML = "";
-	
+
 	contentTitle.innerHTML = `
 		<div class="mb-0">
 			<select class="form-select" id="categorySelect" value="${detail.category}">
@@ -179,11 +209,11 @@ function renderEditView(detail){
 			<input type="text" class="form-control" id="titleInput" value="${detail.title}" placeholder="제목을 입력하세요">
 		</div>
 	`;
-	
+
 	contentMain.innerHTML = `
-		<textarea class="form-control edit-textarea" id="contentTextarea" rows="10" placeholder="내용을 입력하세요">${detail.content}</textarea>
+		<textarea class="form-control edit-textarea" id="contentTextarea" rows="16" placeholder="내용을 입력하세요">${detail.content}</textarea>
 	`;
-	
+
 	replyBox.style.display = "none";
 	editMenu.style.display = "flex";
 	editMenu.style.justifyContent = "flex-end";
@@ -197,7 +227,6 @@ async function fetchReplyList(size = currentSize, page = currentPage, sort = cur
 		const res = await fetchWithAuth(`/api/boards/${bno}/replies?size=${size}&page=${page}&sort=${sort},${direction}`);
 		if (!res.ok) throw new Error("서버 오류 발생");
 		const replies = await res.json();
-		console.log(replies);
 		renderReplyList(replies.parentReplies, replies.childReplies);
 		renderPagination(replies.pageInfo);
 	} catch (e) {
@@ -439,4 +468,50 @@ function insertReplyInputBox(rno, commentBox) {
 	`;
 
 	commentBox.appendChild(divEl);
+}
+
+// 게시글 수정
+async function fetchBoardEdit(formData) {
+	try {
+		const res = await fetchWithAuth(`/api/boards/${bno}/edit`, {
+			method: "POST",
+			body: formData
+		});
+
+		if (!res.ok) {
+			showToast("❗ 댓글수정에 실패했습니다. 다시 시도해주세요.", "error");
+			return;
+		}
+
+		const result = await res.text();
+		showToast("✔️ " + result, "success");
+
+		currentMode = "view";
+		await fetchBoardDetail();
+	} catch (e) {
+		showToast("❗ 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.", "error");
+		console.error("에러:", e);
+	}
+}
+
+// 게시글 삭제
+async function fetchBoardDelete() {
+	try {
+		const res = await fetchWithAuth(`/api/boards/${bno}`, {
+			method: "DELETE",
+		});
+
+		if (!res.ok) {
+			showToast("❗ 댓글삭제에 실패했습니다. 다시 시도해주세요.", "error");
+			return;
+		}
+
+		const result = await res.text();
+		showToast("✔️ " + result, "success");
+
+		location.href = "/board/list?deleted=true";
+	} catch (e) {
+		showToast("❗ 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.", "error");
+		console.error("에러:", e);
+	}
 }

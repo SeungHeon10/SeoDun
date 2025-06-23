@@ -25,6 +25,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 		content: "본문 내용으로 검색",
 		writer: "작성자 이름으로 검색"
 	};
+	
+	const urlParams = new URLSearchParams(window.location.search);
+	if (urlParams.get("deleted") === "true") {
+		showToast("✔️ 게시글이 삭제되었습니다.", "success");
+		window.history.replaceState({}, document.title, window.location.pathname);
+	}
 
 	await fetchBoardList();
 
@@ -237,3 +243,29 @@ function renderPagination(pageInfo) {
 	});
 }
 
+// Toastify 알림 호출
+function showToast(message, type) {
+	const minWidth = type === "success" ? "340px" : "530px";
+	Toastify({
+		text: message,
+		duration: 2000,
+		gravity: "bottom",
+		position: "center",
+		close: true,
+		escapeMarkup: false,
+		style: {
+			background: type === "success" ? "#d4edda" : "rgb(249, 226, 230)",
+			color: type === "success" ? "#155724" : "rgb(83, 14, 26)",
+			fontSize: "15px",
+			borderRadius: "8px",
+			border: "none",
+			boxShadow: "none",
+			padding: "12px 18px",
+			display: "flex",
+			alignItems: "center",
+			gap: "31%",
+			minWidth: minWidth,
+			whiteSpace: "nowrap"
+		}
+	}).showToast();
+}

@@ -43,6 +43,7 @@
 
 .content-title {
 	font-size: 20px;
+	gap: 5px;
 }
 
 .content-meta .list-inline-item:not(:first-child)::before {
@@ -62,6 +63,11 @@
 	resize: none;
 	border: none;
 	border-radius: 0.7rem;
+}
+
+#categorySelect {
+	padding: 10px 40px 10px 10px;
+	text-align: center;
 }
 
 textarea.form-control:focus {
@@ -130,10 +136,15 @@ textarea.form-control:focus {
 	display: none;
 }
 
-.edit-title{
+.edit-title {
 	flex: 1;
 }
 
-.edit-textarea{
+.edit-textarea {
 	border: 1px solid #d8dad8;
+}
+
+#titleInput {
+	border: 1px solid #d8dad8;
+	font-size: 20px;
 }

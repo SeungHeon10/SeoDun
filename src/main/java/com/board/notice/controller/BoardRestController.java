@@ -61,9 +61,9 @@ public class BoardRestController {
 	}
 
 //	게시글 수정하기
-	@PutMapping("/{bno}")
+	@PostMapping("/{bno}/edit")
 	public ResponseEntity<String> update(@PathVariable("bno") int bno, @ModelAttribute BoardRequestDTO boardRequestDTO,
-			@RequestParam("file") MultipartFile file) throws IOException {
+			@RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
 		boardService.update(boardRequestDTO, file);
 		return ResponseEntity.ok("게시글이 수정되었습니다.");
 	}
