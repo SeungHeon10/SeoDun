@@ -25,10 +25,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 		content: "본문 내용으로 검색",
 		writer: "작성자 이름으로 검색"
 	};
-	
+
 	const urlParams = new URLSearchParams(window.location.search);
 	if (urlParams.get("deleted") === "true") {
 		showToast("✔️ 게시글이 삭제되었습니다.", "success");
+		window.history.replaceState({}, document.title, window.location.pathname);
+	} else if (urlParams.get("register") === "true") {
+		showToast("✔️ 게시글이 등록되었습니다.", "success");
 		window.history.replaceState({}, document.title, window.location.pathname);
 	}
 
@@ -171,10 +174,10 @@ function renderBoardList(boards) {
 							<td colspan="5" class="text-center text-muted py-4"><i class="bi bi-search me-2"></i> 검색된 결과가 없습니다.</td>
 						`;
 		tbody.appendChild(tr);
-		
+
 		return;
 	}
-	
+
 	boards.forEach(board => {
 		const tr = document.createElement("tr");
 		const formatDate = new Date(board.createdAt).toLocaleDateString("ko-KR");
@@ -245,7 +248,6 @@ function renderPagination(pageInfo) {
 
 // Toastify 알림 호출
 function showToast(message, type) {
-	const minWidth = type === "success" ? "340px" : "530px";
 	Toastify({
 		text: message,
 		duration: 2000,
@@ -263,8 +265,6 @@ function showToast(message, type) {
 			padding: "12px 18px",
 			display: "flex",
 			alignItems: "center",
-			gap: "31%",
-			minWidth: minWidth,
 			whiteSpace: "nowrap"
 		}
 	}).showToast();

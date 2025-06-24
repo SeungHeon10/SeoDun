@@ -1,0 +1,67 @@
+.container {
+	padding-left: 290px;
+	padding-bottom: 2rem;
+	padding-top: 2rem;
+	max-width: 100%;
+}
+
+.row {
+	margin-bottom: 20px;
+}
+
+.card {
+	border-radius: 15px;
+}
+
+.content-top {
+	padding-top: 0.5rem;
+	padding-bottom: 1rem;
+}
+
+.content-title {
+	font-size: 20px;
+	gap: 5px;
+}
+
+.content-main {
+	min-height: 350px;
+	margin-top: 50px;
+	padding-bottom: 50px;
+	border-bottom: 1px solid #dee2e6;
+}
+
+.form-control {
+	resize: none;
+	border: none;
+}
+
+#categorySelect {
+	padding: 10px 40px 10px 10px;
+	text-align: center;
+}
+
+textarea.form-control:focus {
+	border-color: #d8dad8 !important;
+	/* 연한 회색 테두리 */
+	box-shadow: #d8dad8 !important;
+	/* 파란 테두리 제거 */
+}
+
+.register-title {
+	flex: 1;
+}
+
+.register-textarea {
+	border: 1px solid #d8dad8;
+}
+
+#titleInput {
+	border: 1px solid #d8dad8;
+	font-size: 20px;
+}
+
+.form-select{
+	max-width: 108px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}

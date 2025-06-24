@@ -108,7 +108,7 @@ document.getElementById("btn-delete").addEventListener("click", async (event) =>
 
 	const isConfirmed = confirm("정말 삭제하시겠습니까?");
 	if (!isConfirmed) return;
-	
+
 	await fetchBoardDelete();
 });
 
@@ -377,7 +377,6 @@ async function fetchReplyRegister(replyDTO) {
 
 // Toastify 알림 호출
 function showToast(message, type) {
-	const minWidth = type === "success" ? "340px" : "530px";
 	Toastify({
 		text: message,
 		duration: 2000,
@@ -395,8 +394,6 @@ function showToast(message, type) {
 			padding: "12px 18px",
 			display: "flex",
 			alignItems: "center",
-			gap: "31%",
-			minWidth: minWidth,
 			whiteSpace: "nowrap"
 		}
 	}).showToast();
@@ -505,9 +502,6 @@ async function fetchBoardDelete() {
 			showToast("❗ 댓글삭제에 실패했습니다. 다시 시도해주세요.", "error");
 			return;
 		}
-
-		const result = await res.text();
-		showToast("✔️ " + result, "success");
 
 		location.href = "/board/list?deleted=true";
 	} catch (e) {
