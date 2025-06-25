@@ -265,7 +265,8 @@ function showToast(message, type) {
 			padding: "12px 18px",
 			display: "flex",
 			alignItems: "center",
-			whiteSpace: "nowrap"
+			whiteSpace: "nowrap",
+			gap:"50px"
 		}
 	}).showToast();
 }

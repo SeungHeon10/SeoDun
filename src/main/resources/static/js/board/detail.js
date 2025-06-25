@@ -241,7 +241,7 @@ function renderReplyList(parentReplies, childReplies) {
 
 	if (parentReplies.length === 0) {
 		commentList.innerHTML = `
-				<div class="border round p-5 mb-2">
+				<div class="border round p-5 mb-2 ms-3">
 					<div class="d-flex justify-content-center">
 						<p>등록된 댓글이 없습니다.</p>
 					</div>
@@ -394,7 +394,8 @@ function showToast(message, type) {
 			padding: "12px 18px",
 			display: "flex",
 			alignItems: "center",
-			whiteSpace: "nowrap"
+			whiteSpace: "nowrap",
+			gap:"50px"
 		}
 	}).showToast();
 }

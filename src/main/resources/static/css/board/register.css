@@ -25,7 +25,7 @@
 
 .content-main {
 	min-height: 350px;
-	margin-top: 50px;
+	margin-top: 20px;
 	padding-bottom: 50px;
 	border-bottom: 1px solid #dee2e6;
 }
@@ -64,4 +64,16 @@ textarea.form-control:focus {
 	max-width: 108px;
 	overflow: hidden;
 	text-overflow: ellipsis;
+}
+
+#tagInput{
+	border: 1px solid #d8dad8;
+}
+
+.badge{
+	font-size: 12px;
+}
+
+#fileInput{
+	border: 1px solid #d8dad8;
 }

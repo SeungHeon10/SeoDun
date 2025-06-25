@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -80,7 +82,7 @@ public class BoardServiceImpl implements BoardService {
 	@CacheEvict(value = { "top6Boards", "popularBoards" }, allEntries = true)
 	public void register(BoardRequestDTO boardRequestDTO, MultipartFile file) throws IOException {
 		String filePath = null;
-		System.out.println(boardRequestDTO.getUserId());
+
 		if (file != null) {
 			// 확장자 추출
 			String filename = file.getOriginalFilename();
@@ -88,11 +90,6 @@ public class BoardServiceImpl implements BoardService {
 			// uuid로 파일명 변경
 			String uuid = UUID.randomUUID().toString();
 			String newfilename = uuid + extension;
-			// (로컬)저장 경로 지정
-//			String uploadDir = System.getProperty("user.dir") + "/src/main/resources/static/img/upload/";
-//			File dest = new File(uploadDir + newfilename);
-//			multipartFile.transferTo(dest);
-//			filePath = "/img/upload/" + newfilename;
 			try (InputStream inputStream = file.getInputStream()) {
 				String s3key = "upload/" + newfilename;
 				s3Client.putObject(PutObjectRequest.builder().bucket(bucketName).key(s3key)
@@ -104,9 +101,11 @@ public class BoardServiceImpl implements BoardService {
 		// 회원 조회
 		User user = userRepository.findById(boardRequestDTO.getUserId())
 				.orElseThrow(() -> new UsernameNotFoundException("해당 회원은 존재하지 않습니다."));
-
+		
+		String safeHtml = Jsoup.clean(boardRequestDTO.getContent(), Safelist.basicWithImages());
+		
 		// 게시글 등록
-		Board board = Board.builder().title(boardRequestDTO.getTitle()).content(boardRequestDTO.getContent())
+		Board board = Board.builder().title(boardRequestDTO.getTitle()).content(safeHtml)
 				.category(boardRequestDTO.getCategory()).writer(boardRequestDTO.getWriter()).filePath(filePath)
 				.tags(boardRequestDTO.getTags()).userId(user).build();
 		boardRepository.save(board);
@@ -178,11 +177,31 @@ public class BoardServiceImpl implements BoardService {
  		return boards.stream().map(BoardResponseDTO::new).toList();
 	}
 
+//	최신글 조회
 	@Override
 	public List<BoardResponseDTO> recentBoards() {
 		List<Board> boards = boardRepository.findTop2ByOrderByCreatedAtDesc();
 		
 		return boards.stream().map(BoardResponseDTO::new).toList();
+	}
+
+//	이미지 s3 업로드 
+	@Override
+	public String uploadImage(MultipartFile image) throws IOException {
+		String filename = image.getOriginalFilename();
+		String extension = filename.substring(filename.lastIndexOf("."));
+		String uuid = UUID.randomUUID().toString();
+		String newFilename = uuid + extension;
+		String key = "upload/images/" + newFilename;
+
+		try (InputStream inputStream = image.getInputStream()) {
+			s3Client.putObject(
+					PutObjectRequest.builder().bucket(bucketName).key(key).contentType(image.getContentType()).build(),
+					RequestBody.fromInputStream(inputStream, image.getSize()));
+		}
+
+		String url = "https://" + bucketName + ".s3.amazonaws.com/" + key;
+		return url;
 	}
 
 }

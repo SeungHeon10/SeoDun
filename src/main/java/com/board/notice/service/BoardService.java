@@ -29,4 +29,6 @@ public interface BoardService {
 	List<BoardResponseDTO> loadBoardsByAll();
 //	최근 2개의 게시글 조회
 	List<BoardResponseDTO> recentBoards();
+//	이미지 s3 저장
+	String uploadImage(MultipartFile image) throws IOException;
 }
