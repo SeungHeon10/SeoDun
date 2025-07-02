@@ -34,6 +34,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 			const writer = container.querySelector(".reply-writer");
 			const textarea = container.querySelector(".reply-content");
 
+			if (textarea.value === "") {
+				showToast("내용을 입력해주세요.", "error");
+				return;
+			}
+
 			const replyDTO = {
 				content: textarea.value,
 				writer: writer.innerText,
@@ -54,6 +59,11 @@ document.getElementById("registerBtn").addEventListener("click", async (event) =
 	const writer = document.getElementById("reply-writer");
 	const content = document.getElementById("reply-content").value;
 	const userId = writer.dataset.id;
+
+	if (content === "") {
+		showToast("내용을 입력해주세요.", "error");
+		return;
+	}
 
 	const replyDTO = {
 		content: content,
@@ -93,15 +103,6 @@ document.getElementById("btn-edit").addEventListener("click", async (event) => {
 	await fetchBoardDetail();
 });
 
-// 수정모드에서 수정 버튼 누를 시
-document.getElementById("btn-back-to-detail").addEventListener("click", async (event) => {
-	event.preventDefault();
-
-	currentMode = "view";
-
-	await fetchBoardDetail();
-});
-
 // 삭제 버튼 누를 시
 document.getElementById("btn-delete").addEventListener("click", async (event) => {
 	event.preventDefault();
@@ -112,6 +113,16 @@ document.getElementById("btn-delete").addEventListener("click", async (event) =>
 	await fetchBoardDelete();
 });
 
+// 수정모드에서 목록 버튼 누를 시
+document.getElementById("btn-back-to-detail").addEventListener("click", async (event) => {
+	event.preventDefault();
+
+	currentMode = "view";
+
+	await fetchBoardDetail();
+});
+
+// 수정모드에서 수정버튼 누를 시
 document.getElementById("btn-save-edit").addEventListener("click", async (event) => {
 	event.preventDefault();
 
@@ -130,6 +141,52 @@ document.getElementById("btn-save-edit").addEventListener("click", async (event)
 	await fetchBoardEdit(formData);
 });
 
+// 댓글 메뉴 버튼 누를 시
+document.addEventListener("click", async (event) => {
+	if (event.target.id === "reply-edit") { // 수정버튼 누를 시
+		event.preventDefault();
+
+		const commentDiv = event.target.closest("div.reply-block");
+		renderCommentEdit(commentDiv);
+	} else if (event.target.id === "reply-delete") { // 삭제버튼 누를 시
+		event.preventDefault();
+
+		const isConfirmed = confirm("정말 삭제하시겠습니까?");
+		if (!isConfirmed) return;
+
+		const commentDiv = event.target.closest("div.reply-block");
+		const rno = commentDiv.querySelector(".btn-reply") !== null ? commentDiv.querySelector(".btn-reply").dataset.rno : commentDiv.dataset.rno;
+
+		await fetchReplyDelete(rno);
+	}
+});
+
+// 댓글 수정화면에서 버튼 누를 시
+document.addEventListener("click", async (event) => {
+	if (event.target.id === "btn-cancel-reply") { // 취소 버튼 누를 시
+		event.preventDefault();
+
+		await fetchReplyList();
+	} else if (event.target.id === "btn-save-reply") { // 저장 버튼 누를 시
+		event.preventDefault();
+
+		const container = event.target.closest(".reply-input-form");
+		const rno = container.querySelector(".reply-writer").dataset.rno;
+		const textarea = container.querySelector(".reply-content");
+
+		if (textarea.value === "") {
+			showToast("내용을 입력해주세요.", "error");
+			return;
+		}
+
+		const replyDTO = {
+			rno: rno,
+			content: textarea.value,
+		};
+
+		await fetchReplyEdit(replyDTO);
+	}
+});
 
 // 게시글 상세보기
 async function fetchBoardDetail() {
@@ -185,6 +242,7 @@ function renderDetailView(detail) {
 	name = `${detail.userId.name}`;
 }
 
+// 게시글 수정화면 렌더링
 function renderEditView(detail) {
 	const contentTitle = document.querySelector(".content-title");
 	const contentInfo = document.querySelector(".content-meta");
@@ -269,6 +327,7 @@ function renderReplyList(parentReplies, childReplies) {
 	});
 }
 
+// 댓글(or 답글)을 트리 구조로 렌더링
 function renderReplyItem(reply, depth = 0) {
 	const divEl = document.createElement("div");
 	const formatDate = dayjs(reply.createAt).format("YYYY-MM-DD HH:mm:ss");
@@ -277,68 +336,72 @@ function renderReplyItem(reply, depth = 0) {
 	if (depth > 0) {
 		divEl.classList.add("ms-5", "border-top", "mt-3"); // 답글 들여쓰기
 		divEl.innerHTML = `
-			<div class="d-flex justify-content-between mb-3 px-2">
-				<strong>${reply.writer}</strong>
-				<span>${formatDate}</span>
-			</div>
-			<div class="d-flex justify-content-between align-items-start px-2 pb-3">
-				<div class="flex-grow-1">
-					<p class="mb-0">${reply.content}</p>
+			<div class="reply-block" data-rno=${reply.rno}>
+				<div class="d-flex justify-content-between mb-3 px-2">
+					<strong>${reply.writer}</strong>
+					<span>${formatDate}</span>
 				</div>
-				<div class="dropdown">
-					<button class="btn btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-						<i class="fa-solid fa-ellipsis-vertical"></i>
-					</button>
-					<ul class="dropdown-menu dropdown-menu-end">
-						<li><a class="dropdown-item" href="#">수정</a></li>
-						<li><a class="dropdown-item text-danger" href="#">삭제</a></li>
-					</ul>
+				<div class="d-flex justify-content-between align-items-start px-2 pb-3">
+					<div class="flex-grow-1">
+						<p class="mb-0">${reply.content}</p>
+					</div>
+					<div class="dropdown">
+						<button class="btn btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+							<i class="fa-solid fa-ellipsis-vertical"></i>
+						</button>
+						<ul class="dropdown-menu dropdown-menu-end">
+							<li><a class="dropdown-item" id="reply-edit" href="#">수정</a></li>
+							<li><a class="dropdown-item text-danger" id="reply-delete" href="#">삭제</a></li>
+						</ul>
+					</div>
 				</div>
-			</div>
-			<div class="d-flex justify-content-end align-items-center mt-2 px-2">
-				<div class="d-flex gap-2">
-					<button type="button" class="btn btn-outline-light border btn-sm d-flex align-items-center gap-1">
-						<i class="fa-regular fa-thumbs-up text-danger"></i>
-						<span class="text-danger">0</span>
-					</button>
-					<button type="button" class="btn btn-outline-light border btn-sm d-flex align-items-center gap-1">
-						<i class="fa-regular fa-thumbs-down text-primary"></i>
-						<span class="text-primary">0</span>
-					</button>
+				<div class="d-flex justify-content-end align-items-center mt-2 px-2">
+					<div class="d-flex gap-2">
+						<button type="button" class="btn btn-outline-light border btn-sm d-flex align-items-center gap-1">
+							<i class="fa-regular fa-thumbs-up text-danger"></i>
+							<span class="text-danger">0</span>
+						</button>
+						<button type="button" class="btn btn-outline-light border btn-sm d-flex align-items-center gap-1">
+							<i class="fa-regular fa-thumbs-down text-primary"></i>
+							<span class="text-primary">0</span>
+						</button>
+					</div>
 				</div>
 			</div>
 		`;
 	} else {
 		divEl.innerHTML = `
-			<div class="d-flex justify-content-between mb-3 px-2">
-				<strong>${reply.writer}</strong>
-				<span>${formatDate}</span>
-			</div>
-			<div class="d-flex justify-content-between align-items-start px-2 pb-3">
-				<div class="flex-grow-1">
-					<p class="mb-0">${reply.content}</p>
+			<div class="reply-block">
+				<div class="d-flex justify-content-between mb-3 px-2">
+					<strong>${reply.writer}</strong>
+					<span>${formatDate}</span>
 				</div>
-				<div class="dropdown">
-					<button class="btn btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-						<i class="fa-solid fa-ellipsis-vertical"></i>
-					</button>
-					<ul class="dropdown-menu dropdown-menu-end">
-						<li><a class="dropdown-item" href="#">수정</a></li>
-						<li><a class="dropdown-item text-danger" href="#">삭제</a></li>
-					</ul>
+				<div class="d-flex justify-content-between align-items-start px-2 pb-3">
+					<div class="flex-grow-1">
+						<p class="mb-0">${reply.content}</p>
+					</div>
+					<div class="dropdown">
+						<button class="btn btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+							<i class="fa-solid fa-ellipsis-vertical"></i>
+						</button>
+						<ul class="dropdown-menu dropdown-menu-end">
+							<li><a class="dropdown-item" id="reply-edit" href="#">수정</a></li>
+							<li><a class="dropdown-item text-danger" id="reply-delete" href="#">삭제</a></li>
+						</ul>
+					</div>
 				</div>
-			</div>
-			<div class="d-flex justify-content-between align-items-center mt-2 px-2">
-				<button type="button" class="btn btn-outline-secondary btn-reply" data-rno=${reply.rno}>답글</button>
-				<div class="d-flex gap-2">
-					<button type="button" class="btn btn-outline-light border btn-sm d-flex align-items-center gap-1">
-						<i class="fa-regular fa-thumbs-up text-danger"></i>
-						<span class="text-danger">0</span>
-					</button>
-					<button type="button" class="btn btn-outline-light border btn-sm d-flex align-items-center gap-1">
-						<i class="fa-regular fa-thumbs-down text-primary"></i>
-						<span class="text-primary">0</span>
-					</button>
+				<div class="d-flex justify-content-between align-items-center mt-2 px-2">
+					<button type="button" class="btn btn-outline-secondary btn-reply" data-rno=${reply.rno}>답글</button>
+					<div class="d-flex gap-2">
+						<button type="button" class="btn btn-outline-light border btn-sm d-flex align-items-center gap-1">
+							<i class="fa-regular fa-thumbs-up text-danger"></i>
+							<span class="text-danger">0</span>
+						</button>
+						<button type="button" class="btn btn-outline-light border btn-sm d-flex align-items-center gap-1">
+							<i class="fa-regular fa-thumbs-down text-primary"></i>
+							<span class="text-primary">0</span>
+						</button>
+					</div>
 				</div>
 			</div>
 		`;
@@ -375,6 +438,49 @@ async function fetchReplyRegister(replyDTO) {
 	}
 }
 
+// 댓글 수정
+async function fetchReplyEdit(replyDTO) {
+	try {
+		const res = await fetchWithAuth(`/api/boards/${bno}/replies/${replyDTO.rno}`, {
+			method: "PUT",
+			body: JSON.stringify(replyDTO)
+		});
+		if (!res.ok) {
+			showToast("❗ 댓글수정에 실패했습니다. 다시 시도해주세요.", "error");
+			return;
+		}
+		const result = await res.text();
+		showToast("✔️ " + result, "success");
+		await fetchReplyList();
+		await fetchBoardDetail();
+	} catch (e) {
+		showToast("❗ 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.", "error");
+		console.error("에러:", e);
+	}
+}
+
+// 댓글 삭제
+async function fetchReplyDelete(rno) {
+	try {
+		const res = await fetchWithAuth(`/api/boards/${bno}/replies/${rno}`, {
+			method: "DELETE"
+		});
+
+		if (!res.ok) {
+			showToast("❗ 댓글삭제에 실패했습니다. 다시 시도해주세요.", "error");
+			return;
+		}
+
+		const result = await res.text();
+		showToast("✔️ " + result, "success");
+		await fetchReplyList();
+		await fetchBoardDetail();
+	} catch (e) {
+		showToast("❗ 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.", "error");
+		console.error("에러:", e);
+	}
+}
+
 // Toastify 알림 호출
 function showToast(message, type) {
 	Toastify({
@@ -395,7 +501,7 @@ function showToast(message, type) {
 			display: "flex",
 			alignItems: "center",
 			whiteSpace: "nowrap",
-			gap:"50px"
+			gap: "50px"
 		}
 	}).showToast();
 }
@@ -468,6 +574,31 @@ function insertReplyInputBox(rno, commentBox) {
 	commentBox.appendChild(divEl);
 }
 
+// 댓글 수정화면 렌더링
+function renderCommentEdit(commentDiv) {
+	const content = commentDiv.querySelector("p.mb-0").textContent;
+	const writer = commentDiv.querySelector("strong");
+	const rno = commentDiv.querySelector(".btn-reply") !== null ? commentDiv.querySelector(".btn-reply").dataset.rno : commentDiv.dataset.rno;
+
+	const divEl = document.createElement("div");
+	divEl.classList.add("pt-3", "pb-3", "mt-3", "border-top", "border-bottom", "reply-input-form");
+	divEl.innerHTML = `
+		<div class="mb-3 input-reply">
+			<label class="form-label mb-2 text-muted ms-cus"><strong class="reply-writer"
+					data-rno="${rno}">${writer.textContent}</strong></label>
+			<textarea class="form-control reply-content" rows="3"
+				placeholder="댓글을 입력하세요...">${content}</textarea>
+		</div>
+
+		<div class="d-flex justify-content-end gap-2">
+			<button type="button" class="btn btn-outline-secondary" id="btn-cancel-reply">취소</button>
+			<button type="button" class="btn btn-outline-secondary" id="btn-save-reply">저장</button>
+		</div>
+	`;
+
+	commentDiv.replaceWith(divEl);
+}
+
 // 게시글 수정
 async function fetchBoardEdit(formData) {
 	try {
@@ -500,7 +631,7 @@ async function fetchBoardDelete() {
 		});
 
 		if (!res.ok) {
-			showToast("❗ 댓글삭제에 실패했습니다. 다시 시도해주세요.", "error");
+			showToast("❗ 게시글 삭제에 실패했습니다. 다시 시도해주세요.", "error");
 			return;
 		}
 

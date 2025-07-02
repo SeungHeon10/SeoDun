@@ -12,7 +12,7 @@ import com.board.notice.dto.response.BoardResponseDTO;
 
 public interface BoardService {
 //	게시글 전체 조회
-	Page<BoardResponseDTO> list(Pageable pageable, String mode, String keyword);
+	Page<BoardResponseDTO> list(Pageable pageable, String mode, String keyword, String category);
 //	게시글 상세보기
 	BoardResponseDTO detail(int bno);
 //	게시글 등록

@@ -2,6 +2,8 @@ import { fetchWithAuth } from "../fetchWithAuth.js";
 
 const tbody = document.getElementById("list");
 const searchModePanel = document.getElementById("searchModePanel");
+const pathParts = window.location.pathname.split('/');
+const category = pathParts[3];
 let currentSize = 10; // 현재 사이즈
 let currentPage = 0; // 현재 페이지 번호
 let currentSort = "createdAt"; // 현재 정렬 항목
@@ -151,7 +153,7 @@ async function fetchBoardList(size = currentSize, page = 0, sort = currentSort, 
 
 async function doFetch(size, page, sort, direction, mode, keyword) {
 	try {
-		const response = await fetchWithAuth(`/api/boards?size=${size}&page=${page}&sort=${sort},${direction}&mode=${mode}&keyword=${encodeURIComponent(keyword || "")}`);
+		const response = await fetchWithAuth(`/api/boards?size=${size}&page=${page}&sort=${sort},${direction}&mode=${mode}&keyword=${encodeURIComponent(keyword || "")}&category=${category}`);
 
 		if (!response.ok) {
 			throw new Error("서버 오류 발생");
@@ -185,7 +187,7 @@ function renderBoardList(boards) {
 		tr.innerHTML = `
 							<td style="text-align: center;">${board.category}</td>
 							<td>
-								<a href="detail/${board.bno}" class="board-title-link">
+								<a href="/board/detail/${board.bno}" class="board-title-link">
 									${board.title}
 									<p class="commentCount">[${board.commentCount}]</p>
 								</a>

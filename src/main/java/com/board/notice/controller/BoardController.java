@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class BoardController {
 
 //	게시글 전체조회 페이지 이동
-	@GetMapping("/list")
+	@GetMapping("/list/{category}")
 	public String listPage() {
 		
 		return "board/list";

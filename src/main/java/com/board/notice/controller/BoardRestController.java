@@ -35,8 +35,17 @@ public class BoardRestController {
 	public ResponseEntity<Page<BoardResponseDTO>> list(
 			@PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
 			@RequestParam(name = "mode", defaultValue = "title") String mode,
-			@RequestParam(name = "keyword", defaultValue = "") String keyword) {
-		Page<BoardResponseDTO> list = boardService.list(pageable, mode, keyword);
+			@RequestParam(name = "keyword", defaultValue = "") String keyword,
+			@RequestParam(name = "category", defaultValue = "all") String category) {
+		String realCategory = switch (category) {
+			case "free" -> "자유";
+			case "study" -> "학습";
+			case "share" -> "정보공유";
+			case "qna" -> "질문답변";
+			default -> "전체";
+		};
+		
+		Page<BoardResponseDTO> list = boardService.list(pageable, mode, keyword, realCategory);
 
 		return ResponseEntity.ok(list);
 	}
@@ -100,7 +109,7 @@ public class BoardRestController {
 
 	@PostMapping("/upload/image")
 	public ResponseEntity<String> uploadImage(@RequestParam MultipartFile image) throws IOException {
-		
+
 		return ResponseEntity.ok(boardService.uploadImage(image));
 	}
 }

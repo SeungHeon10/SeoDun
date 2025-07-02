@@ -42,22 +42,26 @@ public class BoardServiceImpl implements BoardService {
 
 //	게시글 전체조회
 	@Override
-	public Page<BoardResponseDTO> list(Pageable pageable, String mode, String keyword) {
+	public Page<BoardResponseDTO> list(Pageable pageable, String mode, String keyword, String category) {
 		if (keyword == null || keyword.trim().isEmpty() || "undefined".equals(keyword)) {
 			// 검색어 없으면 전체 목록
-			return boardRepository.findAll(pageable).map(BoardResponseDTO::new);
+			if(category == "전체") {
+				return boardRepository.findAll(pageable).map(BoardResponseDTO::new);
+			} else {
+				return boardRepository.findAllByCategory(category, pageable).map(BoardResponseDTO::new);
+			}
 		}
 
 		switch (mode) {
 		case "title":
-			return boardRepository.findByTitleContaining(keyword, pageable).map(BoardResponseDTO::new);
+			return boardRepository.findByTitleContainingAndCategory(keyword, category, pageable).map(BoardResponseDTO::new);
 		case "content":
-			return boardRepository.findByContentContaining(keyword, pageable).map(BoardResponseDTO::new);
+			return boardRepository.findByContentContainingAndCategory(keyword, category, pageable).map(BoardResponseDTO::new);
 		case "title_content":
-			return boardRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable)
+			return boardRepository.findByTitleContainingAndCategory(keyword, category, pageable)
 					.map(BoardResponseDTO::new);
 		case "writer":
-			return boardRepository.findByWriterContaining(keyword, pageable).map(BoardResponseDTO::new);
+			return boardRepository.findByWriterContainingAndCategory(keyword, category, pageable).map(BoardResponseDTO::new);
 		default:
 			return boardRepository.findAll(pageable).map(BoardResponseDTO::new);
 		}
