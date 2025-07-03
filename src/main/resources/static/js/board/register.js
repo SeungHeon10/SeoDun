@@ -1,5 +1,7 @@
 import { fetchWithAuth } from "../fetchWithAuth.js";
 
+let editor;
+
 document.addEventListener("DOMContentLoaded", () => {
 	tagAdd();
 	editerInit();
@@ -9,13 +11,13 @@ document.addEventListener("DOMContentLoaded", () => {
 document.getElementById("btn-save-register").addEventListener("click", async () => {
 	const category = document.getElementById("categorySelect");
 	const title = document.getElementById("titleInput");
-	const content = document.getElementById("contentTextarea");
+	const content = editor.getHTML();
 	const userId = document.getElementById("userId");
-	const tag = document.getElementById("tagInput");
 	const file = document.getElementById("fileInput");
-
-	// 하나라도 메시지가 있다면 토스트 출력하고 요청 중단
-	if (category.value === "" || title.value === "" || content.value === "" || writer.value === "") {
+	const tagContainer = document.getElementById("tagContainer");
+	
+	// 하나라도 빈 값이 있다면 토스트 출력하고 요청 중단
+	if (category.value === "" || title.value === "" || content.value === "") {
 		Toastify({
 			text: "❗ 입력한 정보를 다시 확인해주세요.",
 			duration: 2000,
@@ -37,15 +39,16 @@ document.getElementById("btn-save-register").addEventListener("click", async () 
 		}).showToast();
 		return;
 	}
-
+	
 	const formData = new FormData();
+	const tags = Array.from(tagContainer.querySelectorAll("span")).map(span => span.textContent.trim());
 	formData.append("category", category.value);
 	formData.append("title", title.value);
-	formData.append("content", content.value);
+	formData.append("content", content);
 	formData.append("userId", userId.value);
 	formData.append("writer", "이승헌");
-	formData.append("tag", tag.value);
-	formData.append("file", file.value);
+	formData.append("file", file.files[0]);
+	tags.forEach(tag => formData.append("tags", tag));
 	await fetchBoardRegister(formData);
 });
 
@@ -62,7 +65,7 @@ async function fetchBoardRegister(formData) {
 			return;
 		}
 
-		location.href = "/board/list?register=true";
+		location.href = "/board/list/all?register=true";
 	} catch (e) {
 		showToast("❗ 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.", "error");
 		console.error("에러:", e);
@@ -93,6 +96,7 @@ function showToast(message, type) {
 	}).showToast();
 }
 
+// 태그 추가
 function tagAdd() {
 	const tagInput = document.getElementById("tagInput");
 	const tagContainer = document.getElementById("tagContainer");
@@ -114,11 +118,12 @@ function tagAdd() {
 	});
 }
 
+// 에디터 초기값
 function editerInit() {
-	const editor = new toastui.Editor({
+	editor = new toastui.Editor({
 		el: document.querySelector('#editor'),
 		height: '500px',
-		initialEditType: 'wysiwyg',  // wysiwyg or markdown
+		initialEditType: 'wysiwyg',
 		previewStyle: 'vertical',
 		hooks: {
 			addImageBlobHook: (blob, callback) => {
@@ -126,7 +131,7 @@ function editerInit() {
 				const formData = new FormData();
 				formData.append("image", blob);
 
-				fetchWithAuth('/upload/image', {
+				fetchWithAuth('/api/boards/upload/image', {
 					method: 'POST',
 					body: formData
 				})

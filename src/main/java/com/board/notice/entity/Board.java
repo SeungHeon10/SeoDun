@@ -1,10 +1,15 @@
 package com.board.notice.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.hibernate.annotations.Where;
 
 import com.board.notice.dto.request.BoardRequestDTO;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -44,7 +49,10 @@ public class Board extends BaseEntity {
     private boolean isPinned = false; // 게시글 상단고정여부
     private String category; // 게시글 카테고리
     private String filePath; // 게시글 첨부파일 경로
-    private String tags; // 게시글 태그 (콤마로 저장)
+    @ElementCollection
+    @CollectionTable(name = "board_tags", joinColumns = @JoinColumn(name = "board_bno"))
+    @Column(name = "tag")
+    private List<String> tags = new ArrayList<>(); // 게시글 태그 (콤마로 저장)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")
     private User userId; // 게시글 작성자 id

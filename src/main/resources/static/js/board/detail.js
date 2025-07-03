@@ -8,6 +8,7 @@ let currentPage = 0; // 현재 페이지 번호
 let currentSort = "createdAt"; // 현재 정렬 항목
 let currentDirection = "desc"; // 현재 정렬 기준
 let currentMode = "view";
+let editor;
 
 // 페이지 로드 시
 document.addEventListener("DOMContentLoaded", async () => {
@@ -127,16 +128,19 @@ document.getElementById("btn-save-edit").addEventListener("click", async (event)
 	event.preventDefault();
 
 	const title = document.getElementById("titleInput");
-	const content = document.getElementById("contentTextarea");
+	const content = editor.getHTML();
 	const category = document.getElementById("categorySelect");
+	const tagContainer = document.getElementById("tagContainer");
+	const tags = Array.from(tagContainer.querySelectorAll("span")).map(span => span.textContent.trim());
 
 	const formData = new FormData();
 	formData.append("title", title.value);
-	formData.append("content", content.value);
+	formData.append("content", content);
 	formData.append("category", category.value);
-	//	if (fileInput.files.length > 0) {
-	//		formData.append("file", fileInput.files[0]);
-	//	}
+	tags.forEach(tag => formData.append("tags", tag));
+	if (fileInput.files.length > 0) {
+		formData.append("file", fileInput.files[0]);
+	}
 
 	await fetchBoardEdit(formData);
 });
@@ -215,6 +219,9 @@ function renderDetailView(detail) {
 	const formatted = dayjs(detail.createdAt).format("YYYY-MM-DD HH:mm:ss");
 	const replyBox = document.querySelector(".reply-box");
 	const editMenu = document.querySelector(".edit-menu");
+	const filePath = detail.filePath || null;
+	let fileName;
+
 
 	replyBox.style.display = "block";
 	editMenu.style.display = "none";
@@ -232,7 +239,38 @@ function renderDetailView(detail) {
 		<li class="list-inline-item me-0">조회수 : ${detail.viewCount}</li>
 		<li class="list-inline-item text-muted">${formatted}</li>
 	`;
-	contentMain.textContent = `${detail.content}`;
+
+	if (filePath !== null) {
+		fileName = filePath.substring(filePath.lastIndexOf('/') + 1);
+		contentMain.innerHTML = `
+			<div class="post-body">
+				${detail.content}
+			</div>
+			<div class="attached-file-box p-3">
+		    <div class="file-label mb-2">첨부파일</div>
+			    <a th:href="${detail.filePath}" class="file-link" target="_blank" download>
+			        <i class="bi bi-download"></i>
+			        <span>${fileName}</span>
+			    </a>
+			</div>
+			<div id="tagContainer" class="mt-3"></div>
+		`;
+	} else {
+		contentMain.innerHTML = `
+			<div class="post-body">
+				${detail.content}
+			</div>
+			<div id="tagContainer" class="mt-2"></div>
+		`;
+	}
+
+	detail.tags.forEach(tag => {
+		const tagEl = document.createElement("span");
+		tagEl.className = "badge bg-secondary me-1 mb-1";
+		tagEl.textContent = tag;
+		tagContainer.appendChild(tagEl);
+	});
+
 	replybtn.textContent = `댓글 ${detail.commentCount}`;
 
 	replyWriter.dataset.id = `${detail.userId.id}`;
@@ -249,11 +287,11 @@ function renderEditView(detail) {
 	const contentMain = document.querySelector(".content-main");
 	const replyBox = document.querySelector(".reply-box");
 	const editMenu = document.querySelector(".edit-menu");
+	const tagContainer = document.getElementById("tagContainer");
 
 	contentTitle.innerHTML = "";
 	contentInfo.innerHTML = "";
 	contentMain.innerHTML = "";
-
 	contentTitle.innerHTML = `
 		<div class="mb-0">
 			<select class="form-select" id="categorySelect" value="${detail.category}">
@@ -269,14 +307,30 @@ function renderEditView(detail) {
 	`;
 
 	contentMain.innerHTML = `
-		<textarea class="form-control edit-textarea" id="contentTextarea" rows="16" placeholder="내용을 입력하세요">${detail.content}</textarea>
+		<div id="editor"></div>
+		<div class="mt-3 mb-5">
+			<input class="form-control" type="file" name="file" id="fileInput">
+		</div>
+		<div class="mb-3">
+			<label for="tagInput" class="form-label">태그 추가</label>
+			<input type="text" id="tagInput" class="form-control"
+				placeholder="태그를 입력하고 Enter를 누르세요">
+			<div id="tagContainer" class="mt-2"></div>
+		</div>
 	`;
+
+	setTimeout(() => {
+		editerInit(detail.content);
+		tagAdd();
+	}, 0);
+
 
 	replyBox.style.display = "none";
 	editMenu.style.display = "flex";
 	editMenu.style.justifyContent = "flex-end";
 	editMenu.style.gap = "10px";
 	contentTitle.classList.add("w-100");
+	tagContainer.style.display = "none";
 }
 
 // 댓글 조회
@@ -640,4 +694,52 @@ async function fetchBoardDelete() {
 		showToast("❗ 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.", "error");
 		console.error("에러:", e);
 	}
+}
+
+// 에디터 초기값
+function editerInit(content) {
+	editor = new toastui.Editor({
+		el: document.querySelector('#editor'),
+		height: '500px',
+		initialEditType: 'wysiwyg',
+		previewStyle: 'vertical',
+		initialValue: content,
+		hooks: {
+			addImageBlobHook: (blob, callback) => {
+				// 이미지 업로드 → 서버 전송
+				const formData = new FormData();
+				formData.append("image", blob);
+
+				fetchWithAuth('/api/boards/upload/image', {
+					method: 'POST',
+					body: formData
+				})
+					.then(res => res.text())
+					.then(imageUrl => {
+						callback(imageUrl, '업로드된 이미지');
+					});
+			}
+		}
+	});
+}
+
+function tagAdd() {
+	const tagInput = document.getElementById("tagInput");
+	const tagContainer = document.getElementById("tagContainer");
+
+	tagInput.addEventListener("keypress", function(e) {
+		if (e.key === "Enter") {
+			e.preventDefault();
+			const value = tagInput.value.trim();
+			if (value) {
+				const tagEl = document.createElement("span");
+				tagEl.className = "badge bg-secondary me-1 mb-1";
+				tagEl.textContent = "#" + value;
+				tagContainer.appendChild(tagEl);
+				tagInput.value = "";
+			} else {
+				showToast("❗ 태그를 입력 후 다시 시도해주세요.", "error");
+			}
+		}
+	});
 }

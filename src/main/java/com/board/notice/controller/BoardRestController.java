@@ -38,13 +38,13 @@ public class BoardRestController {
 			@RequestParam(name = "keyword", defaultValue = "") String keyword,
 			@RequestParam(name = "category", defaultValue = "all") String category) {
 		String realCategory = switch (category) {
-			case "free" -> "자유";
-			case "study" -> "학습";
-			case "share" -> "정보공유";
-			case "qna" -> "질문답변";
-			default -> "전체";
+		case "free" -> "자유";
+		case "study" -> "학습";
+		case "share" -> "정보공유";
+		case "qna" -> "질문답변";
+		default -> "전체";
 		};
-		
+
 		Page<BoardResponseDTO> list = boardService.list(pageable, mode, keyword, realCategory);
 
 		return ResponseEntity.ok(list);
@@ -54,6 +54,7 @@ public class BoardRestController {
 	@GetMapping("/{bno}")
 	public ResponseEntity<BoardResponseDTO> detail(@PathVariable("bno") int bno) {
 		BoardResponseDTO boardResponseDTO = boardService.detail(bno);
+		System.out.println(boardResponseDTO);
 		return ResponseEntity.ok(boardResponseDTO);
 	}
 
@@ -107,8 +108,9 @@ public class BoardRestController {
 		return ResponseEntity.ok(recent);
 	}
 
+//	이미지 업로드
 	@PostMapping("/upload/image")
-	public ResponseEntity<String> uploadImage(@RequestParam MultipartFile image) throws IOException {
+	public ResponseEntity<String> uploadImage(@RequestParam("image") MultipartFile image) throws IOException {
 
 		return ResponseEntity.ok(boardService.uploadImage(image));
 	}

@@ -1,6 +1,7 @@
 package com.board.notice.dto.response;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.board.notice.entity.Board;
 
@@ -24,7 +25,7 @@ public class BoardResponseDTO {
 	private int commentCount; // 게시글 댓글수
 	private String category; // 게시글 카테고리
 	private String filePath; // 게시글 첨부파일 경로
-	private String tags; // 게시글 태그 (콤마로 저장)
+	private List<String> tags; // 게시글 태그 (콤마로 저장)
 	private UserResponseDTO userId; // 게시글 작성자 id
 	private LocalDateTime createdAt;
 	

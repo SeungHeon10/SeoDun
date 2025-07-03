@@ -28,6 +28,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Service
@@ -86,7 +87,7 @@ public class BoardServiceImpl implements BoardService {
 	@CacheEvict(value = { "top6Boards", "popularBoards" }, allEntries = true)
 	public void register(BoardRequestDTO boardRequestDTO, MultipartFile file) throws IOException {
 		String filePath = null;
-
+		System.out.println(boardRequestDTO + "띄어쓰기" + file);
 		if (file != null) {
 			// 확장자 추출
 			String filename = file.getOriginalFilename();
@@ -97,7 +98,7 @@ public class BoardServiceImpl implements BoardService {
 			try (InputStream inputStream = file.getInputStream()) {
 				String s3key = "upload/" + newfilename;
 				s3Client.putObject(PutObjectRequest.builder().bucket(bucketName).key(s3key)
-						.contentType(file.getContentType()).build(),
+						.contentType(file.getContentType()).contentDisposition("attachment").build(),
 						RequestBody.fromInputStream(inputStream, file.getSize()));
 				filePath = "https://" + bucketName + ".s3.amazonaws.com/upload/" + newfilename;
 			}
@@ -196,11 +197,15 @@ public class BoardServiceImpl implements BoardService {
 		String extension = filename.substring(filename.lastIndexOf("."));
 		String uuid = UUID.randomUUID().toString();
 		String newFilename = uuid + extension;
-		String key = "upload/images/" + newFilename;
+		String key = "image/" + newFilename;
 
 		try (InputStream inputStream = image.getInputStream()) {
 			s3Client.putObject(
-					PutObjectRequest.builder().bucket(bucketName).key(key).contentType(image.getContentType()).build(),
+					PutObjectRequest.builder()
+					.bucket(bucketName)
+					.key(key)
+					.contentType(image.getContentType())
+					.build(),
 					RequestBody.fromInputStream(inputStream, image.getSize()));
 		}
 

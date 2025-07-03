@@ -53,10 +53,20 @@
 }
 
 .content-main {
+	display: flex;
+	flex-direction: column;
 	min-height: 350px;
-	margin-top: 50px;
-	padding-bottom: 50px;
+	margin-top: 25px;
+	padding-bottom: 15px;
 	border-bottom: 1px solid #dee2e6;
+}
+
+.post-body {
+	flex-grow: 1;
+}
+
+#tagContainer {
+	align-self: flex-start;
 }
 
 .form-control {
@@ -146,4 +156,22 @@ textarea.form-control:focus {
 #titleInput {
 	border: 1px solid #d8dad8;
 	font-size: 20px;
+}
+
+#tagInput {
+	border: 1px solid #d8dad8;
+}
+
+.badge {
+	font-size: 12px;
+}
+
+#fileInput {
+	border: 1px solid #d8dad8;
+}
+
+.attached-file-box {
+	border: 1px solid #dee2e6;
+	width: fit-content;
+	border-radius: 1.2rem;
 }
