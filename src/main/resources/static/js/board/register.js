@@ -1,8 +1,41 @@
 import { fetchWithAuth } from "../fetchWithAuth.js";
 
+const pathParts = window.location.pathname.split('/');
+const category = pathParts[3];
 let editor;
 
 document.addEventListener("DOMContentLoaded", () => {
+	const categoryNames = {
+		free: "자유",
+		study: "학습",
+		qna: "질문답변",
+		share: "정보공유",
+	};
+
+	if (category) {
+		const select = document.getElementById("categorySelect");
+		if (select && Array.from(select.options).some(
+			option => option.value === categoryNames[category])) {
+			select.value = categoryNames[category];
+			window.history.replaceState({}, document.title, window.location.pathname);
+		}
+	}
+
+	const titleElement = document.getElementById("category-title");
+	const anchorEl = titleElement.closest("a");
+
+	if (category && categoryNames[category]) {
+		titleElement.textContent = categoryNames[category];
+		if (anchorEl) {
+			anchorEl.href = `/board/list/${category}`;
+		}
+	} else {
+		titleElement.textContent = "전체글보기";
+		if (anchorEl) {
+			anchorEl.href = `/board/list/all`;
+		}
+	}
+
 	tagAdd();
 	editerInit();
 });
@@ -15,7 +48,7 @@ document.getElementById("btn-save-register").addEventListener("click", async () 
 	const userId = document.getElementById("userId");
 	const file = document.getElementById("fileInput");
 	const tagContainer = document.getElementById("tagContainer");
-	
+
 	// 하나라도 빈 값이 있다면 토스트 출력하고 요청 중단
 	if (category.value === "" || title.value === "" || content.value === "") {
 		Toastify({
@@ -39,9 +72,9 @@ document.getElementById("btn-save-register").addEventListener("click", async () 
 		}).showToast();
 		return;
 	}
-	
+
 	const formData = new FormData();
-	const tags = Array.from(tagContainer.querySelectorAll("span")).map(span => span.textContent.trim());
+	const tags = Array.from(tagContainer.querySelectorAll("span > span")).map(span => span.textContent.trim());
 	formData.append("category", category.value);
 	formData.append("title", title.value);
 	formData.append("content", content);
@@ -65,7 +98,7 @@ async function fetchBoardRegister(formData) {
 			return;
 		}
 
-		location.href = "/board/list/all?register=true";
+		location.href = `/board/list/${category}?register=true`;
 	} catch (e) {
 		showToast("❗ 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.", "error");
 		console.error("에러:", e);
@@ -105,10 +138,25 @@ function tagAdd() {
 		if (e.key === "Enter") {
 			e.preventDefault();
 			const value = tagInput.value.trim();
+
 			if (value) {
 				const tagEl = document.createElement("span");
-				tagEl.className = "badge bg-secondary me-1 mb-1";
-				tagEl.textContent = "#" + value;
+				tagEl.className = "badge bg-secondary me-1 mb-1 d-inline-flex align-items-center";
+
+				// 태그 텍스트
+				const tagText = document.createElement("span");
+				tagText.textContent = "#" + value;
+				tagEl.appendChild(tagText);
+
+				// 삭제 버튼
+				const closeBtn = document.createElement("button");
+				closeBtn.type = "button";
+				closeBtn.className = "btn-close btn-close-white ms-2";
+				closeBtn.style.fontSize = "0.6rem";
+				closeBtn.setAttribute("aria-label", "Remove");
+				closeBtn.onclick = () => tagEl.remove();
+
+				tagEl.appendChild(closeBtn);
 				tagContainer.appendChild(tagEl);
 				tagInput.value = "";
 			} else {

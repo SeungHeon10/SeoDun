@@ -16,14 +16,14 @@ public class BoardController {
 	}
 	
 //	게시글 상세보기 페이지 이동
-	@GetMapping("/detail/{bno}")
+	@GetMapping("/detail/{category}/{bno}")
 	public String detailPage() {
 		
 		return "board/detail";
 	}
 	
 //	게시글 등록 페이지 이동
-	@GetMapping("/register")
+	@GetMapping("/register/{category}")
 	public String registerPage() {
 		
 		return "board/register";

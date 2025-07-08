@@ -2,6 +2,13 @@ import { fetchWithAuth, setAccessToken } from "/js/fetchWithAuth.js";
 
 let activeTab = document.querySelector('[data-category="전체"]'); // 선택된 탭 
 
+const categoryNames = {
+	자유: "free",
+	학습: "study",
+	질문답변: "qna",
+	정보공유: "share",
+};
+
 // 페이지 로드 시 
 document.addEventListener("DOMContentLoaded", async function() {
 	checkViewport();
@@ -10,57 +17,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 	await loadInitialBoards();
 	loadBoardsByCategory();
 	await recentBoards();
-	try {
-		const res = await fetch("/token", {
-			method: "POST",
-			credentials: "include"
-		});
-
-		if (res.ok) {
-			const data = await res.json();
-			setAccessToken(data.token);
-			// 2. 이제 사용자 정보 요청
-			const response = await fetchWithAuth("/users/me", {
-				method: "GET"
-			});
-
-			if (response.ok) {
-				const user = await response.json();
-				document.getElementById("userName").textContent = user.name + " 님";
-				document.getElementById("loginMenu").style.display = "none";
-				document.getElementById("userMenu").style.display = "block";
-			} else {
-				document.getElementById("userName").textContent = "";
-				document.getElementById("loginMenu").style.display = "block";
-				document.getElementById("userMenu").style.display = "none";
-			}
-		} else {
-			throw new Error("토큰 재발급 실패");
-		}
-
-	} catch (e) {
-		console.error("자동 로그인 실패:", e);
-	}
-});
-
-// 로그아웃 버튼 누를 시
-document.getElementById("logoutLink").addEventListener("click", async function(event) {
-	event.preventDefault();
-	try {
-		const res = await fetchWithAuth("/logout", {
-			method: "POST"
-		});
-
-		if (!res.ok) {
-			throw new Error("서버 오류 발생");
-		}
-
-		setAccessToken(null);
-
-		location.href = "/";
-	} catch (e) {
-		console.error(e.message);
-	}
 });
 
 // 해상도 체크 
@@ -94,7 +50,7 @@ async function popularBoard() {
 		boards.forEach(board => {
 			const divEl = document.createElement("div");
 			divEl.innerHTML = `
-			<a href="board/detail/${board.bno}" class="text-decoration-none text-dark">
+			<a href="board/detail/${categoryNames[board.category]}/${board.bno}" class="text-decoration-none text-dark">
 				<div class="post-card">
 					<div class="post-title">${board.title}</div>
 					<div class="post-preview">${board.content}</div>
@@ -141,6 +97,8 @@ function loadBoardsByCategory() {
 				boardList.innerHTML = "";
 
 				boards.forEach(board => {
+					const hasImage = board.content.includes("<img");
+					const iconHTML = hasImage ? '<i class="bi bi-card-image text-muted"></i>' : '';
 					const li = document.createElement("li");
 					li.classList.add(
 						"list-group-item",
@@ -151,8 +109,8 @@ function loadBoardsByCategory() {
 					);
 
 					li.innerHTML = `
-						<a href="board/detail/${board.bno}" class="text-decoration-none text-dark">
-						${board.title} [${board.commentCount}]
+						<a href="board/detail/${categoryNames[board.category]}/${board.bno}" class="text-decoration-none text-dark">
+						${board.title} ${iconHTML} [${board.commentCount}]
 						</a>
 						<span class="badge bg-secondary rounded-pill back-color-light30">${board.viewCount}</span>
 					`;
@@ -185,6 +143,8 @@ async function loadInitialBoards() {
 		boardList.innerHTML = "";
 
 		boards.forEach(board => {
+			const hasImage = board.content.includes("<img");
+			const iconHTML = hasImage ? '<i class="bi bi-card-image text-muted"></i>' : '';
 			const li = document.createElement("li");
 			li.classList.add(
 				"list-group-item",
@@ -195,7 +155,9 @@ async function loadInitialBoards() {
 			);
 
 			li.innerHTML = `
-				${board.title} [${board.commentCount}]
+				<a href="board/detail/${categoryNames[board.category]}/${board.bno}" class="text-decoration-none text-dark">
+				${board.title} ${iconHTML} [${board.commentCount}]
+				</a>
 				<span class="badge bg-secondary rounded-pill back-color-light30">${board.viewCount}</span>
 			`;
 
@@ -221,7 +183,7 @@ async function recentBoards() {
 		boards.forEach(board => {
 			const divEl = document.createElement("div");
 			divEl.innerHTML = `
-						<a href="board/detail/${board.bno}" class="text-decoration-none text-dark">
+						<a href="board/detail/${categoryNames[board.category]}/${board.bno}" class="text-decoration-none text-dark">
 							<div class="post-card">
 								<div class="post-title">${board.title}</div>
 								<div class="post-preview">${board.content}</div>

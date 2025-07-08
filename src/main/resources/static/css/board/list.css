@@ -1,12 +1,27 @@
+html,
+body {
+	height: 100%;
+	margin: 0;
+}
+
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
+.main {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
+
 .container {
+	flex: 1;
 	padding-left: 290px;
 	padding-bottom: 2rem;
 	padding-top: 2rem;
 	max-width: 100%;
-}
-
-.row {
-	margin-bottom: 30px;
 }
 
 .page-heading {
@@ -221,6 +236,6 @@
 	border-radius: 8px;
 }
 
-.page-item.disabled .page-link{
+.page-item.disabled .page-link {
 	color: #959595;
 }

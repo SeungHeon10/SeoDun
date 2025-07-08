@@ -1,6 +1,8 @@
 import { fetchWithAuth } from "../fetchWithAuth.js";
 
 const bno = window.location.pathname.split("/").pop();
+const pathParts = window.location.pathname.split('/');
+const category = pathParts[3];
 let userId = null;
 let name = null;
 let currentSize = 5; // 현재 사이즈
@@ -14,6 +16,30 @@ let editor;
 document.addEventListener("DOMContentLoaded", async () => {
 	await fetchBoardDetail();
 	await fetchReplyList();
+
+	const categoryNames = {
+		free: "자유",
+		study: "학습",
+		qna: "질문답변",
+		share: "정보공유",
+	};
+
+	const titleElement = document.getElementById("category-title");
+	const anchorEl = titleElement.closest("a");
+	window.history.replaceState({}, document.title, window.location.pathname);
+
+	if (category && categoryNames[category]) {
+		titleElement.textContent = categoryNames[category];
+		if (anchorEl) {
+			anchorEl.href = `/board/list/${category}`;
+		}
+	} else {
+		titleElement.textContent = "전체글보기";
+		if (anchorEl) {
+			anchorEl.href = `/board/list/all`;
+		}
+	}
+	
 
 	// 답글 버튼 누를 시
 	document.addEventListener("click", async (e) => {
@@ -95,6 +121,13 @@ document.getElementById("sort-oldest").addEventListener("click", async (event) =
 	await fetchReplyList(currentSize, currentPage, currentSort, currentDirection);
 });
 
+// 상세보기에서 목록버튼 누를 시
+document.getElementById("btn-list").addEventListener("click", async (event) => {
+	event.preventDefault();
+
+	location.href = `/board/list/${category}`;
+});
+
 // 상세보기에서 수정버튼 누를 시
 document.getElementById("btn-edit").addEventListener("click", async (event) => {
 	event.preventDefault();
@@ -104,7 +137,7 @@ document.getElementById("btn-edit").addEventListener("click", async (event) => {
 	await fetchBoardDetail();
 });
 
-// 삭제 버튼 누를 시
+// 상세보기에서 삭제 버튼 누를 시
 document.getElementById("btn-delete").addEventListener("click", async (event) => {
 	event.preventDefault();
 
@@ -689,7 +722,7 @@ async function fetchBoardDelete() {
 			return;
 		}
 
-		location.href = "/board/list?deleted=true";
+		location.href = `/board/list/${category}?deleted=true`;
 	} catch (e) {
 		showToast("❗ 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.", "error");
 		console.error("에러:", e);

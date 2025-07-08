@@ -24,8 +24,8 @@
 					<div class="page-title">
 						<div class="row">
 							<div class="col-12 col-md-6 order-md-1 order-last">
-								<a href="/board/list/all" class="text-decoration-none">
-									<h3>전체글보기</h3>
+								<a href="#" class="text-decoration-none">
+									<h3 id="category-title"></h3>
 								</a>
 							</div>
 						</div>
@@ -62,7 +62,7 @@
 											</div>
 											<div class="action-buttons d-flex gap-2">
 												<button type="button" class="btn btn-outline-secondary"
-													onclick="location.href='/board/list/all'">목록</button>
+													id="btn-list">목록</button>
 												<button type="button" class="btn btn-outline-secondary"
 													id="btn-edit">수정</button>
 												<button type="button" class="btn btn-outline-secondary"
@@ -114,6 +114,7 @@
 			<!-- 푸터 -->
 			<div th:replace="fragments/footer :: footer"></div>
 			<script type="module" src="/js/board/detail.js"></script>
+			<script type="module" src="/js/auth.js"></script>
 		</div>
 	</div>
 </body>

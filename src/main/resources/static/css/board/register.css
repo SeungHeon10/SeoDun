@@ -60,20 +60,25 @@ textarea.form-control:focus {
 	font-size: 20px;
 }
 
-.form-select{
+.form-select {
 	max-width: 108px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
 
-#tagInput{
+#tagInput {
 	border: 1px solid #d8dad8;
 }
 
-.badge{
+.badge {
 	font-size: 12px;
 }
 
-#fileInput{
+#fileInput {
 	border: 1px solid #d8dad8;
+}
+
+.btn-close {
+	padding: 0;
+	line-height: 1;
 }

@@ -28,6 +28,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 		writer: "작성자 이름으로 검색"
 	};
 
+	const categoryNames = {
+		free: "자유",
+		study: "학습",
+		qna: "질문답변",
+		share: "정보공유",
+	};
+
+	const titleElement = document.getElementById("category-title");
+	titleElement.textContent = categoryNames[category] || "전체글보기";
+
 	const urlParams = new URLSearchParams(window.location.search);
 	if (urlParams.get("deleted") === "true") {
 		showToast("✔️ 게시글이 삭제되었습니다.", "success");
@@ -36,8 +46,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 		showToast("✔️ 게시글이 등록되었습니다.", "success");
 		window.history.replaceState({}, document.title, window.location.pathname);
 	}
-
+	
 	await fetchBoardList();
+	handleWriteButtonClick();
 
 	//	페이지 사이즈 변경 시
 	dropdownItems.forEach(item => {
@@ -121,7 +132,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 	});
 
 	//	검색어 입력 후 검색버튼 누를 시
-	document.getElementById("search-btn").addEventListener("click", async () => {
+	document.getElementById("search-btn").addEventListener("click", async (e) => {
+		e.preventDefault();
+		
 		currentKeyword = searchInput.value.trim();
 		currentPage = 0;
 
@@ -181,14 +194,17 @@ function renderBoardList(boards) {
 	}
 
 	boards.forEach(board => {
+		const hasImage = board.content.includes("<img");
+
+		const iconHTML = hasImage ? '<i class="bi bi-card-image text-muted"></i>' : '';
 		const tr = document.createElement("tr");
 		const formatDate = new Date(board.createdAt).toLocaleDateString("ko-KR");
 
 		tr.innerHTML = `
 							<td style="text-align: center;">${board.category}</td>
 							<td>
-								<a href="/board/detail/${board.bno}" class="board-title-link">
-									${board.title}
+								<a href="/board/detail/${category}/${board.bno}" class="board-title-link">
+									${board.title}${iconHTML}
 									<p class="commentCount">[${board.commentCount}]</p>
 								</a>
 							</td>
@@ -248,6 +264,23 @@ function renderPagination(pageInfo) {
 	});
 }
 
+function handleWriteButtonClick() {
+	const writeBtn = document.getElementById("writeBtn");
+
+	if (writeBtn) {
+		writeBtn.addEventListener("click", () => {
+			const pathParts = window.location.pathname.split('/');
+			const category = pathParts[3]; // /board/list/{category}
+
+			if (category) {
+				location.href = `/board/register/${category}`;
+			} else {
+				location.href = `/board/register`;
+			}
+		});
+	}
+}
+
 // Toastify 알림 호출
 function showToast(message, type) {
 	Toastify({
@@ -268,7 +301,7 @@ function showToast(message, type) {
 			display: "flex",
 			alignItems: "center",
 			whiteSpace: "nowrap",
-			gap:"50px"
+			gap: "50px"
 		}
 	}).showToast();
 }
