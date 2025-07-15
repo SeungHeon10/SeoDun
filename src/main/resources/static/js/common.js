@@ -1,10 +1,13 @@
 import { fetchWithAuth, setAccessToken } from "./fetchWithAuth.js";
 
+let userRole = null;
+
 document.addEventListener("DOMContentLoaded", () => {
 	const loginMenu = document.getElementById("loginMenu");
 	const userInfoBox = document.getElementById("userInfo");
 	const userNameSpan = document.getElementById("userName");
 	const userStats = document.getElementById("userStats");
+	const adminMenu = document.getElementById("admin-menu");
 
 	autoLogin();
 
@@ -32,6 +35,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 					if (userInfoBox) userInfoBox.style.display = "flex";
 					if (loginMenu) loginMenu.style.display = "none";
+					
+					if(user.role === "ROLE_ADMIN"){
+						adminMenu.classList.remove("d-none");
+						adminMenu.classList.add("d-block");
+					}
 				} else {
 					resetLoginUI();
 				}
@@ -69,5 +77,26 @@ document.getElementById("logoutLink").addEventListener("click", async function(e
 		location.href = "/";
 	} catch (e) {
 		console.error(e.message);
+	}
+});
+
+document.getElementById("searchBtn").addEventListener("click", (event) => {
+	event.preventDefault();
+
+	const keyword = document.getElementById("topSearchInput").value.trim();
+	if (keyword) {
+		location.href = `/board/list/all?keyword=${encodeURIComponent(keyword)}`;
+	}
+});
+
+document.getElementById("topSearchInput").addEventListener("keydown", async (e) => {
+	if (e.key === "Enter") {
+		e.preventDefault();
+
+		const keyword = document.getElementById("topSearchInput").value.trim();
+
+		if (keyword) {
+			location.href = `/board/list/all?keyword=${encodeURIComponent(keyword)}`;
+		}
 	}
 });

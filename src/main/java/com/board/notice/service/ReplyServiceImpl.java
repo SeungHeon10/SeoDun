@@ -103,4 +103,11 @@ public class ReplyServiceImpl implements ReplyService {
 		board.decreaseCommentCount();
 	}
 
+//	사용자 댓글 수 가져오기
+	@Override
+	public long getUserCommentCount(String userId) {
+
+		return replyRepository.countByUserId_Id(userId);
+	}
+
 }

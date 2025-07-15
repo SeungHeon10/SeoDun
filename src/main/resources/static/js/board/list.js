@@ -1,5 +1,6 @@
 import { fetchWithAuth } from "../fetchWithAuth.js";
 
+const params = new URLSearchParams(location.search);
 const tbody = document.getElementById("list");
 const searchModePanel = document.getElementById("searchModePanel");
 const pathParts = window.location.pathname.split('/');
@@ -9,7 +10,7 @@ let currentPage = 0; // 현재 페이지 번호
 let currentSort = "createdAt"; // 현재 정렬 항목
 let currentDirection = "desc"; // 현재 정렬 기준
 let currentSearchMode = "title"; // 현재 검색 모드
-let currentKeyword = "";
+let currentKeyword = params.get("keyword") || "";
 
 // 페이지 로드 시
 document.addEventListener("DOMContentLoaded", async () => {
@@ -46,8 +47,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 		showToast("✔️ 게시글이 등록되었습니다.", "success");
 		window.history.replaceState({}, document.title, window.location.pathname);
 	}
-	
-	await fetchBoardList();
+
+	await fetchBoardList(currentSize, currentPage, currentSort, currentDirection, currentSearchMode, currentKeyword);
 	handleWriteButtonClick();
 
 	//	페이지 사이즈 변경 시
@@ -64,7 +65,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 			item.classList.add("active", "text-success");
 
 			currentSize = selectedValue;
-			await fetchBoardList(currentSize, currentPage);
+			await fetchBoardList(currentSize, currentPage, currentSort, currentDirection, currentSearchMode, currentKeyword);
 		});
 	});
 
@@ -84,7 +85,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 			currentSort = selectedSort;
 			currentDirection = selectedDirection;
-			await fetchBoardList(currentSize, 0, currentSort, currentDirection);
+			await fetchBoardList(currentSize, 0, currentSort, currentDirection, currentSearchMode, currentKeyword);
 		});
 	});
 
@@ -97,7 +98,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 			if (!isNaN(targetPage)) {
 				currentPage = targetPage;
-				await fetchBoardList(currentSize, currentPage);
+				await fetchBoardList(currentSize, currentPage, currentSort, currentDirection, currentSearchMode, currentKeyword);
 			}
 		});
 	});
@@ -134,7 +135,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 	//	검색어 입력 후 검색버튼 누를 시
 	document.getElementById("search-btn").addEventListener("click", async (e) => {
 		e.preventDefault();
-		
+
 		currentKeyword = searchInput.value.trim();
 		currentPage = 0;
 
@@ -258,7 +259,7 @@ function renderPagination(pageInfo) {
 			e.preventDefault();
 			const targetPage = e.target.dataset.page;
 			if (targetPage !== undefined) {
-				await fetchBoardList(currentSize, parseInt(targetPage)); // 페이지 이동
+				await fetchBoardList(currentSize, parseInt(targetPage), currentSort, currentDirection, currentSearchMode, currentKeyword); // 페이지 이동
 			}
 		});
 	});

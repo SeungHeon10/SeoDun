@@ -5,10 +5,12 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.board.notice.dto.request.BoardRequestDTO;
 import com.board.notice.dto.response.BoardResponseDTO;
+import com.board.notice.security.CustomUserDetail;
 
 public interface BoardService {
 //	게시글 전체 조회
@@ -18,9 +20,9 @@ public interface BoardService {
 //	게시글 등록
 	void register(BoardRequestDTO boardRequestDTO, MultipartFile multipartFile) throws IOException;
 //	게시글 수정
-	void update(BoardRequestDTO boardRequestDTO, MultipartFile multipartFile) throws IOException;
+	 ResponseEntity<?> update(BoardRequestDTO boardRequestDTO, MultipartFile multipartFile, CustomUserDetail userDetails) throws IOException;
 //	게시글 삭제
-	void delete(int bno);
+	 ResponseEntity<?> delete(int bno, CustomUserDetail userDetails);
 //	인기글 조회
 	List<BoardResponseDTO> popularBoards();
 //	카테고리별 게시글 조회
@@ -31,4 +33,6 @@ public interface BoardService {
 	List<BoardResponseDTO> recentBoards();
 //	이미지 s3 저장
 	String uploadImage(MultipartFile image) throws IOException;
+//	사용자의 게시글 수 가져오기
+	long getUserPostCount(String userId);
 }

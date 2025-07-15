@@ -16,8 +16,10 @@ public interface ReplyRepository extends JpaRepository<Reply, Integer>{
 	Optional<Reply> findByRnoAndBoard_Bno(int rno, int bno);
 //	선택 게시글 댓글 전체조회
 	Page<Reply> findAllByBoard_Bno(int bno, Pageable pageable);
-// 	1. 부모 댓글만 페이징
+// 	부모 댓글만 페이징
 	Page<Reply> findByBoard_BnoAndParentIsNull(int bno, Pageable pageable);
-// 	2. 자식 댓글 전체 조회
+// 	자식 댓글 전체 조회
 	List<Reply> findByBoard_BnoAndParentIsNotNull(int bno);
+//	사용자의 댓글 수
+	long countByUserId_Id(String userId);
 }

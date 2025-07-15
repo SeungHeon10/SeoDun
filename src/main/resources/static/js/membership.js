@@ -50,9 +50,9 @@ document.getElementById("id").addEventListener("input", async function() {
 
 	// 중복 검사
 	const isDuplicate = await fetchUserId(id);
-	if(isDuplicate){
+	if (isDuplicate) {
 		vaildId.textContent = "사용 가능한 아이디입니다.";
-		vaildId.style.color = "blue";
+		vaildId.style.color = "green";
 		isDuplicationId.textContent = "";
 	} else {
 		isDuplicationId.textContent = "이미 존재하는 아이디입니다.";
@@ -164,23 +164,108 @@ document.getElementsByName("email")[0].addEventListener("input", async function(
 	//	이메일 유효성 검사
 	const isValid = regex.test(email);
 	isInvalidEmail.textContent = isValid ? "" : "이메일 형식에 맞게 입력 가능합니다.";
-	
+
 	// 유효하지 않으면 중복검사 x
-	if(!isValid) {
+	if (!isValid) {
 		isDuplicationEmail.textContent = "";
 		return;
 	}
-	
+
 	const message = await fetchUserEmail(email);
-	
+
 	isDuplicationEmail.textContent = message;
-	
-	if(message.includes("가능한")){
-		isDuplicationEmail.style.color = "blue";
+
+	if (message.includes("가능한")) {
+		isDuplicationEmail.style.color = "green";
 	} else {
 		isDuplicationEmail.style.color = "red";
 	}
 });
+
+document.getElementById("sendEmailBtn").addEventListener("click", async function() {
+	const email = document.getElementById("email").value;
+	const invalidEl = document.getElementById("isInvalidEmail");
+	const dupCheckEl = document.getElementById("isDuplicationEmail");
+	const feedbackEl = document.getElementById("emailFeedback");
+	const codeBox = document.getElementById("codeBox");
+
+	if (!email) {
+		showToast("❗ 이메일을 입력해주세요.", "error");
+		return;
+	}
+
+	// 이메일 형식 오류 존재 시
+	const isInvalidText = invalidEl.textContent.trim() !== "";
+	const isInvalidColor = window.getComputedStyle(invalidEl).color === "rgb(255, 0, 0)";
+	if (isInvalidText && isInvalidColor) {
+		showToast("❗ 올바른 이메일 형식을 입력해주세요.", "error");
+		return;
+	}
+
+	// 이메일 중복 오류 존재 시
+	const isDupText = dupCheckEl.textContent.includes("이미");
+	const isDupColor = window.getComputedStyle(dupCheckEl).color === "rgb(255, 0, 0)";
+	if (isDupText && isDupColor) {
+		showToast("❗ 사용할 수 없는 이메일입니다.", "error");
+		return;
+	}
+
+	dupCheckEl.textContent = "";
+
+	try {
+		const response = await fetch(`/auth/emails?email=${encodeURIComponent(email)}`, {
+			method: "POST"
+		});
+
+		if (!response.ok) {
+			throw new Error("서버 오류 발생");
+		}
+
+		const message = await response.text();
+
+		codeBox.style.display = "flex";
+		feedbackEl.textContent = message;
+		feedbackEl.classList.remove("text-danger", "text-success");
+		feedbackEl.classList.add(message.includes("실패") ? "text-danger" : "text-success");
+
+	} catch (error) {
+		console.error("전송 오류:", error);
+		showToast("❗ 인증 메일 전송 중 오류가 발생했습니다.", "error");
+	}
+});
+
+document.getElementById("verifyCodeBtn").addEventListener("click", async () => {
+	const email = document.getElementById("email").value;
+	const code = document.getElementById("verifyCode").value;
+	const feedback = document.getElementById("emailFeedback");
+	const verifyCodeInput = document.getElementById("verifyCode");
+	const verifyCodeBtn = document.getElementById("verifyCodeBtn");
+
+	try {
+		const res = await fetch(`/auth/emails/verify?email=${encodeURIComponent(email)}&code=${code}`, {
+			method: "POST"
+		});
+
+		const message = await res.text();
+		feedback.textContent = message;
+		feedback.classList.remove("text-danger", "text-success");
+
+		if (res.ok) {
+			feedback.classList.add("text-success");
+			// 인증 성공 flag 기억 (예: 전역 변수 또는 hidden input)
+			window.emailVerified = true;
+			verifyCodeBtn.disabled = true;
+			verifyCodeInput.readOnly = true;
+		} else {
+			feedback.classList.add("text-danger");
+		}
+	} catch (error) {
+		console.error("인증 오류:", error);
+		feedback.textContent = "인증 중 오류가 발생했습니다.";
+		feedback.classList.add("text-danger");
+	}
+});
+
 
 // 회원 등록 (가입하기)
 async function fetchUserRegister() {
@@ -194,27 +279,13 @@ async function fetchUserRegister() {
 
 	// 하나라도 메시지가 있다면 토스트 출력하고 요청 중단
 	if (idError || duplicateError || pwError || pwMismatch || emailError || nameError || phoneError) {
-		Toastify({
-			text: "❗ 입력한 정보를 다시 확인해주세요.",
-			duration: 2000,
-			close: true,
-			gravity: "bottom",
-			position: "center",
-			escapeMarkup: false,
-			style: {
-				background: "rgb(249, 226, 230)",
-				color: "rgb(83, 14, 26)",
-				fontSize: "15px",
-				borderRadius: "8px",
-				border: "none",
-				boxShadow: "none",
-				padding: "12px 18px",
-				display: "flex",
-				alignItems: "center",
-				gap: "46%",
-			}
-		}).showToast();
+		showToast("❗ 입력한 정보를 다시 확인해주세요.", "error");
 		return;
+	}
+	
+	if (!window.emailVerified) {
+	    showToast("이메일 인증을 먼저 완료해주세요.", "error");
+	    return;
 	}
 
 	try {
@@ -240,54 +311,14 @@ async function fetchUserRegister() {
 
 		// 실패 토스트
 		if (!response.ok) {
-			Toastify({
-				text: "❗ 회원가입에 실패했습니다. 다시 시도해주세요.",
-				duration: 2000,
-				gravity: "bottom",
-				position: "center",
-				backgroundColor: "#f44336",
-				close: true,
-				escapeMarkup: false,
-				style: {
-					background: "rgb(249, 226, 230)",
-					color: "rgb(83, 14, 26)",
-					fontSize: "15px",
-					borderRadius: "8px",
-					border: "none",
-					boxShadow: "none",
-					padding: "12px 18px",
-					display: "flex",
-					alignItems: "center",
-					gap: "31%",
-				}
-			}).showToast();
+			showToast("❗ 회원가입에 실패했습니다. 다시 시도해주세요.", "error");
 			return;
 		}
 
 		window.location.href = "/succ-member";
 
 	} catch (e) {
-		Toastify({
-			text: "❗ 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.",
-			duration: 2000,
-			gravity: "bottom",
-			position: "center",
-			backgroundColor: "#f44336",
-			close: true,
-			escapeMarkup: false,
-			style: {
-				background: "rgb(249, 226, 230)",
-				color: "rgb(83, 14, 26)",
-				fontSize: "15px",
-				borderRadius: "8px",
-				border: "none",
-				boxShadow: "none",
-				padding: "12px 18px",
-				display: "flex",
-				alignItems: "center",
-				gap: "18%",
-			}
-		}).showToast();
+		showToast("❗ 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.", "error");
 		console.error("에러:", e);
 	}
 }
@@ -297,4 +328,29 @@ document.getElementById("sign_up").addEventListener("submit", async (event) => {
 	event.preventDefault();
 
 	await fetchUserRegister();
-})
+});
+
+// Toastify 알림 호출
+function showToast(message, type) {
+	Toastify({
+		text: message,
+		duration: 2000,
+		gravity: "bottom",
+		position: "center",
+		close: true,
+		escapeMarkup: false,
+		style: {
+			background: type === "success" ? "#d4edda" : "rgb(249, 226, 230)",
+			color: type === "success" ? "#155724" : "rgb(83, 14, 26)",
+			fontSize: "15px",
+			borderRadius: "8px",
+			border: "none",
+			boxShadow: "none",
+			padding: "12px 18px",
+			display: "flex",
+			alignItems: "center",
+			whiteSpace: "nowrap",
+			gap: "50px"
+		}
+	}).showToast();
+}

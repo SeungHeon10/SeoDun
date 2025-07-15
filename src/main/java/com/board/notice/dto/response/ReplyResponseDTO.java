@@ -23,6 +23,7 @@ public class ReplyResponseDTO {
 	private String content; // 댓글 내용
 	private String writer; // 댓글 작성자
 	private int likeCount; // 댓글 좋아요
+	private UserResponseDTO userId; // 댓글 작성자id
 	private LocalDateTime createAt; // 등록일
 	private LocalDateTime updatedAt; // 수정일
 	
@@ -32,6 +33,7 @@ public class ReplyResponseDTO {
 		this.parent_id = reply.getParent() != null ? reply.getParent().getRno() : 0;
 		this.writer = reply.getWriter();
 		this.likeCount = reply.getLikeCount();
+		this.userId = new UserResponseDTO(reply.getUser());
 		this.createAt = reply.getCreatedAt();
 		this.updatedAt = reply.getUpdatedAt();
 	}

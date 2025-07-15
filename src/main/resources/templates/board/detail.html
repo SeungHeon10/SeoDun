@@ -63,10 +63,12 @@
 											<div class="action-buttons d-flex gap-2">
 												<button type="button" class="btn btn-outline-secondary"
 													id="btn-list">목록</button>
-												<button type="button" class="btn btn-outline-secondary"
-													id="btn-edit">수정</button>
-												<button type="button" class="btn btn-outline-secondary"
-													id="btn-delete">삭제</button>
+												<div class="d-flex gap-2" id="owner-action-box">
+													<button type="button" class="btn btn-outline-secondary"
+														id="btn-edit">수정</button>
+													<button type="button" class="btn btn-outline-secondary"
+														id="btn-delete">삭제</button>
+												</div>
 											</div>
 										</div>
 										<div class="card mb-4">
@@ -113,8 +115,8 @@
 			</div>
 			<!-- 푸터 -->
 			<div th:replace="fragments/footer :: footer"></div>
+			<script type="module" src="/js/common.js"></script>
 			<script type="module" src="/js/board/detail.js"></script>
-			<script type="module" src="/js/auth.js"></script>
 		</div>
 	</div>
 </body>

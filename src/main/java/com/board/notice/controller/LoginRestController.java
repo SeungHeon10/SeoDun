@@ -40,20 +40,31 @@ public class LoginRestController {
 			// Security로 인증
 			Authentication authentication = authenticationManager
 					.authenticate(new UsernamePasswordAuthenticationToken(request.getId(), request.getPassword()));
+
 			// 인증 성공 시 사용자 정보 가져오기
 			UserDetails user = (UserDetails) authentication.getPrincipal();
+
 			// 토큰 생성(JWT)
 			String token = jwtUtil.createToken(user.getUsername(), jwtUtil.extractRole(user.getAuthorities()));
-			String refreshToken = jwtUtil.createRefreshToken(user.getUsername(),
-					jwtUtil.extractRole(user.getAuthorities()));
 
-			ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken).httpOnly(true).secure(false) // 배포시
-																													// true로
-																													// 변경
-					.path("/").maxAge(Duration.ofDays(7)).build();
+			ResponseCookie cookie = null;
 
-			return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())
-					.body(new TokenResponseDTO(token));
+			if (request.isRememberMe() == true) {
+				String refreshToken = jwtUtil.createRefreshToken(user.getUsername(),
+						jwtUtil.extractRole(user.getAuthorities()));
+
+				cookie = ResponseCookie.from("refreshToken", refreshToken).httpOnly(true).secure(false) // 배포시
+																										// true로
+																										// 변경
+						.path("/").maxAge(Duration.ofDays(7)).build();
+			}
+
+			ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok();
+			if (cookie != null) {
+				responseBuilder.header(HttpHeaders.SET_COOKIE, cookie.toString());
+			}
+
+			return responseBuilder.body(new TokenResponseDTO(token));
 		} catch (AuthenticationException e) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 정보가 올바르지 않습니다. 다시 시도해주세요.");
 		}
@@ -77,14 +88,14 @@ public class LoginRestController {
 	public ResponseEntity<Void> logout(HttpServletResponse response,
 			@CookieValue(name = "refreshToken", required = false) String refreshToken,
 			@RequestHeader(name = "Authorization", required = false) String accessTokenHeader) {
-		
-	    if (refreshToken != null && accessTokenHeader != null && accessTokenHeader.startsWith("Bearer ")) {
-	        String accessToken = accessTokenHeader.substring(7);
-	        String id = jwtUtil.getId(accessToken);
-	        refreshTokenService.delete(id);
-	    }
 
-	    // 쿠키 삭제
+		if (refreshToken != null && accessTokenHeader != null && accessTokenHeader.startsWith("Bearer ")) {
+			String accessToken = accessTokenHeader.substring(7);
+			String id = jwtUtil.getId(accessToken);
+			refreshTokenService.delete(id);
+		}
+
+		// 쿠키 삭제
 		ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "").httpOnly(true).secure(false).path("/")
 				.maxAge(0) // 즉시 만료
 				.build();

@@ -8,12 +8,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
-import com.board.notice.dto.response.TokenResponseDTO;
 import com.board.notice.entity.User;
 import com.board.notice.repository.UserRepository;
 import com.board.notice.security.jwt.JwtUtil;
 import com.board.notice.service.RefreshTokenService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,16 +32,18 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 		String email = oAuth2User.getEmail();
 
 		User user = userRepository.findByEmail(email).orElse(null);
+
 		if (user != null) {
 			String accessToken = jwtUtil.createToken(user.getId(), user.getRole());
+
 			String refreshToken = jwtUtil.createRefreshToken(user.getId(), user.getRole());
 
-			ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken).httpOnly(true).path("/")
-					.secure(false).maxAge(Duration.ofDays(7)).build();
-			response.addHeader("Set-Cookie", cookie.toString());
+			ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken).httpOnly(true).secure(false) // 배포
+					.path("/").maxAge(Duration.ofDays(7)).build();
 
+			response.addHeader("Set-Cookie", cookie.toString());
 			refreshTokenService.saveRefreshToken(user.getId(), refreshToken, Duration.ofDays(7));
-			
+
 			response.sendRedirect("/html/social-login-success.html");
 		} else {
 			request.getSession().setAttribute("oauthUser", oAuth2User);

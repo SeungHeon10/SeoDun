@@ -1,7 +1,13 @@
 let accessToken = null;
 
+const savedToken = localStorage.getItem("accessToken");
+if (savedToken) {
+	accessToken = savedToken;
+}
+
 function setAccessToken(token) {
 	accessToken = token;
+	localStorage.setItem("accessToken", token);
 }
 
 async function fetchWithAuth(input, init = {}) {

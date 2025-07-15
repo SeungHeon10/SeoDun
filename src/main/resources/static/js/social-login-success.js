@@ -1,14 +1,14 @@
-import { setAccessToken } from "/js/fetchWithAuth.js";
+import { setAccessToken, fetchWithAuth } from "/js/fetchWithAuth.js";
 window.addEventListener("load", async () => {
 	try {
-		const response = await fetch("/token", {
+		const response = await fetchWithAuth("/token", {
 			method: "POST",
 			credentials: "include"
 		});
 
 		if (response.ok) {
 			const data = await response.json();
-			setAccessToken(data.token);  
+			setAccessToken(data.token);
 			location.href = "/";
 		} else {
 			throw new Error("토큰 재발급 실패");

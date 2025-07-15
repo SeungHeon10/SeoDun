@@ -14,4 +14,6 @@ public interface ReplyService {
 	void update(int boardId, int rno, ReplyRequestDTO replyRequestDTO);
 //	댓글 삭제
 	void delete(int boardId, int rno);
+//	사용자의 댓글 수 가져오기
+	long getUserCommentCount(String userId);
 }

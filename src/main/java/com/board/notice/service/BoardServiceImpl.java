@@ -12,6 +12,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,12 +25,12 @@ import com.board.notice.entity.Board;
 import com.board.notice.entity.User;
 import com.board.notice.repository.BoardRepository;
 import com.board.notice.repository.UserRepository;
+import com.board.notice.security.CustomUserDetail;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Service
@@ -44,25 +46,36 @@ public class BoardServiceImpl implements BoardService {
 //	게시글 전체조회
 	@Override
 	public Page<BoardResponseDTO> list(Pageable pageable, String mode, String keyword, String category) {
-		if (keyword == null || keyword.trim().isEmpty() || "undefined".equals(keyword)) {
-			// 검색어 없으면 전체 목록
-			if(category == "전체") {
+		boolean noKeyword = (keyword == null || keyword.trim().isEmpty() || "undefined".equals(keyword));
+		boolean allCategory = ("전체".equals(category));
+
+		if (noKeyword) {
+			// 검색어 없을 때
+			if (allCategory) {
 				return boardRepository.findAll(pageable).map(BoardResponseDTO::new);
 			} else {
 				return boardRepository.findAllByCategory(category, pageable).map(BoardResponseDTO::new);
 			}
 		}
 
+		// 검색어 있을 때
 		switch (mode) {
 		case "title":
-			return boardRepository.findByTitleContainingAndCategory(keyword, category, pageable).map(BoardResponseDTO::new);
+			return allCategory ? boardRepository.findByTitleContaining(keyword, pageable).map(BoardResponseDTO::new)
+					: boardRepository.findByTitleContainingAndCategory(keyword, category, pageable)
+							.map(BoardResponseDTO::new);
 		case "content":
-			return boardRepository.findByContentContainingAndCategory(keyword, category, pageable).map(BoardResponseDTO::new);
+			return allCategory ? boardRepository.findByContentContaining(keyword, pageable).map(BoardResponseDTO::new)
+					: boardRepository.findByContentContainingAndCategory(keyword, category, pageable)
+							.map(BoardResponseDTO::new);
 		case "title_content":
-			return boardRepository.findByTitleContainingAndCategory(keyword, category, pageable)
-					.map(BoardResponseDTO::new);
+			return allCategory ? boardRepository.searchByTitleOrContent(keyword, pageable).map(BoardResponseDTO::new)
+					: boardRepository.searchByTitleOrContentAndCategory(keyword, category, pageable)
+							.map(BoardResponseDTO::new); // OR 조건은 리포지토리 추가 필요
 		case "writer":
-			return boardRepository.findByWriterContainingAndCategory(keyword, category, pageable).map(BoardResponseDTO::new);
+			return allCategory ? boardRepository.findByWriterContaining(keyword, pageable).map(BoardResponseDTO::new)
+					: boardRepository.findByWriterContainingAndCategory(keyword, category, pageable)
+							.map(BoardResponseDTO::new);
 		default:
 			return boardRepository.findAll(pageable).map(BoardResponseDTO::new);
 		}
@@ -97,8 +110,9 @@ public class BoardServiceImpl implements BoardService {
 			String newfilename = uuid + extension;
 			try (InputStream inputStream = file.getInputStream()) {
 				String s3key = "upload/" + newfilename;
-				s3Client.putObject(PutObjectRequest.builder().bucket(bucketName).key(s3key)
-						.contentType(file.getContentType()).contentDisposition("attachment").build(),
+				s3Client.putObject(
+						PutObjectRequest.builder().bucket(bucketName).key(s3key).contentType(file.getContentType())
+								.contentDisposition("attachment").build(),
 						RequestBody.fromInputStream(inputStream, file.getSize()));
 				filePath = "https://" + bucketName + ".s3.amazonaws.com/upload/" + newfilename;
 			}
@@ -106,9 +120,9 @@ public class BoardServiceImpl implements BoardService {
 		// 회원 조회
 		User user = userRepository.findById(boardRequestDTO.getUserId())
 				.orElseThrow(() -> new UsernameNotFoundException("해당 회원은 존재하지 않습니다."));
-		
+
 		String safeHtml = Jsoup.clean(boardRequestDTO.getContent(), Safelist.basicWithImages());
-		
+
 		// 게시글 등록
 		Board board = Board.builder().title(boardRequestDTO.getTitle()).content(safeHtml)
 				.category(boardRequestDTO.getCategory()).writer(boardRequestDTO.getWriter()).filePath(filePath)
@@ -120,7 +134,16 @@ public class BoardServiceImpl implements BoardService {
 	@Override
 	@Transactional
 	@CacheEvict(value = { "top6Boards", "popularBoards" }, allEntries = true)
-	public void update(BoardRequestDTO boardRequestDTO, MultipartFile file) throws IOException {
+	public ResponseEntity<?> update(BoardRequestDTO boardRequestDTO, MultipartFile file, CustomUserDetail userDetails)
+			throws IOException {
+		// 수정할 게시글 찾기
+		Board board = boardRepository.findById(boardRequestDTO.getBno())
+				.orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
+
+		if (!board.getUserId().getId().equals(userDetails.getUsername())) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("작성자 본인만 수정할 수 있습니다.");
+		}
+		
 		// 변경한 파일이 null이 아닐 경우에만 실행
 		if (file != null && !file.isEmpty()) {
 			// 확장자 추출
@@ -136,23 +159,26 @@ public class BoardServiceImpl implements BoardService {
 				boardRequestDTO.setFilePath("https://" + bucketName + ".s3.amazonaws.com/upload/" + newfilename);
 			}
 		}
-		// 수정할 게시글 찾기
-		Board board = boardRepository.findById(boardRequestDTO.getBno())
-				.orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
 		// 게시글 수정 메서드
 		board.update(boardRequestDTO);
+		return ResponseEntity.ok("게시글이 수정되었습니다.");
 	}
 
 //	게시글 삭제하기
 	@Override
 	@Transactional
 	@CacheEvict(value = { "top6Boards", "popularBoards" }, allEntries = true)
-	public void delete(int bno) {
+	public ResponseEntity<?> delete(int bno, CustomUserDetail userDetails) {
 		Board board = boardRepository.findById(bno)
 				.orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
+		
+		if (!board.getUserId().getId().equals(userDetails.getUsername())) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("작성자 본인만 삭제할 수 있습니다.");
+		}
+		
 		// 게시글 소프트 삭제 메서드
 		board.markAsDeleted();
-		;
+		return ResponseEntity.ok("게시글이 삭제되었습니다.");
 	}
 
 //	인기글 검색
@@ -160,7 +186,7 @@ public class BoardServiceImpl implements BoardService {
 	@Cacheable(value = "popularBoards", key = "'popular'", unless = "#result == null")
 	public List<BoardResponseDTO> popularBoards() {
 		List<Board> boards = boardRepository.findTop3ByOrderByViewCountDesc();
-		
+
 		return boards.stream().map(BoardResponseDTO::new).toList();
 	}
 
@@ -169,7 +195,7 @@ public class BoardServiceImpl implements BoardService {
 	@Cacheable(value = "top6Boards", key = "#p0", unless = "#result == null")
 	public List<BoardResponseDTO> loadBoardsByCategory(String category) {
 		List<Board> boards = boardRepository.findTop6ByCategoryOrderByCreatedAtDesc(category);
-		
+
 		return boards.stream().map(BoardResponseDTO::new).toList();
 	}
 
@@ -178,15 +204,15 @@ public class BoardServiceImpl implements BoardService {
 	@Cacheable(value = "top6Boards", key = "'all'", unless = "#result == null")
 	public List<BoardResponseDTO> loadBoardsByAll() {
 		List<Board> boards = boardRepository.findTop6ByOrderByCreatedAtDesc();
-		
- 		return boards.stream().map(BoardResponseDTO::new).toList();
+
+		return boards.stream().map(BoardResponseDTO::new).toList();
 	}
 
 //	최신글 조회
 	@Override
 	public List<BoardResponseDTO> recentBoards() {
 		List<Board> boards = boardRepository.findTop2ByOrderByCreatedAtDesc();
-		
+
 		return boards.stream().map(BoardResponseDTO::new).toList();
 	}
 
@@ -201,16 +227,19 @@ public class BoardServiceImpl implements BoardService {
 
 		try (InputStream inputStream = image.getInputStream()) {
 			s3Client.putObject(
-					PutObjectRequest.builder()
-					.bucket(bucketName)
-					.key(key)
-					.contentType(image.getContentType())
-					.build(),
+					PutObjectRequest.builder().bucket(bucketName).key(key).contentType(image.getContentType()).build(),
 					RequestBody.fromInputStream(inputStream, image.getSize()));
 		}
 
 		String url = "https://" + bucketName + ".s3.amazonaws.com/" + key;
 		return url;
+	}
+
+//	사용자의 게시글 수 가져오기
+	@Override
+	public long getUserPostCount(String userId) {
+
+		return boardRepository.countByUserId_Id(userId);
 	}
 
 }

@@ -1,14 +1,11 @@
 package com.board.notice.service;
 
 import java.time.LocalDateTime;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.board.notice.entity.EmailToken;
-import com.board.notice.entity.User;
 import com.board.notice.repository.EmailRepository;
-import com.board.notice.repository.UserRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -19,15 +16,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class EmailServiceImpl implements EmailService {
 	private final EmailRepository emailRepository;
-	private final UserRepository userRepository;
 	private final EmailSenderServiceImpl emailSenderService;
 
 //	이메일 인증 확인
 	@Override
 	@Transactional
-	public void confirmToken(String token) {
+	public void confirmToken(String email, String code) {
 		// DB에서 토큰 검색
-		EmailToken emailToken = emailRepository.findById(token)
+		EmailToken emailToken = emailRepository.findByEmailAndTokenAndIsValidTrueAndIsDeletedFalse(email, code)
 				.orElseThrow(() -> new EntityNotFoundException("해당 토큰을 찾을 수 없습니다."));
 
 		// 이미 인증된 토큰인지 확인
@@ -47,10 +43,6 @@ public class EmailServiceImpl implements EmailService {
 		// 토큰 소프트 삭제
 		emailToken.markAsDeleted();;
 		
-		// 해당 회원 찾아서 이메일 인증 완료 처리
-		User user = userRepository.findByEmail(emailToken.getEmail())
-				.orElseThrow(() -> new UsernameNotFoundException("해당 회원은 존재하지 않습니다."));
-		user.changeEmailVerified();
 	}
 
 //	이메일 인증 토큰 재전송

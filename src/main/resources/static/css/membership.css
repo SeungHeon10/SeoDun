@@ -73,10 +73,13 @@
 }
 
 .toastify-bottom {
-	margin-bottom: 110px;
-	min-width: 28.5%;
+	margin-bottom: 95px;
 }
 
 .title_box{
 	margin-bottom: 50px;
+}
+
+#codeBox{
+	display: none;
 }

@@ -19,36 +19,53 @@
 					<label for="id" class="form-label">아이디</label>
 					<input type="text" class="form-control" id="id" name="id" autofocus placeholder="아이디 입력" required>
 				</div>
-				<p id="isInvalidId" class="error"></p>	<!-- 아이디 4-20자 범위 아닐 시 -->
-				<p id="isDuplicationId" class="error"></p>	<!-- 아이디 중복 시 -->
+				<p id="isInvalidId" class="error"></p> <!-- 아이디 4-20자 범위 아닐 시 -->
+				<p id="isDuplicationId" class="error"></p> <!-- 아이디 중복 시 -->
 				<p id="vaildId" class="error"></p>
 				<div class="mb-3">
 					<label for="password" class="form-label">비밀번호</label>
-					<input type="password" class="form-control" id="password" name="password" placeholder="비밀번호 입력" required>
+					<input type="password" class="form-control" id="password" name="password" placeholder="비밀번호 입력"
+						required>
 				</div>
-				
+
 				<div class="mb-3">
-					<input type="password" class="form-control" id="passwordConfirm" name="passwordConfirm" placeholder="비밀번호 재입력" required>
+					<input type="password" class="form-control" id="passwordConfirm" name="passwordConfirm"
+						placeholder="비밀번호 재입력" required>
 				</div>
-				<p id="isInvalidPw" class="error"></p>	<!-- 비밀번호 4-20자 범위 아닐 시 -->
-				<p id="isPasswordMismatch" class="error"></p>	<!-- 입력 비밀번호와 다를 시 -->
+				<p id="isInvalidPw" class="error"></p> <!-- 비밀번호 4-20자 범위 아닐 시 -->
+				<p id="isPasswordMismatch" class="error"></p> <!-- 입력 비밀번호와 다를 시 -->
 				<div class="mb-3">
 					<label for="name" class="form-label">이름</label>
 					<input type="text" class="form-control" id="name" name="name" placeholder="이름 입력" required>
 				</div>
-				<p id="isInvalidName" class="error"></p>	<!-- 이름 1-20범위 문자 아닐 시 -->
+				<p id="isInvalidName" class="error"></p> <!-- 이름 1-20범위 문자 아닐 시 -->
 				<div class="mb-3">
 					<label for="phone" class="form-label">휴대전화번호</label>
-					<input type="tel" class="form-control" id="phone" name="phone" placeholder="휴대 전화번호 입력(xxx-xxxx-xxxx)" pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}"
-						required>
+					<input type="tel" class="form-control" id="phone" name="phone"
+						placeholder="휴대 전화번호 입력(xxx-xxxx-xxxx)" pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}" required>
 				</div>
-				<p id="isInvalidPhone" class="error"></p>	<!-- 휴대폰 번호 형식 아닐 시 -->
-				<div class="mb-3">
-					<label for="email" class="form-label">이메일주소</label>
-					<input type="email" class="form-control" id="email" name="email" placeholder="이메일주소 입력" required>
+				<p id="isInvalidPhone" class="error"></p> <!-- 휴대폰 번호 형식 아닐 시 -->
+				<div class="d-flex align-items-end gap-2 mb-3">
+					<div class="flex-grow-1">
+						<label for="email" class="form-label">이메일주소</label>
+						<input type="email" class="form-control" id="email" name="email" placeholder="이메일주소 입력"
+							required>
+					</div>
+					<div>
+						<button type="button" id="sendEmailBtn" class="btn btn-outline-secondary border">인증</button>
+					</div>
 				</div>
-				<p id="isInvalidEmail" class="error"></p>	<!-- 이메일 형식 아닐 시 -->
-				<p id="isDuplicationEmail" class="error"></p>	<!-- 아이디 중복 시 -->
+				<p id="isInvalidEmail" class="error"></p> <!-- 이메일 형식 아닐 시 -->
+				<p id="isDuplicationEmail" class="error"></p> <!-- 아이디 중복 시 -->
+				<div id="codeBox" class="align-items-end gap-2 mb-3">
+					<div class="flex-grow-1">
+						<input type="text" class="form-control" id="verifyCode" placeholder="인증번호 입력">
+					</div>
+					<div>
+						<button type="button" class="btn btn-outline-secondary border" id="verifyCodeBtn">확인</button>
+					</div>
+				</div>
+				<p id="emailFeedback"></p>
 				<div class="button">
 					<input type="submit" class="success" value="가입하기">
 				</div>
@@ -57,4 +74,5 @@
 	</div>
 	<script src="/js/membership.js"></script>
 </body>
+
 </html>

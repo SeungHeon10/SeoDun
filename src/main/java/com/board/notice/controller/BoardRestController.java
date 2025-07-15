@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.board.notice.dto.request.BoardRequestDTO;
 import com.board.notice.dto.response.BoardResponseDTO;
+import com.board.notice.security.CustomUserDetail;
 import com.board.notice.service.BoardService;
 
 import lombok.RequiredArgsConstructor;
@@ -68,17 +70,17 @@ public class BoardRestController {
 
 //	게시글 수정하기
 	@PostMapping("/{bno}/edit")
-	public ResponseEntity<String> update(@PathVariable("bno") int bno, @ModelAttribute BoardRequestDTO boardRequestDTO,
-			@RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
-		boardService.update(boardRequestDTO, file);
-		return ResponseEntity.ok("게시글이 수정되었습니다.");
+	public ResponseEntity<?> update(@PathVariable("bno") int bno, @ModelAttribute BoardRequestDTO boardRequestDTO,
+			@RequestParam(value = "file", required = false) MultipartFile file, @AuthenticationPrincipal CustomUserDetail userDetails) throws IOException {
+		
+		return boardService.update(boardRequestDTO, file, userDetails);
 	}
 
 //	게시글 삭제하기
 	@DeleteMapping("/{bno}")
-	public ResponseEntity<String> delete(@PathVariable("bno") int bno) {
-		boardService.delete(bno);
-		return ResponseEntity.ok("게시글이 삭제되었습니다.");
+	public ResponseEntity<?> delete(@PathVariable("bno") int bno, @AuthenticationPrincipal CustomUserDetail userDetails) {
+		
+		return boardService.delete(bno, userDetails);
 	}
 
 //	인기글 조회

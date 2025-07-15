@@ -16,4 +16,5 @@ import lombok.ToString;
 public class LoginRequestDTO {
 	private String id;
 	private String password;
+	private boolean rememberMe;
 }

@@ -1,6 +1,7 @@
 package com.board.notice.service;
 
 import java.time.LocalDateTime;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -19,18 +20,19 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class EmailSenderServiceImpl implements EmailSenderService{
+public class EmailSenderServiceImpl implements EmailSenderService {
 	private final EmailRepository emailRepository;
 	private final JavaMailSender javaMailSender;
-	
+
 //	이메일 인증 토큰 보내기
 	@Transactional
 	@Async
 	public CompletableFuture<Boolean> sendVerificationEmail(String email) {
 		try {
 			// 토큰 생성 후 DB 반영
-			String token = UUID.randomUUID().toString();
-			EmailToken emailToken = EmailToken.builder().token(token).email(email)
+			String code = String.format("%06d", new Random().nextInt(999999));
+
+			EmailToken emailToken = EmailToken.builder().token(code).email(email)
 					.expiryDate(LocalDateTime.now().plusMinutes(10)).build();
 			emailRepository.save(emailToken);
 
@@ -46,10 +48,7 @@ public class EmailSenderServiceImpl implements EmailSenderService{
 								</p>
 
 								<div style="margin:30px 0; text-align:center;">
-									<a href="http://localhost:8080/auth/emails/verification-tokens/%s"
-										style="display:inline-block; background-color:#4CAF50; color:white; padding:12px 24px; text-decoration:none; border-radius:4px; font-weight:bold;">
-										이메일 인증하기
-									</a>
+									<p style="font-size:24px; font-weight:bold; color:#4CAF50;">%s</p>
 								</div>
 
 								<p style="font-size:12px; color:#999999; margin-top: 50px;">
@@ -64,7 +63,7 @@ public class EmailSenderServiceImpl implements EmailSenderService{
 								</p>
 							</div>
 							""",
-					token);
+					code);
 			MimeMessage message = javaMailSender.createMimeMessage();
 			MimeMessageHelper helper;
 			helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -74,6 +73,7 @@ public class EmailSenderServiceImpl implements EmailSenderService{
 			helper.setText(content, true);
 
 			javaMailSender.send(message);
+			
 			return CompletableFuture.completedFuture(true);
 		} catch (MessagingException e) {
 			return CompletableFuture.completedFuture(false);

@@ -3,8 +3,8 @@ import { fetchWithAuth } from "../fetchWithAuth.js";
 const bno = window.location.pathname.split("/").pop();
 const pathParts = window.location.pathname.split('/');
 const category = pathParts[3];
-let userId = null;
 let name = null;
+let currentUser = null;
 let currentSize = 5; // 현재 사이즈
 let currentPage = 0; // 현재 페이지 번호
 let currentSort = "createdAt"; // 현재 정렬 항목
@@ -14,6 +14,7 @@ let editor;
 
 // 페이지 로드 시
 document.addEventListener("DOMContentLoaded", async () => {
+	await loadLoginUser();
 	await fetchBoardDetail();
 	await fetchReplyList();
 
@@ -39,7 +40,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 			anchorEl.href = `/board/list/all`;
 		}
 	}
-	
+
 
 	// 답글 버튼 누를 시
 	document.addEventListener("click", async (e) => {
@@ -69,7 +70,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 			const replyDTO = {
 				content: textarea.value,
 				writer: writer.innerText,
-				user_id: writer.dataset.id,
+				user_id: currentUser,
 				parent_id: writer.dataset.parent
 			};
 
@@ -85,7 +86,6 @@ document.getElementById("registerBtn").addEventListener("click", async (event) =
 
 	const writer = document.getElementById("reply-writer");
 	const content = document.getElementById("reply-content").value;
-	const userId = writer.dataset.id;
 
 	if (content === "") {
 		showToast("내용을 입력해주세요.", "error");
@@ -95,7 +95,7 @@ document.getElementById("registerBtn").addEventListener("click", async (event) =
 	const replyDTO = {
 		content: content,
 		writer: writer.innerText,
-		user_id: userId
+		user_id: currentUser
 	}
 
 	await fetchReplyRegister(replyDTO);
@@ -252,6 +252,7 @@ function renderDetailView(detail) {
 	const formatted = dayjs(detail.createdAt).format("YYYY-MM-DD HH:mm:ss");
 	const replyBox = document.querySelector(".reply-box");
 	const editMenu = document.querySelector(".edit-menu");
+	const ownerBtns = document.getElementById("owner-action-box");
 	const filePath = detail.filePath || null;
 	let fileName;
 
@@ -306,11 +307,13 @@ function renderDetailView(detail) {
 
 	replybtn.textContent = `댓글 ${detail.commentCount}`;
 
-	replyWriter.dataset.id = `${detail.userId.id}`;
-	replyWriter.innerText = `${detail.userId.name}`;
+	replyWriter.innerText = name;
 
-	userId = `${detail.userId.id}`;
-	name = `${detail.userId.name}`;
+	const writerId = `${detail.userId.id}`;
+
+	if (currentUser !== writerId) {
+		ownerBtns.classList.add("d-none");
+	}
 }
 
 // 게시글 수정화면 렌더링
@@ -420,6 +423,22 @@ function renderReplyItem(reply, depth = 0) {
 	const formatDate = dayjs(reply.createAt).format("YYYY-MM-DD HH:mm:ss");
 	divEl.classList.add("p-3", "pe-0", "mb-2", "bb-right");
 
+	const isOwner = reply.userId.id === currentUser;
+
+	const actionMenuHtml = isOwner
+		? `
+			<div class="dropdown">
+				<button class="btn btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+					<i class="fa-solid fa-ellipsis-vertical"></i>
+				</button>
+				<ul class="dropdown-menu dropdown-menu-end">
+					<li><a class="dropdown-item" id="reply-edit" href="#">수정</a></li>
+					<li><a class="dropdown-item text-danger" id="reply-delete" href="#">삭제</a></li>
+				</ul>
+			</div>
+		`
+		: "";
+
 	if (depth > 0) {
 		divEl.classList.add("ms-5", "border-top", "mt-3"); // 답글 들여쓰기
 		divEl.innerHTML = `
@@ -432,15 +451,7 @@ function renderReplyItem(reply, depth = 0) {
 					<div class="flex-grow-1">
 						<p class="mb-0">${reply.content}</p>
 					</div>
-					<div class="dropdown">
-						<button class="btn btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-							<i class="fa-solid fa-ellipsis-vertical"></i>
-						</button>
-						<ul class="dropdown-menu dropdown-menu-end">
-							<li><a class="dropdown-item" id="reply-edit" href="#">수정</a></li>
-							<li><a class="dropdown-item text-danger" id="reply-delete" href="#">삭제</a></li>
-						</ul>
-					</div>
+					${actionMenuHtml}
 				</div>
 				<div class="d-flex justify-content-end align-items-center mt-2 px-2">
 					<div class="d-flex gap-2">
@@ -467,15 +478,7 @@ function renderReplyItem(reply, depth = 0) {
 					<div class="flex-grow-1">
 						<p class="mb-0">${reply.content}</p>
 					</div>
-					<div class="dropdown">
-						<button class="btn btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-							<i class="fa-solid fa-ellipsis-vertical"></i>
-						</button>
-						<ul class="dropdown-menu dropdown-menu-end">
-							<li><a class="dropdown-item" id="reply-edit" href="#">수정</a></li>
-							<li><a class="dropdown-item text-danger" id="reply-delete" href="#">삭제</a></li>
-						</ul>
-					</div>
+					${actionMenuHtml}
 				</div>
 				<div class="d-flex justify-content-between align-items-center mt-2 px-2">
 					<button type="button" class="btn btn-outline-secondary btn-reply" data-rno=${reply.rno}>답글</button>
@@ -648,7 +651,7 @@ function insertReplyInputBox(rno, commentBox) {
 	divEl.innerHTML = `
 		<div class="mb-3 input-reply">
 			<label class="form-label mb-2 text-muted ms-cus"><strong class="reply-writer"
-					data-id="${userId}" data-parent="${rno}">${name}</strong></label>
+					data-parent="${rno}">${name}</strong></label>
 			<textarea class="form-control reply-content" rows="3"
 				placeholder="댓글을 입력하세요..."></textarea>
 		</div>
@@ -695,7 +698,9 @@ async function fetchBoardEdit(formData) {
 		});
 
 		if (!res.ok) {
-			showToast("❗ 댓글수정에 실패했습니다. 다시 시도해주세요.", "error");
+			const text = await res.text();
+			const errorMsg = text?.trim() ? text : "❗ 댓글 수정에 실패했습니다. 다시 시도해주세요.";
+			showToast(errorMsg, "error");
 			return;
 		}
 
@@ -718,7 +723,9 @@ async function fetchBoardDelete() {
 		});
 
 		if (!res.ok) {
-			showToast("❗ 게시글 삭제에 실패했습니다. 다시 시도해주세요.", "error");
+			const text = await res.text();
+			const errorMsg = text?.trim() ? text : "❗ 게시글 삭제에 실패했습니다. 다시 시도해주세요.";
+			showToast(errorMsg, "error");
 			return;
 		}
 
@@ -756,6 +763,7 @@ function editerInit(content) {
 	});
 }
 
+// 태그 추가
 function tagAdd() {
 	const tagInput = document.getElementById("tagInput");
 	const tagContainer = document.getElementById("tagContainer");
@@ -775,4 +783,26 @@ function tagAdd() {
 			}
 		}
 	});
+}
+
+// 로그인 사용자 정보 가져오기
+async function loadLoginUser() {
+	try {
+		const res = await fetchWithAuth("/users/me", {
+			method: "GET",
+			credentials: "include"
+		});
+
+		if (!res.ok) {
+			const msg = await res.text();
+			throw new Error(`(${res.status}) 사용자 정보를 가져올 수 없습니다. → ${msg}`);
+		}
+
+		const data = await res.json();
+
+		currentUser = data.id;
+		name = data.name;
+	} catch (e) {
+		console.error("로그인 사용자 확인 실패:", e);
+	}
 }

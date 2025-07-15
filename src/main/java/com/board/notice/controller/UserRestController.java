@@ -17,6 +17,8 @@ import com.board.notice.dto.request.UserRequestDTO;
 import com.board.notice.dto.response.UserResponseDTO;
 import com.board.notice.security.CustomUserDetail;
 import com.board.notice.security.oauth2.CustomOAuth2User;
+import com.board.notice.service.BoardService;
+import com.board.notice.service.ReplyService;
 import com.board.notice.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,6 +31,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 @RequestMapping(value = "/users")
 public class UserRestController {
 	private final UserService userService;
+	private final BoardService boardService;
+	private final ReplyService replyService;
 
 //	회원 전체 조회
 	@GetMapping
@@ -103,7 +107,9 @@ public class UserRestController {
 //	로그인 회원 정보 가져오기
 	@GetMapping("/me")
 	public ResponseEntity<UserResponseDTO> getCurrentUser(@AuthenticationPrincipal CustomUserDetail userDetails) {
-	    return ResponseEntity.ok(new UserResponseDTO(userDetails.getUsername(), userDetails.getName(), userDetails.getPno(), userDetails.getEmail()));
+		long postCount = boardService.getUserPostCount(userDetails.getUsername());
+		long commentCount = replyService.getUserCommentCount(userDetails.getUsername());
+	    return ResponseEntity.ok(new UserResponseDTO(userDetails.getUsername(), userDetails.getRole(), userDetails.getName(), userDetails.getPno(), userDetails.getEmail(), postCount, commentCount));
 	}
 
 }
