@@ -164,7 +164,8 @@ document.getElementById("btn-save-edit").addEventListener("click", async (event)
 	const content = editor.getHTML();
 	const category = document.getElementById("categorySelect");
 	const tagContainer = document.getElementById("tagContainer");
-	const tags = Array.from(tagContainer.querySelectorAll("span")).map(span => span.textContent.trim());
+	const tags = Array.from(tagContainer.querySelectorAll(".badge"))
+		.map(tagEl => tagEl.querySelector("span")?.textContent.replace(/^#/, "").trim());
 
 	const formData = new FormData();
 	formData.append("title", title.value);
@@ -275,13 +276,13 @@ function renderDetailView(detail) {
 	`;
 
 	if (filePath !== null) {
-		fileName = filePath.substring(filePath.lastIndexOf('/') + 1);
+		fileName = filePath.substring(filePath.indexOf('_') + 1);
 		contentMain.innerHTML = `
 			<div class="post-body">
 				${detail.content}
 			</div>
 			<div class="attached-file-box p-3">
-		    <div class="file-label mb-2">첨부파일</div>
+		    	<div class="file-label mb-2">첨부파일</div>
 			    <a th:href="${detail.filePath}" class="file-link" target="_blank" download>
 			        <i class="bi bi-download"></i>
 			        <span>${fileName}</span>
@@ -298,10 +299,13 @@ function renderDetailView(detail) {
 		`;
 	}
 
+	const tagContainer = document.getElementById("tagContainer");
+	tagContainer.innerHTML = "";
+
 	detail.tags.forEach(tag => {
 		const tagEl = document.createElement("span");
 		tagEl.className = "badge bg-secondary me-1 mb-1";
-		tagEl.textContent = tag;
+		tagEl.textContent = "#" + tag;
 		tagContainer.appendChild(tagEl);
 	});
 
@@ -323,7 +327,13 @@ function renderEditView(detail) {
 	const contentMain = document.querySelector(".content-main");
 	const replyBox = document.querySelector(".reply-box");
 	const editMenu = document.querySelector(".edit-menu");
-	const tagContainer = document.getElementById("tagContainer");
+	const filePath = detail.filePath || null;
+	const tags = detail.tags;
+	let fileName;
+
+	if (filePath !== null) {
+		fileName = filePath.substring(filePath.indexOf('_') + 1);
+	}
 
 	contentTitle.innerHTML = "";
 	contentInfo.innerHTML = "";
@@ -344,8 +354,18 @@ function renderEditView(detail) {
 
 	contentMain.innerHTML = `
 		<div id="editor"></div>
-		<div class="mt-3 mb-5">
+		<div class="mt-3 mb-3">
 			<input class="form-control" type="file" name="file" id="fileInput">
+			${filePath !== null ? `
+						<div class="d-flex align-items-center gap-3 attached-file-box p-3 mt-2" id="file-box">
+							<div>
+								<div class="file-label mb-2">기존 첨부파일</div>
+								<span>${fileName}</span>
+							</div>
+							<button type="button" class="btn-close" id="deleteFile" aria-label="삭제"></button>
+						</div>
+			` : ``}
+			<input type="hidden" id="deleteFileInput" value="false">
 		</div>
 		<div class="mb-3">
 			<label for="tagInput" class="form-label">태그 추가</label>
@@ -355,18 +375,48 @@ function renderEditView(detail) {
 		</div>
 	`;
 
+	const tagContainer = document.getElementById("tagContainer");
+	tagContainer.innerHTML = "";
+
+	tags.forEach(tag => {
+		const tagEl = document.createElement("span");
+		tagEl.className = "badge bg-secondary me-1 mb-1 d-inline-flex align-items-center";
+
+		// 태그 텍스트
+		const tagText = document.createElement("span");
+		tagText.textContent = "#" + tag;
+		tagEl.appendChild(tagText);
+
+		// 삭제 버튼
+		const closeBtn = document.createElement("button");
+		closeBtn.type = "button";
+		closeBtn.className = "btn-close btn-close-white ms-2";
+		closeBtn.style.fontSize = "0.6rem";
+		closeBtn.setAttribute("aria-label", "Remove");
+		closeBtn.onclick = () => tagEl.remove();
+
+		tagEl.appendChild(closeBtn);
+		tagContainer.appendChild(tagEl);
+		tagInput.value = "";
+	});
+
 	setTimeout(() => {
 		editerInit(detail.content);
 		tagAdd();
-	}, 0);
 
+		const deleteFileBtn = document.getElementById("deleteFile");
+		if (deleteFileBtn) {
+			deleteFileBtn.addEventListener("click", () => {
+				deleteExistingFile();
+			});
+		}
+	}, 0);
 
 	replyBox.style.display = "none";
 	editMenu.style.display = "flex";
 	editMenu.style.justifyContent = "flex-end";
 	editMenu.style.gap = "10px";
 	contentTitle.classList.add("w-100");
-	tagContainer.style.display = "none";
 }
 
 // 댓글 조회
@@ -774,8 +824,22 @@ function tagAdd() {
 			const value = tagInput.value.trim();
 			if (value) {
 				const tagEl = document.createElement("span");
-				tagEl.className = "badge bg-secondary me-1 mb-1";
-				tagEl.textContent = "#" + value;
+				tagEl.className = "badge bg-secondary me-1 mb-1 d-inline-flex align-items-center";
+
+				// 태그 텍스트
+				const tagText = document.createElement("span");
+				tagText.textContent = "#" + value;
+				tagEl.appendChild(tagText);
+
+				// 삭제 버튼
+				const closeBtn = document.createElement("button");
+				closeBtn.type = "button";
+				closeBtn.className = "btn-close btn-close-white ms-2";
+				closeBtn.style.fontSize = "0.6rem";
+				closeBtn.setAttribute("aria-label", "Remove");
+				closeBtn.onclick = () => tagEl.remove();
+
+				tagEl.appendChild(closeBtn);
 				tagContainer.appendChild(tagEl);
 				tagInput.value = "";
 			} else {
@@ -783,6 +847,12 @@ function tagAdd() {
 			}
 		}
 	});
+}
+
+// 게시글 수정화면에서 기존 첨부파일 삭제
+function deleteExistingFile() {
+	document.getElementById("file-box").classList.add("d-none");
+	document.getElementById("deleteFileInput").value = "true";
 }
 
 // 로그인 사용자 정보 가져오기

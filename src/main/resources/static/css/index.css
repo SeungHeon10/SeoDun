@@ -160,6 +160,17 @@ hr {
 	font-weight: 700;
 }
 
+.custom-tag {
+	display: inline-block;
+	padding: 0.5rem 1rem;
+	font-weight: bold;
+	line-height: 1.2;
+	border-radius: 10px;
+	vertical-align: middle;
+	background-color: transparent;
+	color: #666;
+}
+
 /*스몰 휴대폰 (최대 375px) */
 @media (min-width: 0px) and (max-width: 320px) {
 	.row {

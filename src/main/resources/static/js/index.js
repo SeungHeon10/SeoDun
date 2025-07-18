@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 	await loadInitialBoards();
 	loadBoardsByCategory();
 	await recentBoards();
+	await loadTopTags();
 });
 
 // 해상도 체크 
@@ -199,5 +200,28 @@ async function recentBoards() {
 		});
 	} catch (e) {
 		console.error("에러:", e.message);
+	}
+}
+
+// 인기 태그 가져오기
+async function loadTopTags() {
+	try {
+		const res = await fetch("/api/boards/tags/popular");
+		
+		if (!res.ok) {
+			throw new Error("서버 오류 발생");
+		}
+		
+		const tags = await res.json();
+		const container = document.getElementById("topTags");
+
+		tags.forEach(tag => {
+			const span = document.createElement("span");
+			span.className = "badge me-4 mb-3 fs-1 custom-tag";
+			span.textContent = `#${tag.tag}`;
+			container.appendChild(span);
+		});
+	} catch (error) {
+		console.error("인기 태그를 불러오는 중 오류 발생:", error);
 	}
 }

@@ -74,7 +74,8 @@ document.getElementById("btn-save-register").addEventListener("click", async () 
 	}
 
 	const formData = new FormData();
-	const tags = Array.from(tagContainer.querySelectorAll("span > span")).map(span => span.textContent.trim());
+	const tags = Array.from(tagContainer.querySelectorAll(".badge"))
+		.map(tagEl => tagEl.querySelector("span")?.textContent.replace(/^#/, "").trim());
 	formData.append("category", category.value);
 	formData.append("title", title.value);
 	formData.append("content", content);

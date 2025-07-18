@@ -2,6 +2,7 @@ package com.board.notice.service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.board.notice.dto.request.BoardRequestDTO;
 import com.board.notice.dto.response.BoardResponseDTO;
+import com.board.notice.dto.response.TagCountResponseDTO;
 import com.board.notice.entity.Board;
 import com.board.notice.entity.User;
 import com.board.notice.repository.BoardRepository;
@@ -100,21 +103,20 @@ public class BoardServiceImpl implements BoardService {
 	@CacheEvict(value = { "top6Boards", "popularBoards" }, allEntries = true)
 	public void register(BoardRequestDTO boardRequestDTO, MultipartFile file) throws IOException {
 		String filePath = null;
-		System.out.println(boardRequestDTO + "띄어쓰기" + file);
+
 		if (file != null) {
-			// 확장자 추출
 			String filename = file.getOriginalFilename();
-			String extension = filename.substring(filename.lastIndexOf("."));
-			// uuid로 파일명 변경
 			String uuid = UUID.randomUUID().toString();
-			String newfilename = uuid + extension;
+
+			String savedFilename = uuid + "_" + Paths.get(filename).getFileName().toString();
+
 			try (InputStream inputStream = file.getInputStream()) {
-				String s3key = "upload/" + newfilename;
+				String s3key = "upload/" + savedFilename;
 				s3Client.putObject(
 						PutObjectRequest.builder().bucket(bucketName).key(s3key).contentType(file.getContentType())
 								.contentDisposition("attachment").build(),
 						RequestBody.fromInputStream(inputStream, file.getSize()));
-				filePath = "https://" + bucketName + ".s3.amazonaws.com/upload/" + newfilename;
+				filePath = "https://" + bucketName + ".s3.amazonaws.com/upload/" + savedFilename;
 			}
 		}
 		// 회원 조회
@@ -134,8 +136,8 @@ public class BoardServiceImpl implements BoardService {
 	@Override
 	@Transactional
 	@CacheEvict(value = { "top6Boards", "popularBoards" }, allEntries = true)
-	public ResponseEntity<?> update(BoardRequestDTO boardRequestDTO, MultipartFile file, CustomUserDetail userDetails)
-			throws IOException {
+	public ResponseEntity<?> update(BoardRequestDTO boardRequestDTO, MultipartFile file, boolean deleteFile,
+			CustomUserDetail userDetails) throws IOException {
 		// 수정할 게시글 찾기
 		Board board = boardRepository.findById(boardRequestDTO.getBno())
 				.orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
@@ -143,20 +145,25 @@ public class BoardServiceImpl implements BoardService {
 		if (!board.getUserId().getId().equals(userDetails.getUsername())) {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("작성자 본인만 수정할 수 있습니다.");
 		}
-		
+
+		// 첨부파일 삭제 요청 처리
+		if (deleteFile) {
+			boardRequestDTO.setFilePath(null); // DB에서 파일 제거
+		}
+
 		// 변경한 파일이 null이 아닐 경우에만 실행
 		if (file != null && !file.isEmpty()) {
-			// 확장자 추출
-			String extension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
-			// uuid로 파일명 변경
+			String filename = file.getOriginalFilename();
 			String uuid = UUID.randomUUID().toString();
-			String newfilename = uuid + extension;
+
+			String savedFilename = uuid + "_" + Paths.get(filename).getFileName().toString();
+
 			try (InputStream is = file.getInputStream()) {
 				// S3 저장소에 저장
-				String s3key = "upload/" + newfilename;
+				String s3key = "upload/" + savedFilename;
 				s3Client.putObject(PutObjectRequest.builder().bucket(bucketName).key(s3key)
 						.contentType(file.getContentType()).build(), RequestBody.fromInputStream(is, file.getSize()));
-				boardRequestDTO.setFilePath("https://" + bucketName + ".s3.amazonaws.com/upload/" + newfilename);
+				boardRequestDTO.setFilePath("https://" + bucketName + ".s3.amazonaws.com/upload/" + savedFilename);
 			}
 		}
 		// 게시글 수정 메서드
@@ -171,13 +178,14 @@ public class BoardServiceImpl implements BoardService {
 	public ResponseEntity<?> delete(int bno, CustomUserDetail userDetails) {
 		Board board = boardRepository.findById(bno)
 				.orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
-		
+
 		if (!board.getUserId().getId().equals(userDetails.getUsername())) {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("작성자 본인만 삭제할 수 있습니다.");
 		}
-		
+
 		// 게시글 소프트 삭제 메서드
 		board.markAsDeleted();
+		board.getTags().clear();
 		return ResponseEntity.ok("게시글이 삭제되었습니다.");
 	}
 
@@ -240,6 +248,12 @@ public class BoardServiceImpl implements BoardService {
 	public long getUserPostCount(String userId) {
 
 		return boardRepository.countByUserId_Id(userId);
+	}
+
+	@Override
+	public List<TagCountResponseDTO> getTop6Tags() {
+		Pageable topsix = PageRequest.of(0, 6);
+		return boardRepository.findTopTags(topsix);
 	}
 
 }

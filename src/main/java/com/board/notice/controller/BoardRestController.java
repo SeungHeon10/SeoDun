@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.board.notice.dto.request.BoardRequestDTO;
 import com.board.notice.dto.response.BoardResponseDTO;
+import com.board.notice.dto.response.TagCountResponseDTO;
 import com.board.notice.security.CustomUserDetail;
 import com.board.notice.service.BoardService;
 
@@ -71,15 +72,19 @@ public class BoardRestController {
 //	게시글 수정하기
 	@PostMapping("/{bno}/edit")
 	public ResponseEntity<?> update(@PathVariable("bno") int bno, @ModelAttribute BoardRequestDTO boardRequestDTO,
-			@RequestParam(value = "file", required = false) MultipartFile file, @AuthenticationPrincipal CustomUserDetail userDetails) throws IOException {
-		
-		return boardService.update(boardRequestDTO, file, userDetails);
+			@RequestParam(value = "file", required = false) MultipartFile file,
+			@AuthenticationPrincipal CustomUserDetail userDetails,
+			@RequestParam(value = "deleteFile", required = false, defaultValue = "false") boolean deleteFile)
+			throws IOException {
+
+		return boardService.update(boardRequestDTO, file, deleteFile, userDetails);
 	}
 
 //	게시글 삭제하기
 	@DeleteMapping("/{bno}")
-	public ResponseEntity<?> delete(@PathVariable("bno") int bno, @AuthenticationPrincipal CustomUserDetail userDetails) {
-		
+	public ResponseEntity<?> delete(@PathVariable("bno") int bno,
+			@AuthenticationPrincipal CustomUserDetail userDetails) {
+
 		return boardService.delete(bno, userDetails);
 	}
 
@@ -115,5 +120,13 @@ public class BoardRestController {
 	public ResponseEntity<String> uploadImage(@RequestParam("image") MultipartFile image) throws IOException {
 
 		return ResponseEntity.ok(boardService.uploadImage(image));
+	}
+
+//	태그 많이 사용된 5개 조회
+	@GetMapping("/tags/popular")
+	public ResponseEntity<List<TagCountResponseDTO>> getTopTags() {
+		List<TagCountResponseDTO> topTags = boardService.getTop6Tags();
+
+		return ResponseEntity.ok(topTags);
 	}
 }
