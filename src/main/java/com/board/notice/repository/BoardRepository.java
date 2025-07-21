@@ -63,4 +63,14 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
 	@Query("SELECT new com.board.notice.dto.response.TagCountResponseDTO(t, COUNT(t)) "
 			+ "FROM Board b JOIN b.tags t GROUP BY t ORDER BY COUNT(t) DESC")
 	List<TagCountResponseDTO> findTopTags(Pageable pageable);
+
+	@Query(value = "SELECT DISTINCT tag FROM board_tags WHERE board_bno IN (:boardIds)", nativeQuery = true)
+	List<String> findTagsByBoardIds(@Param("boardIds") List<Integer> boardIds);
+
+	@Query("SELECT b.category FROM Board b WHERE b.id IN :boardIds GROUP BY b.category ORDER BY COUNT(b.id) DESC")
+	List<String> findMostCommonCategoryByBoardIds(@Param("boardIds") List<Integer> boardIds);
+
+	@Query("SELECT DISTINCT b FROM Board b JOIN b.tags t WHERE (t IN :tags OR b.category = :category) AND b.id NOT IN :excludedIds ORDER BY b.createdAt DESC")
+	List<Board> findSimilarBoards(@Param("tags") List<String> tags, @Param("category") String category,
+			@Param("excludedIds") List<Integer> excludedIds, Pageable pageable);
 }

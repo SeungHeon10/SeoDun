@@ -11,12 +11,16 @@ let currentSort = "createdAt"; // 현재 정렬 항목
 let currentDirection = "desc"; // 현재 정렬 기준
 let currentMode = "view";
 let editor;
+let enterTime;
+let interactionCount = 0;
+let currentBoardId = pathParts[4];
 
 // 페이지 로드 시
 document.addEventListener("DOMContentLoaded", async () => {
 	await loadLoginUser();
 	await fetchBoardDetail();
 	await fetchReplyList();
+	startDwellTracking();
 
 	const categoryNames = {
 		free: "자유",
@@ -874,5 +878,51 @@ async function loadLoginUser() {
 		name = data.name;
 	} catch (e) {
 		console.error("로그인 사용자 확인 실패:", e);
+	}
+}
+
+// 체류 시간 측정 시작
+function startDwellTracking() {
+	enterTime = Date.now();
+	interactionCount = 0;
+
+	// 상호작용 카운트 추적
+	window.addEventListener('scroll', trackInteraction);
+	window.addEventListener('click', trackInteraction);
+
+	// 종료 시점 전송
+	window.addEventListener("beforeunload", sendDwellTimeLog);
+}
+
+// 상호작용 이벤트 카운터
+function trackInteraction() {
+	interactionCount++;
+}
+
+// 체류 시간 계산 후 전송
+function sendDwellTimeLog() {
+	const leaveTime = Date.now();
+	const dwellTime = Math.round((leaveTime - enterTime) / 1000);
+
+	if (!currentUser || !currentBoardId) return;
+
+	const data = {
+		userId: currentUser,
+		boardId: currentBoardId,
+		dwellTime: dwellTime,
+		interactionCount: interactionCount
+	};
+
+	const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
+
+	const sent = navigator.sendBeacon("/api/log/dwell-time", blob);
+
+	if (!sent) {
+		console.warn("❗ sendBeacon 실패 → fetch로 전송");
+		fetchWithAuth("/api/log/dwell-time", {
+			method: "POST",
+			body: JSON.stringify(data),
+			keepalive: true
+		});
 	}
 }

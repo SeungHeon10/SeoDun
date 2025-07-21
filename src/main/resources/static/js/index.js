@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 	loadBoardsByCategory();
 	await recentBoards();
 	await loadTopTags();
+	await loadReadBasedRecommendations();
 });
 
 // 해상도 체크 
@@ -203,15 +204,57 @@ async function recentBoards() {
 	}
 }
 
+// 최신 글 가져오기
+async function loadReadBasedRecommendations() {
+	const readBasedRecommend = document.getElementById("readBasedRecommend");
+	try {
+		const response = await fetchWithAuth("/api/recommend/read-based");
+		
+		if (!response.ok) {
+			throw new Error(`서버 오류: ${response.status}`);
+		}
+
+		const boards = await response.json();
+
+		if (boards.length === 0) {
+			readBasedRecommend.innerHTML = "<p>아직 추천할 게시글이 없습니다.</p>";
+			return;
+		}
+
+		readBasedRecommend.innerHTML = ""; // 초기 메시지 제거
+
+		boards.forEach(board => {
+			const divEl = document.createElement("div");
+			divEl.innerHTML = `
+						<a href="board/detail/${categoryNames[board.category]}/${board.bno}" class="text-decoration-none text-dark">
+							<div class="post-card">
+								<div class="post-title">${board.title}</div>
+								<div class="post-preview">${board.content}</div>
+								<div class="post-meta">
+									<i class="fas fa-eye"></i>
+									<span>${board.viewCount}</span>
+								</div>
+							</div>
+						</a>
+						`;
+
+			readBasedRecommend.appendChild(divEl);
+		});
+	} catch (err) {
+		console.error("❗ 추천 API 호출 실패:", err);
+		container.innerHTML = "<p class='text-danger'>추천 게시글을 불러오지 못했습니다.</p>";
+	}
+}
+
 // 인기 태그 가져오기
 async function loadTopTags() {
 	try {
 		const res = await fetch("/api/boards/tags/popular");
-		
+
 		if (!res.ok) {
 			throw new Error("서버 오류 발생");
 		}
-		
+
 		const tags = await res.json();
 		const container = document.getElementById("topTags");
 
