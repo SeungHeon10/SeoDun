@@ -1,6 +1,7 @@
 import { fetchWithAuth, setAccessToken } from "./fetchWithAuth.js";
 
 let userRole = null;
+let username;
 
 document.addEventListener("DOMContentLoaded", () => {
 	const loginMenu = document.getElementById("loginMenu");
@@ -28,7 +29,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 				if (response.ok) {
 					const user = await response.json();
-
+					username = user.name;
+					userRole = user.role;
+					
 					// 사용자 정보 표시
 					if (userNameSpan) userNameSpan.textContent = `${user.name} 님`;
 					if (userStats) userStats.textContent = `게시글 ${user.postCount}개 / 댓글 ${user.commentCount}개`;
@@ -36,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
 					if (userInfoBox) userInfoBox.style.display = "flex";
 					if (loginMenu) loginMenu.style.display = "none";
 					
-					if(user.role === "ROLE_ADMIN"){
+					if(userRole === "ROLE_ADMIN"){
 						adminMenu.classList.remove("d-none");
 						adminMenu.classList.add("d-block");
 					}

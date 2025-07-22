@@ -1,5 +1,6 @@
 package com.board.notice.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -73,4 +74,17 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
 	@Query("SELECT DISTINCT b FROM Board b JOIN b.tags t WHERE (t IN :tags OR b.category = :category) AND b.id NOT IN :excludedIds ORDER BY b.createdAt DESC")
 	List<Board> findSimilarBoards(@Param("tags") List<String> tags, @Param("category") String category,
 			@Param("excludedIds") List<Integer> excludedIds, Pageable pageable);
+
+	// 카테고리 기반 게시글 조회 (제외할 게시글 ID 포함)
+	@Query("SELECT b FROM Board b WHERE b.category = :category AND b.id NOT IN :excludedIds ORDER BY b.createdAt DESC")
+	List<Board> findBoardsByCategoryExcluding(@Param("category") String category,
+			@Param("excludedIds") List<Integer> excludedIds, Pageable pageable);
+	
+	// 최근 1주일 내 이슈성 글 Top 2
+	@Query("""
+			    SELECT b FROM Board b
+			    WHERE b.createdAt >= :startDate
+			    ORDER BY (b.viewCount * 2 + b.commentCount * 3) DESC
+			""")
+	List<Board> findHotBoardsInLastWeek(@Param("startDate") LocalDateTime startDate, Pageable pageable);
 }

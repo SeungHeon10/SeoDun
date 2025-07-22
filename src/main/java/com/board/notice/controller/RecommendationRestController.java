@@ -23,7 +23,7 @@ public class RecommendationRestController {
 
 	@GetMapping("/read-based")
 	public ResponseEntity<?> recommendByReadHistory(@AuthenticationPrincipal CustomUserDetail userDetails) {
-		String userId = userDetails.getUsername();
+		String userId = (userDetails != null) ? userDetails.getUsername() : null;
 		List<BoardResponseDTO> result = recommendationService.recommendByReadHistory(userId);
 		return ResponseEntity.ok(result);
 	}

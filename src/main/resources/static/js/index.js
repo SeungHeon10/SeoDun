@@ -1,6 +1,7 @@
 import { fetchWithAuth, setAccessToken } from "/js/fetchWithAuth.js";
 
 let activeTab = document.querySelector('[data-category="전체"]'); // 선택된 탭 
+let name;
 
 const categoryNames = {
 	자유: "free",
@@ -11,6 +12,7 @@ const categoryNames = {
 
 // 페이지 로드 시 
 document.addEventListener("DOMContentLoaded", async function() {
+	await loadLoginUser();
 	checkViewport();
 	window.addEventListener('resize', checkViewport);
 	await popularBoard();
@@ -204,12 +206,14 @@ async function recentBoards() {
 	}
 }
 
-// 최신 글 가져오기
+// 사용자 맞춤 컨텐츠
 async function loadReadBasedRecommendations() {
 	const readBasedRecommend = document.getElementById("readBasedRecommend");
+	const recommendTitle = document.getElementById("recommendTitle");
+
 	try {
 		const response = await fetchWithAuth("/api/recommend/read-based");
-		
+
 		if (!response.ok) {
 			throw new Error(`서버 오류: ${response.status}`);
 		}
@@ -219,6 +223,15 @@ async function loadReadBasedRecommendations() {
 		if (boards.length === 0) {
 			readBasedRecommend.innerHTML = "<p>아직 추천할 게시글이 없습니다.</p>";
 			return;
+		}
+
+		recommendTitle.innerHTML = "";
+
+		// 💬 추천 메시지 설정
+		if (boards.length === 2) {
+			recommendTitle.textContent += "🔥 이번 주 이슈 게시글";
+		} else if (boards.length >= 3) {
+			recommendTitle.innerHTML += `🧠 <span class="fw-bold">${name}</span> 님이 읽은 글과 비슷한 게시글`;
 		}
 
 		readBasedRecommend.innerHTML = ""; // 초기 메시지 제거
@@ -242,7 +255,7 @@ async function loadReadBasedRecommendations() {
 		});
 	} catch (err) {
 		console.error("❗ 추천 API 호출 실패:", err);
-		container.innerHTML = "<p class='text-danger'>추천 게시글을 불러오지 못했습니다.</p>";
+		readBasedRecommend.innerHTML = "<p class='text-danger'>추천 게시글을 불러오지 못했습니다.</p>";
 	}
 }
 
@@ -266,5 +279,26 @@ async function loadTopTags() {
 		});
 	} catch (error) {
 		console.error("인기 태그를 불러오는 중 오류 발생:", error);
+	}
+}
+
+// 로그인 사용자 정보 가져오기
+async function loadLoginUser() {
+	try {
+		const res = await fetchWithAuth("/users/me", {
+			method: "GET",
+			credentials: "include"
+		});
+
+		if (!res.ok) {
+			const msg = await res.text();
+			throw new Error(`(${res.status}) 사용자 정보를 가져올 수 없습니다. → ${msg}`);
+		}
+
+		const data = await res.json();
+
+		name = data.name;
+	} catch (e) {
+		console.error("로그인 사용자 확인 실패:", e);
 	}
 }
