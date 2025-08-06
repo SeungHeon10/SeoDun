@@ -28,6 +28,7 @@ public class User extends BaseEntity{
 	private String id; // 회원 아이디
 	private String password; // 회원 비밀번호
 	private String name; // 회원 이름
+	private String nickname; // 회원 닉네임
 	private String pno; // 회원 휴대폰 번호
 	private String email; // 회원 이메일
 	private String provider; // 어떤 플랫폼으로 로그인 했는지 
@@ -56,6 +57,7 @@ public class User extends BaseEntity{
 	
 //	회원 정보 수정
 	public void update(UserRequestDTO userRequestDTO) {
+		this.nickname = userRequestDTO.getNickname();
 		this.password = userRequestDTO.getPassword();
 		this.pno = userRequestDTO.getPno();
 		this.email = userRequestDTO.getEmail();

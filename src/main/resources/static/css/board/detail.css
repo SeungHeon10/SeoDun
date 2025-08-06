@@ -175,3 +175,8 @@ textarea.form-control:focus {
 	width: fit-content;
 	border-radius: 1.2rem;
 }
+
+.comment-form-disabled {
+	pointer-events: none;
+	opacity: 0.5;
+}

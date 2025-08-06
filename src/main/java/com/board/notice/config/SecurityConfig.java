@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,6 +21,7 @@ import com.board.notice.security.oauth2.OAuth2LoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 	private final JwtUtil jwtUtil;
@@ -37,8 +39,25 @@ public class SecurityConfig {
 		)
 		// URL 접근 권한 설정
 	    .authorizeHttpRequests(auth -> auth
-	        // /home, /login, 정적 리소스(css/js 등)은 모두 접근 허용
-	        .requestMatchers("/board/**", "/api/boards/**", "/users/**", "/", "/login", "/token", "/auth/emails/**", "/api/log/dwell-time", "/api/recommend/read-based", "/logout", "/signup-extra", "/membership", "/succ-member", "/social-login-success.html", "/.well-known/**", "/css/**", "/fonts/**", "/html/**", "/img/**", "/js/**").permitAll()
+	        // 모두 접근 허용 페이지/API
+	        .requestMatchers(
+	        	    "/",                       // 홈
+	        	    "/login", "/logout",       // 로그인, 로그아웃
+	        	    "/signup-extra", "/succ-member", "/membership",  // 회원가입 관련
+	        	    "/token",                  // accessToken 재발급
+	        	    "/social-login-success.html", // OAuth 로그인 완료 페이지
+
+	        	    // 정적 리소스
+	        	    "/css/**", "/js/**", "/img/**", "/fonts/**", "/html/**", "/.well-known/**",
+
+	        	    // 공개된 페이지
+	        	    "/board/**",               // 게시판 페이지 이동
+	        	    "/api/boards/**",			// 게시판 데이터 조회
+	        	    "/api/log/dwell-time",		// 로그 데이터 전송
+	        	    "/user/**",					// 회원 페이지 이동
+	        	    "/users/**"                // 사용자 공개 정보 조회
+	        	).permitAll()
+	        .requestMatchers("/admin/**").hasRole("ADMIN")
 	        // 나머지 모든 요청은 로그인한 사용자만 접근 가능
 	        .anyRequest().authenticated()
 	    )
@@ -49,12 +68,6 @@ public class SecurityConfig {
 	    )
 	    .logout(logout -> logout.disable())
 
-	    // 예외 처리 설정
-	    .exceptionHandling(ex -> ex
-	        // 권한 없는 사용자 접근 시 보여줄 커스텀 403 에러 페이지
-	        .accessDeniedPage("/error-403.html")
-	    )
-	    
 	    // OAuth2 설정
 	    .oauth2Login(oauth -> oauth
 	    	.loginPage("/login")

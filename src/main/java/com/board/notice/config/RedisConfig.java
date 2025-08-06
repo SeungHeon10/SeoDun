@@ -36,7 +36,6 @@ public class RedisConfig {
 
 		// 개별 TTL 적용
 		Map<String, RedisCacheConfiguration> cacheConfigs = new HashMap<String, RedisCacheConfiguration>();
-		cacheConfigs.put("userDetail", defaultConfig.entryTtl(Duration.ofMinutes(30)));
 		cacheConfigs.put("top6Boards", defaultConfig.entryTtl(Duration.ofMinutes(5)));
 		cacheConfigs.put("popularBoards", defaultConfig.entryTtl(Duration.ofMinutes(5)));
 

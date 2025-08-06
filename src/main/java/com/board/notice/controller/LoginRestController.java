@@ -10,8 +10,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.board.notice.dto.request.LoginRequestDTO;
 import com.board.notice.dto.response.TokenResponseDTO;
 import com.board.notice.enums.Role;
+import com.board.notice.security.CustomUserDetail;
 import com.board.notice.security.jwt.JwtUtil;
 import com.board.notice.service.RefreshTokenService;
 
@@ -103,6 +106,16 @@ public class LoginRestController {
 		response.addHeader("Set-Cookie", deleteCookie.toString());
 
 		return ResponseEntity.ok().build();
+	}
+
+//	사용자 인증 확인
+	@GetMapping("/auth/check")
+	public ResponseEntity<?> checkAuthentication(@AuthenticationPrincipal CustomUserDetail userDetails) {
+		if (userDetails == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증되지 않은 사용자입니다.");
+		}
+
+		return ResponseEntity.ok().build(); // 인증된 사용자면 200 OK
 	}
 
 }

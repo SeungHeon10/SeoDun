@@ -1,6 +1,7 @@
 package com.board.notice.service;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.board.notice.dto.request.SocialUserRequestDTO;
 import com.board.notice.dto.request.UserRequestDTO;
@@ -10,7 +11,7 @@ import com.board.notice.security.oauth2.CustomOAuth2User;
 public interface UserService {
 	
 //	회원목록 조회
-	List<UserResponseDTO> list();
+	Page<UserResponseDTO> list(Pageable pageable, String mode, String keyword);
 //	회원 상세보기
 	UserResponseDTO detail(String id);
 //	회원 등록

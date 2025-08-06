@@ -15,9 +15,23 @@ public class BoardController {
 		return "board/list";
 	}
 	
+//	게시글 전체조회 페이지 이동(admin)
+	@GetMapping("/list/admin")
+	public String listAdminPage() {
+		
+		return "board/list";
+	}
+	
 //	게시글 상세보기 페이지 이동
 	@GetMapping("/detail/{category}/{bno}")
 	public String detailPage() {
+		
+		return "board/detail";
+	}
+	
+//	게시글 상세보기 페이지 이동(admin)
+	@GetMapping("/detail/admin/{bno}")
+	public String detailAdminPage() {
 		
 		return "board/detail";
 	}

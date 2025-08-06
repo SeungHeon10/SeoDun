@@ -3,7 +3,10 @@ import { fetchWithAuth } from "../fetchWithAuth.js";
 const bno = window.location.pathname.split("/").pop();
 const pathParts = window.location.pathname.split('/');
 const category = pathParts[3];
+const isAdminPage = location.pathname.includes("/admin");
+const apiSuffix = isAdminPage ? `/api/boards/admin/${bno}` : `/api/boards/${bno}`;
 let name = null;
+let isAdmin = false;
 let currentUser = null;
 let currentSize = 5; // 현재 사이즈
 let currentPage = 0; // 현재 페이지 번호
@@ -33,15 +36,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 	const anchorEl = titleElement.closest("a");
 	window.history.replaceState({}, document.title, window.location.pathname);
 
-	if (category && categoryNames[category]) {
-		titleElement.textContent = categoryNames[category];
-		if (anchorEl) {
-			anchorEl.href = `/board/list/${category}`;
+	if (!isAdminPage) {
+		if (category && categoryNames[category]) {
+			titleElement.textContent = categoryNames[category];
+			if (anchorEl) {
+				anchorEl.href = `/board/list/${category}`;
+			}
+		} else {
+			titleElement.textContent = "전체글보기";
+			if (anchorEl) {
+				anchorEl.href = `/board/list/all`;
+			}
 		}
 	} else {
-		titleElement.textContent = "전체글보기";
+		titleElement.textContent = "게시글 관리";
 		if (anchorEl) {
-			anchorEl.href = `/board/list/all`;
+			anchorEl.href = `/board/list/admin`;
 		}
 	}
 
@@ -129,7 +139,11 @@ document.getElementById("sort-oldest").addEventListener("click", async (event) =
 document.getElementById("btn-list").addEventListener("click", async (event) => {
 	event.preventDefault();
 
-	location.href = `/board/list/${category}`;
+	if (!isAdminPage) {
+		location.href = `/board/list/${category}`;
+	} else {
+		location.href = `/board/list/admin`;
+	}
 });
 
 // 상세보기에서 수정버튼 누를 시
@@ -233,7 +247,7 @@ document.addEventListener("click", async (event) => {
 // 게시글 상세보기
 async function fetchBoardDetail() {
 	try {
-		const res = await fetchWithAuth(`/api/boards/${bno}`);
+		const res = await fetchWithAuth(apiSuffix);
 		if (!res.ok) throw new Error("서버 오류 발생");
 		const detail = await res.json();
 
@@ -319,8 +333,30 @@ function renderDetailView(detail) {
 
 	const writerId = `${detail.userId.id}`;
 
-	if (currentUser !== writerId) {
+	if (currentUser !== writerId && !(isAdmin && isAdminPage)) {
 		ownerBtns.classList.add("d-none");
+	}
+
+	if (detail.deleted) {
+		ownerBtns.innerHTML = "";
+		ownerBtns.innerHTML = `
+			<button type="button" class="btn btn-outline-secondary"
+						id="btn-restore">복원</button>
+		`
+
+		// 상세보기에서 복원 버튼 누를 시
+		document.getElementById("btn-restore").addEventListener("click", async (event) => {
+			event.preventDefault();
+
+			const isConfirmed = confirm("정말 복원하시겠습니까?");
+			if (!isConfirmed) return;
+
+			await fetchBoardRestore();
+		});
+	}
+
+	if (isAdminPage) {
+		document.querySelector(".comment-form")?.classList.add("comment-form-disabled");
 	}
 }
 
@@ -344,11 +380,11 @@ function renderEditView(detail) {
 	contentMain.innerHTML = "";
 	contentTitle.innerHTML = `
 		<div class="mb-0">
-			<select class="form-select" id="categorySelect" value="${detail.category}">
-				<option value="자유">자유</option>
-				<option value="공지">공지</option>
-				<option value="질문답변">질문답변</option>
-				<option value="정보공유">정보공유</option>
+			<select class="form-select" id="categorySelect">
+				<option value="자유" ${detail.category == '자유' ? 'selected' : ''}>자유</option>
+				<option value="공지" ${detail.category == '공지' ? 'selected' : ''}>공지</option>
+				<option value="질문답변" ${detail.category == '질문답변' ? 'selected' : ''}>질문답변</option>
+				<option value="정보공유" ${detail.category == '정보공유' ? 'selected' : ''}>정보공유</option>
 			</select>
 		</div>
 		<div class="edit-title">
@@ -513,42 +549,61 @@ function renderReplyItem(reply, depth = 0) {
 							<i class="fa-regular fa-thumbs-up text-danger"></i>
 							<span class="text-danger">0</span>
 						</button>
-						<button type="button" class="btn btn-outline-light border btn-sm d-flex align-items-center gap-1">
-							<i class="fa-regular fa-thumbs-down text-primary"></i>
-							<span class="text-primary">0</span>
-						</button>
 					</div>
 				</div>
 			</div>
 		`;
 	} else {
-		divEl.innerHTML = `
-			<div class="reply-block">
-				<div class="d-flex justify-content-between mb-3 px-2">
-					<strong>${reply.writer}</strong>
-					<span>${formatDate}</span>
-				</div>
-				<div class="d-flex justify-content-between align-items-start px-2 pb-3">
-					<div class="flex-grow-1">
-						<p class="mb-0">${reply.content}</p>
+		if (!isAdminPage) {
+			divEl.innerHTML = `
+					<div class="reply-block">
+						<div class="d-flex justify-content-between mb-3 px-2">
+							<strong>${reply.writer}</strong>
+							<span>${formatDate}</span>
+						</div>
+						<div class="d-flex justify-content-between align-items-start px-2 pb-3">
+							<div class="flex-grow-1">
+								<p class="mb-0">${reply.content}</p>
+							</div>
+							${actionMenuHtml}
+						</div>
+						<div class="d-flex justify-content-between align-items-center mt-2 px-2">
+							<button type="button" class="btn btn-outline-secondary btn-reply" data-rno=${reply.rno}>답글</button>
+							<div class="d-flex gap-2">
+								<button type="button" class="btn btn-outline-light border btn-sm d-flex align-items-center gap-1">
+									<i class="fa-regular fa-thumbs-up text-danger"></i>
+									<span class="text-danger">0</span>
+								</button>
+							</div>
+						</div>
 					</div>
-					${actionMenuHtml}
-				</div>
-				<div class="d-flex justify-content-between align-items-center mt-2 px-2">
-					<button type="button" class="btn btn-outline-secondary btn-reply" data-rno=${reply.rno}>답글</button>
-					<div class="d-flex gap-2">
-						<button type="button" class="btn btn-outline-light border btn-sm d-flex align-items-center gap-1">
-							<i class="fa-regular fa-thumbs-up text-danger"></i>
-							<span class="text-danger">0</span>
-						</button>
-						<button type="button" class="btn btn-outline-light border btn-sm d-flex align-items-center gap-1">
-							<i class="fa-regular fa-thumbs-down text-primary"></i>
-							<span class="text-primary">0</span>
-						</button>
+				`;
+		} else {
+			divEl.innerHTML = `
+					<div class="reply-block">
+						<div class="d-flex justify-content-between mb-3 px-2">
+							<strong>${reply.writer}</strong>
+							<span>${formatDate}</span>
+						</div>
+						<div class="d-flex justify-content-between align-items-start px-2 pb-3">
+							<div class="flex-grow-1">
+								<p class="mb-0">${reply.content}</p>
+							</div>
+							${actionMenuHtml}
+						</div>
+						<div class="d-flex justify-content-end align-items-center mt-2 px-2">
+							<div class="d-flex gap-2">
+								<button type="button" class="btn btn-outline-light border btn-sm d-flex align-items-center gap-1">
+									<i class="fa-regular fa-thumbs-up text-danger"></i>
+									<span class="text-danger">0</span>
+								</button>
+							</div>
+						</div>
 					</div>
-				</div>
-			</div>
-		`;
+				`;
+		}
+		
+
 	}
 
 	if (Array.isArray(reply.children)) {
@@ -783,7 +838,32 @@ async function fetchBoardDelete() {
 			return;
 		}
 
-		location.href = `/board/list/${category}?deleted=true`;
+		if (!isAdminPage) {
+			location.href = `/board/list/${category}?deleted=true`;
+		} else {
+			location.href = `/board/list/admin?deleted=true`;
+		}
+	} catch (e) {
+		showToast("❗ 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.", "error");
+		console.error("에러:", e);
+	}
+}
+
+// 게시글 복원
+async function fetchBoardRestore() {
+	try {
+		const res = await fetchWithAuth(`/api/boards/admin/${bno}`, {
+			method: "PATCH",
+		});
+
+		if (!res.ok) {
+			const text = await res.text();
+			const errorMsg = text?.trim() ? text : "❗ 게시글 복원에 실패했습니다. 다시 시도해주세요.";
+			showToast(errorMsg, "error");
+			return;
+		}
+
+		location.href = `/board/list/admin?restore=true`;
 	} catch (e) {
 		showToast("❗ 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.", "error");
 		console.error("에러:", e);
@@ -876,6 +956,7 @@ async function loadLoginUser() {
 
 		currentUser = data.id;
 		name = data.name;
+		isAdmin = data.role === 'ROLE_ADMIN';
 	} catch (e) {
 		console.error("로그인 사용자 확인 실패:", e);
 	}

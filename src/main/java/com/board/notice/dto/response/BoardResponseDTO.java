@@ -28,6 +28,7 @@ public class BoardResponseDTO {
 	private List<String> tags; // 게시글 태그 (콤마로 저장)
 	private UserResponseDTO userId; // 게시글 작성자 id
 	private LocalDateTime createdAt;
+	private boolean isDeleted;
 	
 	public BoardResponseDTO(Board board) {
 		this.bno = board.getBno();
@@ -41,6 +42,7 @@ public class BoardResponseDTO {
 		this.tags = board.getTags();
 		this.userId = new UserResponseDTO(board.getUserId());
 		this.createdAt = board.getCreatedAt();
+		this.isDeleted = board.isDeleted();
 	}
 	
 }

@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	async function autoLogin() {
 		try {
-			const res = await fetch("/token", {
+			const res = await fetchWithAuth("/token", {
 				method: "POST",
 				credentials: "include",
 			});

@@ -1,10 +1,9 @@
 package com.board.notice.service;
 
-import java.util.List;
 import java.util.UUID;
 
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,25 +21,39 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
 
-    private final PasswordEncoder passwordEncoder;
+	private final PasswordEncoder passwordEncoder;
 	private final UserRepository userRepository;
-	
+
 //	회원 전체 조회
 	@Override
-	public List<UserResponseDTO> list() {
-		List<User> users = userRepository.findAll();
-		
-		return users.stream().map(user -> new UserResponseDTO(user)).toList();
+	public Page<UserResponseDTO> list(Pageable pageable, String mode, String keyword) {
+		boolean noKeyword = (keyword == null || keyword.trim().isEmpty() || "undefined".equals(keyword));
+
+		if (noKeyword) {
+			// 검색어 없을 때
+			return userRepository.findAll(pageable).map(UserResponseDTO::new);
+		}
+
+		// 검색어 있을 때
+		switch (mode) {
+		case "name":
+			return userRepository.findByNameContaining(keyword, pageable).map(UserResponseDTO::new);
+		case "id":
+			return userRepository.findByIdContaining(keyword, pageable).map(UserResponseDTO::new);
+		case "nickname":
+			return userRepository.findByNicknameContaining(keyword, pageable).map(UserResponseDTO::new);
+		default:
+			return userRepository.findAll(pageable).map(UserResponseDTO::new);
+		}
 	}
-	
+
 //	회원 상세보기
 	@Override
-	@Cacheable(value = "userDetail", key = "#p0", unless = "#result == null")
 	public UserResponseDTO detail(String id) {
 		User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("해당 회원은 존재하지 않습니다."));
-		
+
 		return new UserResponseDTO(user);
 	}
 
@@ -48,57 +61,43 @@ public class UserServiceImpl implements UserService{
 	@Override
 	@Transactional
 	public void register(UserRequestDTO userDTO) {
-		User user = User.builder()
-		.id(userDTO.getId())
-		.password(passwordEncoder.encode(userDTO.getPassword()))
-		.name(userDTO.getName())
-		.pno(userDTO.getPno())
-		.email(userDTO.getEmail())
-		.role(Role.ROLE_USER)
-		.build();
-		
+		User user = User.builder().id(userDTO.getId()).password(passwordEncoder.encode(userDTO.getPassword()))
+				.name(userDTO.getName()).pno(userDTO.getPno()).email(userDTO.getEmail()).role(Role.ROLE_USER).build();
+
 		userRepository.save(user);
 	}
-	
+
 //	회원 등록(소셜)
 	@Override
 	@Transactional
 	public void registerSocial(SocialUserRequestDTO userRequestDTO, CustomOAuth2User oAuth2User) {
 		String id = oAuth2User.getProvider() + "_" + oAuth2User.getProviderId();
 		String password = UUID.randomUUID().toString();
-		
-		User user = User.builder()
-				.id(id)
-				.password(passwordEncoder.encode(password))
-				.name(userRequestDTO.getName())
-				.pno(userRequestDTO.getPno())
-				.email(oAuth2User.getEmail())
-				.provider(oAuth2User.getProvider())
-				.providerId(oAuth2User.getProviderId())
-				.role(Role.ROLE_USER)
-				.build();
-		
+
+		User user = User.builder().id(id).password(passwordEncoder.encode(password)).name(userRequestDTO.getName())
+				.pno(userRequestDTO.getPno()).email(oAuth2User.getEmail()).provider(oAuth2User.getProvider())
+				.providerId(oAuth2User.getProviderId()).role(Role.ROLE_USER).build();
+
 		userRepository.save(user);
 	}
 
 //	회원 수정
 	@Override
 	@Transactional
-	@CacheEvict(value = "userDetail", key = "#p0")
 	public void update(UserRequestDTO userDTO) {
-		User user = userRepository.findById(userDTO.getId()).orElseThrow(() -> new UsernameNotFoundException("해당 회원은 존재하지 않습니다."));
+		User user = userRepository.findById(userDTO.getId())
+				.orElseThrow(() -> new UsernameNotFoundException("해당 회원은 존재하지 않습니다."));
 		// 회원 수정 메서드
-		user.update(userDTO);	
+		user.update(userDTO);
 	}
 
 //	회원 삭제
 	@Override
 	@Transactional
-	@CacheEvict(value = "userDetail", key = "#p0")
 	public void delete(String id) {
 		User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("해당 회원은 존재하지 않습니다."));
 		// 회원 소프트 삭제 메서드
-		user.markAsDeleted();;
+		user.markAsDeleted();
 	}
 
 //	아이디 중복 여부
@@ -106,7 +105,7 @@ public class UserServiceImpl implements UserService{
 	public boolean isDuplicationId(String id) {
 		User user = userRepository.findById(id).orElse(null);
 		boolean isDuplicate = user == null ? true : false;
-		
+
 		return isDuplicate;
 	}
 
@@ -115,7 +114,7 @@ public class UserServiceImpl implements UserService{
 	public String isDuplicationEmail(String email) {
 		User user = userRepository.findByEmail(email).orElse(null);
 
-		if(user != null) {
+		if (user != null) {
 			return user.getProvider() != null ? "소셜 가입된 이메일입니다. 소셜 로그인을 이용해주세요." : "이미 가입된 이메일 입니다.";
 		} else {
 			return "사용 가능한 이메일 입니다.";

@@ -1,7 +1,7 @@
-import { fetchWithAuth, setAccessToken } from "/js/fetchWithAuth.js";
+import { fetchWithAuth } from "/js/fetchWithAuth.js";
 
 let activeTab = document.querySelector('[data-category="전체"]'); // 선택된 탭 
-let name;
+let name = null;
 
 const categoryNames = {
 	자유: "free",
@@ -220,18 +220,18 @@ async function loadReadBasedRecommendations() {
 
 		const boards = await response.json();
 
+		recommendTitle.innerHTML = "";
+
+		// 추천 메시지 설정
+		if (name !== null) {
+			recommendTitle.innerHTML += `🧠 <span class="fw-bold">${name}</span> 님이 읽은 글과 비슷한 게시글`;
+		} else {
+			recommendTitle.textContent += "🔥 이번 주 이슈 게시글";
+		}
+
 		if (boards.length === 0) {
 			readBasedRecommend.innerHTML = "<p>아직 추천할 게시글이 없습니다.</p>";
 			return;
-		}
-
-		recommendTitle.innerHTML = "";
-
-		// 💬 추천 메시지 설정
-		if (boards.length === 2) {
-			recommendTitle.textContent += "🔥 이번 주 이슈 게시글";
-		} else if (boards.length >= 3) {
-			recommendTitle.innerHTML += `🧠 <span class="fw-bold">${name}</span> 님이 읽은 글과 비슷한 게시글`;
 		}
 
 		readBasedRecommend.innerHTML = ""; // 초기 메시지 제거
@@ -262,7 +262,7 @@ async function loadReadBasedRecommendations() {
 // 인기 태그 가져오기
 async function loadTopTags() {
 	try {
-		const res = await fetch("/api/boards/tags/popular");
+		const res = await fetchWithAuth("/api/boards/tags/popular");
 
 		if (!res.ok) {
 			throw new Error("서버 오류 발생");

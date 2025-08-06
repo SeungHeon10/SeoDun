@@ -73,10 +73,16 @@ public class RecommendationServiceImpl implements RecommendationService {
 		// 7일 전 시간 계산
 		LocalDateTime lastWeek = LocalDateTime.now().minusDays(7);
 
-		// 1. 최근 1주일 내 이슈성 글 Top 2
+		// 최근 1주일 내 이슈성 글 Top 2
 		List<Board> hotBoards = boardRepository.findHotBoardsInLastWeek(lastWeek, PageRequest.of(0, 2));
-
-		return hotBoards.stream().map(BoardResponseDTO::new).toList();
+		
+		if(!(hotBoards.isEmpty())) {
+			return hotBoards.stream().map(BoardResponseDTO::new).toList();
+		} else {
+			// 최근 1주일 글이 없을 경우 인기글 Top 2
+			List<Board> popular = boardRepository.findTop3ByOrderByViewCountDesc();
+			return popular.stream().map(BoardResponseDTO::new).limit(2).toList();
+		}
 	}
 
 }

@@ -1,17 +1,15 @@
 import { fetchWithAuth } from "../fetchWithAuth.js";
 
-const params = new URLSearchParams(location.search);
+const params = new URLSearchParams(window.location.search);
 const tbody = document.getElementById("list");
 const searchModePanel = document.getElementById("searchModePanel");
 const pathParts = window.location.pathname.split('/');
 const category = pathParts[3];
-const isAdminPage = location.pathname.includes("/admin");
-const apiSuffix = isAdminPage ? "/api/boards/admin" : "/api/boards";
 let currentSize = 10; // 현재 사이즈
 let currentPage = 0; // 현재 페이지 번호
 let currentSort = "createdAt"; // 현재 정렬 항목
 let currentDirection = "desc"; // 현재 정렬 기준
-let currentSearchMode = "title"; // 현재 검색 모드
+let currentSearchMode = "name"; // 현재 검색 모드
 let currentKeyword = params.get("keyword") || "";
 
 // 페이지 로드 시
@@ -25,36 +23,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 	const searchInput = document.getElementById("searchInput");
 
 	const placeholderMap = {
-		title: "제목으로 검색",
-		title_content: "제목 + 본문으로 검색",
-		content: "본문 내용으로 검색",
-		writer: "작성자 이름으로 검색"
+		name: "이름으로 검색",
+		id: "아이디로 검색",
+		nickname: "닉네임으로 검색",
 	};
 
-	const categoryNames = {
-		free: "자유",
-		study: "학습",
-		qna: "질문답변",
-		share: "정보공유",
-	};
-
-	const titleElement = document.getElementById("category-title");
-	titleElement.textContent = categoryNames[category] || "전체글보기";
-
-	const urlParams = new URLSearchParams(window.location.search);
-	if (urlParams.get("deleted") === "true") {
-		showToast("✔️ 게시글이 삭제되었습니다.", "success");
+	if (params.get("deleted") === "true") {
+		showToast("✔️ 해당 계정이 비활성화되었습니다.", "success");
 		window.history.replaceState({}, document.title, window.location.pathname);
-	} else if (urlParams.get("register") === "true") {
-		showToast("✔️ 게시글이 등록되었습니다.", "success");
-		window.history.replaceState({}, document.title, window.location.pathname);
-	} else if (urlParams.get("restore") === "true") {
-		showToast("✔️ 게시글이 복원되었습니다.", "success");
+	} else if (params.get("restore") === "true") {
+		showToast("✔️ 해당 계정이 활성화되었습니다.", "success");
 		window.history.replaceState({}, document.title, window.location.pathname);
 	}
 
-	await fetchBoardList(currentSize, currentPage, currentSort, currentDirection, currentSearchMode, currentKeyword);
-	handleWriteButtonClick();
+	await fetchUserList(currentSize, currentPage, currentSort, currentDirection, currentSearchMode, currentKeyword);
 
 	//	페이지 사이즈 변경 시
 	dropdownItems.forEach(item => {
@@ -70,7 +52,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 			item.classList.add("active", "text-success");
 
 			currentSize = selectedValue;
-			await fetchBoardList(currentSize, currentPage, currentSort, currentDirection, currentSearchMode, currentKeyword);
+			await fetchUserList(currentSize, currentPage, currentSort, currentDirection, currentSearchMode, currentKeyword);
 		});
 	});
 
@@ -90,7 +72,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 			currentSort = selectedSort;
 			currentDirection = selectedDirection;
-			await fetchBoardList(currentSize, 0, currentSort, currentDirection, currentSearchMode, currentKeyword);
+			await fetchUserList(currentSize, 0, currentSort, currentDirection, currentSearchMode, currentKeyword);
 		});
 	});
 
@@ -103,7 +85,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 			if (!isNaN(targetPage)) {
 				currentPage = targetPage;
-				await fetchBoardList(currentSize, currentPage, currentSort, currentDirection, currentSearchMode, currentKeyword);
+				await fetchUserList(currentSize, currentPage, currentSort, currentDirection, currentSearchMode, currentKeyword);
 			}
 		});
 	});
@@ -133,7 +115,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 			currentKeyword = searchInput.value.trim();
 			currentPage = 0;
 
-			await fetchBoardList(currentSize, currentPage, currentSort, currentDirection, currentSearchMode, currentKeyword);
+			await fetchUserList(currentSize, currentPage, currentSort, currentDirection, currentSearchMode, currentKeyword);
 		}
 	});
 
@@ -144,7 +126,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 		currentKeyword = searchInput.value.trim();
 		currentPage = 0;
 
-		await fetchBoardList(currentSize, currentPage, currentSort, currentDirection, currentSearchMode, currentKeyword);
+		await fetchUserList(currentSize, currentPage, currentSort, currentDirection, currentSearchMode, currentKeyword);
 	});
 });
 
@@ -162,18 +144,17 @@ document.getElementById("search-menu").addEventListener("click", (event) => {
 	});
 });
 
-async function fetchBoardList(size = currentSize, page = 0, sort = currentSort, direction = currentDirection, mode = "title", keyword = "") {
+async function fetchUserList(size = currentSize, page = 0, sort = currentSort, direction = currentDirection, mode = "name", keyword = "") {
 	// 서버에 pageSize 전달하여 fetch
 	const result = await doFetch(size, page, sort, direction, mode, keyword);
 	// 새 게시글 렌더링
-	renderBoardList(result.content);
+	renderUserList(result.content);
 	renderPagination(result);
 }
 
 async function doFetch(size, page, sort, direction, mode, keyword) {
-	const sortParam = isAdminPage ? `&sort=${sort}&direction=${direction}` : `&sort=${sort},${direction}`;
 	try {
-		const response = await fetchWithAuth(`${apiSuffix}?size=${size}&page=${page}${sortParam}&mode=${mode}&keyword=${encodeURIComponent(keyword || "")}&category=${category}`);
+		const response = await fetchWithAuth(`/users?size=${size}&page=${page}&sort=${sort}&direction=${direction}&mode=${mode}&keyword=${encodeURIComponent(keyword || "")}&category=${category}`);
 
 		if (!response.ok) {
 			throw new Error("서버 오류 발생");
@@ -186,15 +167,9 @@ async function doFetch(size, page, sort, direction, mode, keyword) {
 
 }
 
-function renderBoardList(boards) {
-	const categoryTitleElement = document.getElementById("category-title");
-
-	if (isAdminPage) {
-		categoryTitleElement.textContent = "게시글 관리";
-	}
-
+function renderUserList(users) {
 	tbody.innerHTML = "";
-	if (boards.length === 0) {
+	if (users.length === 0) {
 		const tr = document.createElement("tr");
 
 		tr.innerHTML = `
@@ -205,51 +180,28 @@ function renderBoardList(boards) {
 		return;
 	}
 
-	boards.forEach(board => {
-		const hasImage = board.content.includes("<img");
-
-		const iconHTML = hasImage ? '<i class="bi bi-card-image text-muted"></i>' : '';
+	users.forEach(user => {
 		const tr = document.createElement("tr");
 
-		if (board.deleted) {
+		if (user.deleted) {
 			tr.classList.add("deleted-row");
-			tr.title = "삭제된 게시글입니다";
+			tr.title = "비활성화된 계정입니다";
 		}
 
-		if (isAdminPage) {
-			document.getElementById("writeBtn")?.classList.add("d-none");
-		}
-
-		const formatDate = new Date(board.createdAt).toLocaleDateString("ko-KR");
-
-		if (!isAdminPage) {
-			tr.innerHTML = `
-								<td style="text-align: center;">${board.category}</td>
-								<td>
-									<a href="/board/detail/${category}/${board.bno}" class="board-title-link">
-										${board.title}${iconHTML}
-										<p class="commentCount">[${board.commentCount}]</p>
-									</a>
-								</td>
-								<td style="text-align: center;">${board.writer}</td>
-								<td style="text-align: center;">${formatDate}</td>
-								<td style="text-align: center;">${board.viewCount}</td>
-							`;
-		} else {
-			tr.innerHTML = `
-								<td style="text-align: center;">${board.category}</td>
-								<td>
-									<a href="/board/detail/admin/${board.bno}" class="board-title-link">
-										${board.title}${iconHTML}
-										<p class="commentCount">[${board.commentCount}]</p>
-									</a>
-								</td>
-								<td style="text-align: center;">${board.writer}</td>
-								<td style="text-align: center;">${formatDate}</td>
-								<td style="text-align: center;">${board.viewCount}</td>
-							`;
-		}
-
+		const formatDate = new Date(user.createdAt).toLocaleDateString("ko-KR");
+		
+		tr.innerHTML = `
+					<td style="text-align: center;">${user.id}</td>
+					<td>
+						<a href="/user/detail/${user.id}" class="d-block text-center text-decoration-none board-title-link">
+							${user.name}
+						</a>
+					</td>
+					<td style="text-align: center;">${user.nickname}</td>
+					<td style="text-align: center;">${user.email}</td>
+					<td style="text-align: center;">${formatDate}</td>
+					<td style="text-align: center;">${user.role}</td>
+				`;
 		tbody.appendChild(tr);
 	});
 }
@@ -295,27 +247,10 @@ function renderPagination(pageInfo) {
 			e.preventDefault();
 			const targetPage = e.target.dataset.page;
 			if (targetPage !== undefined) {
-				await fetchBoardList(currentSize, parseInt(targetPage), currentSort, currentDirection, currentSearchMode, currentKeyword); // 페이지 이동
+				await fetchUserList(currentSize, parseInt(targetPage), currentSort, currentDirection, currentSearchMode, currentKeyword); // 페이지 이동
 			}
 		});
 	});
-}
-
-function handleWriteButtonClick() {
-	const writeBtn = document.getElementById("writeBtn");
-
-	if (writeBtn) {
-		writeBtn.addEventListener("click", () => {
-			const pathParts = window.location.pathname.split('/');
-			const category = pathParts[3]; // /board/list/{category}
-
-			if (category) {
-				location.href = `/board/register/${category}`;
-			} else {
-				location.href = `/board/register`;
-			}
-		});
-	}
 }
 
 // Toastify 알림 호출

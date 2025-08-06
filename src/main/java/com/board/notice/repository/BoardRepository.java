@@ -2,6 +2,7 @@ package com.board.notice.repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,11 +28,11 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
 	// 해당 카테고리에서 본문 검색
 	Page<Board> findByContentContainingAndCategory(String keyword, String category, Pageable pageable);
 
-	// 전체 카테고리에서 제목 + 본문 검색
+	// 전체 카테고리에서 제목 or 본문 검색
 	@Query("SELECT b FROM Board b WHERE (b.title LIKE %:keyword% OR b.content LIKE %:keyword%)")
 	Page<Board> searchByTitleOrContent(@Param("keyword") String keyword, Pageable pageable);
 
-	// 해당 카테고리에서 제목 + 본문 검색
+	// 해당 카테고리에서 제목 or 본문 검색
 	@Query("SELECT b FROM Board b WHERE (b.title LIKE %:keyword% OR b.content LIKE %:keyword%) AND b.category = :category")
 	Page<Board> searchByTitleOrContentAndCategory(@Param("keyword") String keyword, @Param("category") String category,
 			Pageable pageable);
@@ -41,6 +42,29 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
 
 	// 해당 카테고리에서 작성자 검색
 	Page<Board> findByWriterContainingAndCategory(String keyword, String category, Pageable pageable);
+
+	// 전체 게시글 조회(admin)
+	@Query(value = "SELECT * FROM board", countQuery = "SELECT COUNT(*) FROM board", nativeQuery = true)
+	Page<Board> findAllBoardsNative(Pageable pageable);
+
+	// 전체 게시글에서 제목 검색(admin)
+	@Query(value = "SELECT * FROM board WHERE title LIKE CONCAT('%', :keyword, '%')", countQuery = "SELECT COUNT(*) FROM board WHERE title LIKE CONCAT('%', :keyword, '%')", nativeQuery = true)
+	Page<Board> findByTitleContainingNative(@Param("keyword") String keyword, Pageable pageable);
+
+	// 전체 게시글에서 본문 검색(admin)
+	@Query(value = "SELECT * FROM board WHERE content LIKE CONCAT('%', :keyword, '%')", countQuery = "SELECT COUNT(*) FROM board WHERE content LIKE CONCAT('%', :keyword, '%')", nativeQuery = true)
+	Page<Board> findByContentContainingNative(@Param("keyword") String keyword, Pageable pageable);
+
+	// 전체 게시글에서 제목 or 본문 검색(admin)
+	@Query(value = "SELECT * FROM board WHERE title LIKE CONCAT('%', :keyword, '%') OR content LIKE CONCAT('%', :keyword, '%')", countQuery = "SELECT COUNT(*) FROM board WHERE title LIKE CONCAT('%', :keyword, '%') OR content LIKE CONCAT('%', :keyword, '%')", nativeQuery = true)
+	Page<Board> searchByTitleOrContentNative(@Param("keyword") String keyword, Pageable pageable);
+
+	// 전체 게시글에서 작성자 검색(admin)
+	@Query(value = "SELECT * FROM board WHERE writer LIKE CONCAT('%', :keyword, '%')", countQuery = "SELECT COUNT(*) FROM board WHERE writer LIKE CONCAT('%', :keyword, '%')", nativeQuery = true)
+	Page<Board> findByWriterContainingNative(@Param("keyword") String keyword, Pageable pageable);
+
+	@Query(value = "SELECT * FROM board WHERE bno = :bno", nativeQuery = true)
+	Optional<Board> findByIdNative(@Param("bno") int bno);
 
 	// 인기글 검색
 	List<Board> findTop3ByOrderByViewCountDesc();
@@ -65,12 +89,15 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
 			+ "FROM Board b JOIN b.tags t GROUP BY t ORDER BY COUNT(t) DESC")
 	List<TagCountResponseDTO> findTopTags(Pageable pageable);
 
+	// 게시글들에 포함되어 있는 태그 가져오기
 	@Query(value = "SELECT DISTINCT tag FROM board_tags WHERE board_bno IN (:boardIds)", nativeQuery = true)
 	List<String> findTagsByBoardIds(@Param("boardIds") List<Integer> boardIds);
 
+	// 카테고리별 개수를 세어 가장 많이 등장한 카테고리부터 정렬
 	@Query("SELECT b.category FROM Board b WHERE b.id IN :boardIds GROUP BY b.category ORDER BY COUNT(b.id) DESC")
 	List<String> findMostCommonCategoryByBoardIds(@Param("boardIds") List<Integer> boardIds);
 
+	// 제외할 게시글 ID 목록에 포함되지 않는 게시글중 주어진 태그 목록 또는 카테고리 중 하나라도 일치하는 게시글을 조회
 	@Query("SELECT DISTINCT b FROM Board b JOIN b.tags t WHERE (t IN :tags OR b.category = :category) AND b.id NOT IN :excludedIds ORDER BY b.createdAt DESC")
 	List<Board> findSimilarBoards(@Param("tags") List<String> tags, @Param("category") String category,
 			@Param("excludedIds") List<Integer> excludedIds, Pageable pageable);
@@ -79,7 +106,7 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
 	@Query("SELECT b FROM Board b WHERE b.category = :category AND b.id NOT IN :excludedIds ORDER BY b.createdAt DESC")
 	List<Board> findBoardsByCategoryExcluding(@Param("category") String category,
 			@Param("excludedIds") List<Integer> excludedIds, Pageable pageable);
-	
+
 	// 최근 1주일 내 이슈성 글 Top 2
 	@Query("""
 			    SELECT b FROM Board b

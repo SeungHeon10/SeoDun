@@ -7,14 +7,10 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Getter
 @MappedSuperclass
@@ -33,4 +29,11 @@ public class BaseEntity {
 	public void markAsDeleted() {
 		this.isDeleted = true;
 	}
+	
+//	게시글 복원
+	public void markAsRestored() {
+		this.isDeleted = false;
+	}
+	
+	
 }

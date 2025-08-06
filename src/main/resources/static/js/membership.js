@@ -1,6 +1,8 @@
+import { fetchWithAuth } from "/js/fetchWithAuth.js";
+
 // 아이디 중복여부
 async function fetchUserId(id) {
-	const response = await fetch(`/users/exists/id/${id}`);
+	const response = await fetchWithAuth(`/users/exists/id/${id}`);
 
 	if (!response.ok) {
 		throw new Error("서버 오류 발생");
@@ -11,7 +13,7 @@ async function fetchUserId(id) {
 
 // 이메일 중복여부
 async function fetchUserEmail(email) {
-	const response = await fetch(`/users/exists/email/${email}`);
+	const response = await fetchWithAuth(`/users/exists/email/${email}`);
 
 	if (!response.ok) {
 		throw new Error("서버 오류 발생");
@@ -182,6 +184,7 @@ document.getElementsByName("email")[0].addEventListener("input", async function(
 	}
 });
 
+// 이메일 전송 로직
 document.getElementById("sendEmailBtn").addEventListener("click", async function() {
 	const email = document.getElementById("email").value;
 	const invalidEl = document.getElementById("isInvalidEmail");
@@ -213,7 +216,7 @@ document.getElementById("sendEmailBtn").addEventListener("click", async function
 	dupCheckEl.textContent = "";
 
 	try {
-		const response = await fetch(`/auth/emails?email=${encodeURIComponent(email)}`, {
+		const response = await fetchWithAuth(`/auth/emails?email=${encodeURIComponent(email)}`, {
 			method: "POST"
 		});
 
@@ -234,6 +237,7 @@ document.getElementById("sendEmailBtn").addEventListener("click", async function
 	}
 });
 
+// 이메일 인증번호 확인 로직
 document.getElementById("verifyCodeBtn").addEventListener("click", async () => {
 	const email = document.getElementById("email").value;
 	const code = document.getElementById("verifyCode").value;
@@ -242,7 +246,7 @@ document.getElementById("verifyCodeBtn").addEventListener("click", async () => {
 	const verifyCodeBtn = document.getElementById("verifyCodeBtn");
 
 	try {
-		const res = await fetch(`/auth/emails/verify?email=${encodeURIComponent(email)}&code=${code}`, {
+		const res = await fetchWithAuth(`/auth/emails/verify?email=${encodeURIComponent(email)}&code=${code}`, {
 			method: "POST"
 		});
 
@@ -303,7 +307,7 @@ async function fetchUserRegister() {
 			email: email
 		}
 
-		const response = await fetch('/users', {
+		const response = await fetchWithAuth('/users', {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(userDTO)

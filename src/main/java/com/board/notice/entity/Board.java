@@ -44,9 +44,6 @@ public class Board extends BaseEntity {
 	@Builder.Default
 	@Column(columnDefinition = "INT DEFAULT 0")
     private int commentCount = 0; // 게시글 댓글수
-	@Builder.Default
-    @Column(columnDefinition = "TINYINT(1) DEFAULT 0")
-    private boolean isPinned = false; // 게시글 상단고정여부
     private String category; // 게시글 카테고리
     private String filePath; // 게시글 첨부파일 경로
     @ElementCollection
@@ -72,9 +69,9 @@ public class Board extends BaseEntity {
     	this.commentCount -= 1;
     }
     
-//  게시글 상단고정여부 변경
-    public void toggleIsPinned() {
-    	this.isPinned = !this.isPinned;
+//  태그 등록
+    public void setTags(List<String> tags) {
+        this.tags = tags;
     }
     
 //  게시글 수정

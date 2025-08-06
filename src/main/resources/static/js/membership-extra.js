@@ -1,3 +1,5 @@
+import { fetchWithAuth } from "/js/fetchWithAuth.js";
+
 // 이름 입력 시
 document.getElementById("name").addEventListener("input", function() {
 	const name = this.value.trim();
@@ -86,7 +88,7 @@ async function fetchUserRegister() {
 			pno: phone
 		}
 
-		const response = await fetch('/users/social', {
+		const response = await fetchWithAuth('/users/social', {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(userDTO)

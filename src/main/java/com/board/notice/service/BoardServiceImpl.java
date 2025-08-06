@@ -3,8 +3,10 @@ package com.board.notice.service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;
@@ -25,8 +27,10 @@ import com.board.notice.dto.request.BoardRequestDTO;
 import com.board.notice.dto.response.BoardResponseDTO;
 import com.board.notice.dto.response.TagCountResponseDTO;
 import com.board.notice.entity.Board;
+import com.board.notice.entity.BoardTagBackup;
 import com.board.notice.entity.User;
 import com.board.notice.repository.BoardRepository;
+import com.board.notice.repository.BoardTagBackupRepository;
 import com.board.notice.repository.UserRepository;
 import com.board.notice.security.CustomUserDetail;
 
@@ -41,6 +45,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 public class BoardServiceImpl implements BoardService {
 	private final BoardRepository boardRepository;
 	private final UserRepository userRepository;
+	private final BoardTagBackupRepository boardTagBackupRepository;
 	private final S3Client s3Client;
 
 	@Value("${cloud.aws.s3.bucket}")
@@ -84,6 +89,31 @@ public class BoardServiceImpl implements BoardService {
 		}
 	}
 
+//	게시글 전체 조회(admin)
+	@Override
+	public Page<BoardResponseDTO> listForAdmin(Pageable pageable, String mode, String keyword) {
+		boolean noKeyword = (keyword == null || keyword.trim().isEmpty() || "undefined".equals(keyword));
+
+		if (noKeyword) {
+			// 검색어 없을 때
+			return boardRepository.findAllBoardsNative(pageable).map(BoardResponseDTO::new);
+		}
+
+		// 검색어 있을 때
+		switch (mode) {
+		case "title":
+			return boardRepository.findByTitleContainingNative(keyword, pageable).map(BoardResponseDTO::new);
+		case "content":
+			return boardRepository.findByContentContainingNative(keyword, pageable).map(BoardResponseDTO::new);
+		case "title_content":
+			return boardRepository.searchByTitleOrContentNative(keyword, pageable).map(BoardResponseDTO::new);
+		case "writer":
+			return boardRepository.findByWriterContainingNative(keyword, pageable).map(BoardResponseDTO::new);
+		default:
+			return boardRepository.findAllBoardsNative(pageable).map(BoardResponseDTO::new);
+		}
+	}
+
 //	게시글 상세보기
 	@Override
 	@Transactional
@@ -93,6 +123,15 @@ public class BoardServiceImpl implements BoardService {
 				.orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
 		// 조회수 증가 메서드
 		board.increaseViewCount();
+
+		return new BoardResponseDTO(board);
+	}
+
+//	게시글 상세보기(admin)
+	@Override
+	public BoardResponseDTO detailForAdmin(int bno) {
+		Board board = boardRepository.findByIdNative(bno)
+				.orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
 
 		return new BoardResponseDTO(board);
 	}
@@ -183,10 +222,42 @@ public class BoardServiceImpl implements BoardService {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("작성자 본인만 삭제할 수 있습니다.");
 		}
 
+		List<String> tags = new ArrayList<>(board.getTags());
+		for (String tag : tags) {
+			BoardTagBackup backup = BoardTagBackup.builder().boardBno(bno).tag(tag).build();
+			boardTagBackupRepository.save(backup);
+		}
+
 		// 게시글 소프트 삭제 메서드
 		board.markAsDeleted();
 		board.getTags().clear();
 		return ResponseEntity.ok("게시글이 삭제되었습니다.");
+	}
+
+//	게시글 복원하기
+	@Override
+	@Transactional
+	@CacheEvict(value = { "top6Boards", "popularBoards" }, allEntries = true)
+	public ResponseEntity<?> restore(int bno) {
+		Board board = boardRepository.findByIdNative(bno)
+				.orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
+
+		// 게시글 복원 메서드
+		board.markAsRestored();
+		
+		List<BoardTagBackup> backups = boardTagBackupRepository.findByBoardBno(bno);
+		
+		if(!backups.isEmpty()) {
+			List<String> tagsToRestore = backups.stream()
+					.map(BoardTagBackup::getTag)
+					.collect(Collectors.toCollection(ArrayList::new));;
+			
+			board.setTags(tagsToRestore);
+			boardRepository.save(board);
+			boardTagBackupRepository.deleteByBoardBno(bno);
+		}
+	    
+		return ResponseEntity.ok("게시글이 복원되었습니다.");
 	}
 
 //	인기글 검색
@@ -250,6 +321,7 @@ public class BoardServiceImpl implements BoardService {
 		return boardRepository.countByUserId_Id(userId);
 	}
 
+//	인기 태그 가져오기
 	@Override
 	public List<TagCountResponseDTO> getTop6Tags() {
 		Pageable topsix = PageRequest.of(0, 6);

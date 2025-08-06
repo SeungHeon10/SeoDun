@@ -1,7 +1,9 @@
 package com.board.notice.controller;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.board.notice.dto.request.SocialUserRequestDTO;
@@ -36,8 +39,11 @@ public class UserRestController {
 
 //	회원 전체 조회
 	@GetMapping
-	public ResponseEntity<List<UserResponseDTO>> list() {
-		List<UserResponseDTO> list = userService.list();
+	public ResponseEntity<Page<UserResponseDTO>> list(
+			@PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+			@RequestParam(name = "mode", defaultValue = "name") String mode,
+			@RequestParam(name = "keyword", defaultValue = "") String keyword) {
+		Page<UserResponseDTO> list = userService.list(pageable, mode, keyword);
 
 		return ResponseEntity.ok(list);
 	}
@@ -109,7 +115,7 @@ public class UserRestController {
 	public ResponseEntity<UserResponseDTO> getCurrentUser(@AuthenticationPrincipal CustomUserDetail userDetails) {
 		long postCount = boardService.getUserPostCount(userDetails.getUsername());
 		long commentCount = replyService.getUserCommentCount(userDetails.getUsername());
-	    return ResponseEntity.ok(new UserResponseDTO(userDetails.getUsername(), userDetails.getRole(), userDetails.getName(), userDetails.getPno(), userDetails.getEmail(), postCount, commentCount));
+	    return ResponseEntity.ok(new UserResponseDTO(userDetails.getUsername(), userDetails.getRole(), userDetails.getName(), userDetails.getNickname(), userDetails.getPno(), userDetails.getEmail(), postCount, commentCount, userDetails.getCreatedAt(), userDetails.getIsDeleted()));
 	}
 
 }

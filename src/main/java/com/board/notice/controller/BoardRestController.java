@@ -4,14 +4,17 @@ import java.io.IOException;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,11 +56,50 @@ public class BoardRestController {
 		return ResponseEntity.ok(list);
 	}
 
+//	게시글 전체 조회(admin)
+	@GetMapping("/admin")
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<Page<BoardResponseDTO>> listForAdmin(
+			@RequestParam(name = "mode", defaultValue = "title") String mode,
+			@RequestParam(name = "keyword", defaultValue = "") String keyword,
+			@RequestParam(name = "sort", defaultValue = "createdAt") String sort,
+			@RequestParam(name = "direction", defaultValue = "desc") String direction,
+			@PageableDefault(page = 0, size = 10) Pageable pageableBase) {
+		String sortColumn;
+		switch (sort) {
+		case "commentCount":
+			sortColumn = "comment_count";
+			break;
+		case "viewCount":
+			sortColumn = "view_count";
+			break;
+		case "createdAt":
+		default:
+			sortColumn = "created_at";
+		}
+
+		Sort.Direction sortDirection = direction.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+
+		Pageable pageable = PageRequest.of(pageableBase.getPageNumber(), pageableBase.getPageSize(),
+				Sort.by(sortDirection, sortColumn));
+		Page<BoardResponseDTO> list = boardService.listForAdmin(pageable, mode, keyword);
+
+		return ResponseEntity.ok(list);
+	}
+
 //	게시글 상세보기
 	@GetMapping("/{bno}")
 	public ResponseEntity<BoardResponseDTO> detail(@PathVariable("bno") int bno) {
 		BoardResponseDTO boardResponseDTO = boardService.detail(bno);
-		System.out.println(boardResponseDTO);
+		
+		return ResponseEntity.ok(boardResponseDTO);
+	}
+	
+//	게시글 상세보기(admin)
+	@GetMapping("/admin/{bno}")
+	public ResponseEntity<BoardResponseDTO> detailForAdmin(@PathVariable("bno") int bno) {
+		BoardResponseDTO boardResponseDTO = boardService.detailForAdmin(bno);
+
 		return ResponseEntity.ok(boardResponseDTO);
 	}
 
@@ -86,6 +128,13 @@ public class BoardRestController {
 			@AuthenticationPrincipal CustomUserDetail userDetails) {
 
 		return boardService.delete(bno, userDetails);
+	}
+	
+//	게시글 복원하기(admin)
+	@PatchMapping("/admin/{bno}")
+	public ResponseEntity<?> restore(@PathVariable("bno") int bno) {
+		
+		return boardService.restore(bno);
 	}
 
 //	인기글 조회

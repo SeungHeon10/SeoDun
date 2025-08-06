@@ -1,5 +1,6 @@
 package com.board.notice.security;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
@@ -48,4 +49,16 @@ public class CustomUserDetail implements UserDetails {
 	public Role getRole() {
         return user.getRole();
     }
+	
+	public LocalDateTime getCreatedAt() {
+		return user.getCreatedAt();
+	}
+	
+	public boolean getIsDeleted() {
+		return user.isDeleted();
+	}
+	
+	public String getNickname() {
+		return user.getNickname();
+	}
 }

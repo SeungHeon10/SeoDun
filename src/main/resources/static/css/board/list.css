@@ -62,7 +62,7 @@ body {
 	margin-top: 23px;
 }
 
-.boardTopOption {
+.topOption {
 	display: flex;
 	justify-content: space-between;
 	margin-top: 12px;
@@ -117,7 +117,7 @@ body {
 	margin-bottom: 0px;
 }
 
-.boardOption {
+.option {
 	display: flex;
 	gap: 10px;
 }
@@ -238,4 +238,9 @@ body {
 
 .page-item.disabled .page-link {
 	color: #959595;
+}
+
+.deleted-row {
+	background-color: #f0f0f0;
+	color: #999;
 }
