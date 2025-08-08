@@ -2,6 +2,7 @@ package com.board.notice.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 
 import com.board.notice.dto.request.SocialUserRequestDTO;
 import com.board.notice.dto.request.UserRequestDTO;
@@ -14,6 +15,8 @@ public interface UserService {
 	Page<UserResponseDTO> list(Pageable pageable, String mode, String keyword);
 //	회원 상세보기
 	UserResponseDTO detail(String id);
+//	회원 상세보기(admin)
+	UserResponseDTO detailForAdmin(String id);
 //	회원 등록
 	void register(UserRequestDTO userDTO);
 //	회원 등록(소셜)
@@ -22,6 +25,8 @@ public interface UserService {
 	void update(UserRequestDTO userDTO);
 //	회원 삭제
 	void delete(String id);
+//	회원 복원
+	ResponseEntity<?> restore(String id);
 //	아이디 중복 여부
 	boolean isDuplicationId(String id);
 //	이메일 중복 여부

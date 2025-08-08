@@ -1,7 +1,7 @@
 import { fetchWithAuth } from "../fetchWithAuth.js";
 
-const bno = window.location.pathname.split("/").pop();
 const pathParts = window.location.pathname.split('/');
+const bno = pathParts.pop();
 const category = pathParts[3];
 const isAdminPage = location.pathname.includes("/admin");
 const apiSuffix = isAdminPage ? `/api/boards/admin/${bno}` : `/api/boards/${bno}`;
@@ -942,7 +942,7 @@ function deleteExistingFile() {
 // 로그인 사용자 정보 가져오기
 async function loadLoginUser() {
 	try {
-		const res = await fetchWithAuth("/users/me", {
+		const res = await fetchWithAuth("/api/users/me", {
 			method: "GET",
 			credentials: "include"
 		});

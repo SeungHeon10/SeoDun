@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
 				const data = await res.json();
 				setAccessToken(data.token);
 
-				const response = await fetchWithAuth("/users/me", {
+				const response = await fetchWithAuth("/api/users/me", {
 					method: "GET",
 				});
 

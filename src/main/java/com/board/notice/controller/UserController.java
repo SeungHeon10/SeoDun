@@ -16,4 +16,25 @@ public class UserController {
 		return "user/list";
 	}
 	
+//	회원 상세정보(admin)
+	@GetMapping("/detail/admin/{id}")
+	public String detail() {
+		
+		return "user/detail";
+	}
+	
+//	회원 정보 수정
+	@GetMapping("/profile/edit/{field}")
+	public String edit() {
+		return "user/edit";
+	}
+	
+	
+//	회원 탈퇴처리 시
+	@GetMapping("/withdrawal")
+	public String withdrawal() {
+		return "withdrawalpage";
+	}
+	
+	
 }

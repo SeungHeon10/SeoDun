@@ -26,6 +26,7 @@ public class UserResponseDTO {
 	private long postCount;
 	private long commentCount;
 	private LocalDateTime createdAt;
+	private boolean emailVerified;
 	private boolean isDeleted;
 	
     public UserResponseDTO(User user) {
@@ -36,6 +37,7 @@ public class UserResponseDTO {
         this.pno = user.getPno();
         this.email = user.getEmail();
         this.createdAt = user.getCreatedAt();
+        this.emailVerified = user.isEmailVerified();
         this.isDeleted = user.isDeleted();
     }
 }

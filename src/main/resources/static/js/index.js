@@ -285,7 +285,7 @@ async function loadTopTags() {
 // 로그인 사용자 정보 가져오기
 async function loadLoginUser() {
 	try {
-		const res = await fetchWithAuth("/users/me", {
+		const res = await fetchWithAuth("/api/users/me", {
 			method: "GET",
 			credentials: "include"
 		});

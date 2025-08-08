@@ -7,7 +7,7 @@ const pathParts = window.location.pathname.split('/');
 const category = pathParts[3];
 let currentSize = 10; // 현재 사이즈
 let currentPage = 0; // 현재 페이지 번호
-let currentSort = "createdAt"; // 현재 정렬 항목
+let currentSort = "created_at"; // 현재 정렬 항목
 let currentDirection = "desc"; // 현재 정렬 기준
 let currentSearchMode = "name"; // 현재 검색 모드
 let currentKeyword = params.get("keyword") || "";
@@ -144,6 +144,7 @@ document.getElementById("search-menu").addEventListener("click", (event) => {
 	});
 });
 
+// 사용자 리스트 조회
 async function fetchUserList(size = currentSize, page = 0, sort = currentSort, direction = currentDirection, mode = "name", keyword = "") {
 	// 서버에 pageSize 전달하여 fetch
 	const result = await doFetch(size, page, sort, direction, mode, keyword);
@@ -154,7 +155,7 @@ async function fetchUserList(size = currentSize, page = 0, sort = currentSort, d
 
 async function doFetch(size, page, sort, direction, mode, keyword) {
 	try {
-		const response = await fetchWithAuth(`/users?size=${size}&page=${page}&sort=${sort}&direction=${direction}&mode=${mode}&keyword=${encodeURIComponent(keyword || "")}&category=${category}`);
+		const response = await fetchWithAuth(`/api/users/admin?size=${size}&page=${page}&sort=${sort}&direction=${direction}&mode=${mode}&keyword=${encodeURIComponent(keyword || "")}`);
 
 		if (!response.ok) {
 			throw new Error("서버 오류 발생");
@@ -189,14 +190,14 @@ function renderUserList(users) {
 		}
 
 		const formatDate = new Date(user.createdAt).toLocaleDateString("ko-KR");
-		
+
 		tr.innerHTML = `
-					<td style="text-align: center;">${user.id}</td>
 					<td>
-						<a href="/user/detail/${user.id}" class="d-block text-center text-decoration-none board-title-link">
-							${user.name}
+						<a href="/user/detail/admin/${user.id}" class="d-block text-center text-decoration-none board-title-link">
+							${user.id}
 						</a>
 					</td>
+					<td style="text-align: center;">${user.name}</td>
 					<td style="text-align: center;">${user.nickname}</td>
 					<td style="text-align: center;">${user.email}</td>
 					<td style="text-align: center;">${formatDate}</td>

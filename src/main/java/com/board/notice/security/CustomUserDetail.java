@@ -54,11 +54,15 @@ public class CustomUserDetail implements UserDetails {
 		return user.getCreatedAt();
 	}
 	
-	public boolean getIsDeleted() {
+	public boolean isDeleted() {
 		return user.isDeleted();
 	}
 	
 	public String getNickname() {
 		return user.getNickname();
+	}
+	
+	public boolean isEmailVerified() {
+		return user.isEmailVerified();
 	}
 }

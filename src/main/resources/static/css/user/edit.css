@@ -1,0 +1,11 @@
+.container {
+	flex: 1;
+	padding-left: 290px;
+	padding-bottom: 2rem;
+	padding-top: 2rem;
+	max-width: 100%;
+}
+
+#filed{
+	height: 3.125rem;
+}

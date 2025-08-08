@@ -1,0 +1,28 @@
+.container {
+	padding-left: 290px;
+	padding-bottom: 2rem;
+	padding-top: 2rem;
+	max-width: 100%;
+}
+
+.row {
+	margin-bottom: 20px;
+}
+
+.card {
+	max-height: 95%;
+	border-radius: 15px;
+}
+
+.infoCard {
+	background-color: rgba(114, 124, 114, 0.2);
+	border-radius: 15px;
+}
+
+.card-body {
+	padding: 2.25rem 7.8125rem;
+}
+.profile{
+	font-size: 1rem;
+	border-radius: 15px;
+}

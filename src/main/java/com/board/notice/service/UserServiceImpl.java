@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import com.board.notice.enums.Role;
 import com.board.notice.repository.UserRepository;
 import com.board.notice.security.oauth2.CustomOAuth2User;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -33,7 +35,7 @@ public class UserServiceImpl implements UserService {
 
 		if (noKeyword) {
 			// 검색어 없을 때
-			return userRepository.findAll(pageable).map(UserResponseDTO::new);
+			return userRepository.findAllNative(pageable).map(UserResponseDTO::new);
 		}
 
 		// 검색어 있을 때
@@ -45,7 +47,7 @@ public class UserServiceImpl implements UserService {
 		case "nickname":
 			return userRepository.findByNicknameContaining(keyword, pageable).map(UserResponseDTO::new);
 		default:
-			return userRepository.findAll(pageable).map(UserResponseDTO::new);
+			return userRepository.findAllNative(pageable).map(UserResponseDTO::new);
 		}
 	}
 
@@ -53,6 +55,15 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserResponseDTO detail(String id) {
 		User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("해당 회원은 존재하지 않습니다."));
+
+		return new UserResponseDTO(user);
+	}
+
+//	회원 상세보기(admin)
+	@Override
+	public UserResponseDTO detailForAdmin(String id) {
+		User user = userRepository.findByIdNative(id)
+				.orElseThrow(() -> new UsernameNotFoundException("해당 회원은 존재하지 않습니다."));
 
 		return new UserResponseDTO(user);
 	}
@@ -98,6 +109,19 @@ public class UserServiceImpl implements UserService {
 		User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("해당 회원은 존재하지 않습니다."));
 		// 회원 소프트 삭제 메서드
 		user.markAsDeleted();
+	}
+
+//	회원 복원하기
+	@Override
+	@Transactional
+	public ResponseEntity<?> restore(String id) {
+		User user = userRepository.findByIdNative(id)
+				.orElseThrow(() -> new EntityNotFoundException("해당 회원은 존재하지 않습니다."));
+
+		// 게시글 복원 메서드
+		user.markAsRestored();
+
+		return ResponseEntity.ok("게시글이 복원되었습니다.");
 	}
 
 //	아이디 중복 여부
