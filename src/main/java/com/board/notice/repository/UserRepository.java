@@ -11,11 +11,13 @@ import org.springframework.data.repository.query.Param;
 import com.board.notice.entity.User;
 
 public interface UserRepository extends JpaRepository<User, String> {
+	// admin이 붙은 쿼리문은 소프트 삭제된 항목도 모두 조회
+	
 	// 이메일로 유저 검색
 	@Query(value = "SELECT * FROM `user` WHERE email = :email", nativeQuery = true)
     Optional<User> findByEmail(@Param("email") String email);
 
-	// 이름으로 검색
+	// 이름으로 검색(admin)
 	@Query(value = """
             SELECT * 
             FROM `user`
@@ -29,7 +31,7 @@ public interface UserRepository extends JpaRepository<User, String> {
 			nativeQuery = true)
 	Page<User> findByNameContaining(@Param("keyword") String keyword, Pageable pageable);
 
-	// 아이디로 검색
+	// 아이디로 검색(admin)
 	@Query(value = """
             SELECT * 
             FROM `user`
@@ -43,7 +45,7 @@ public interface UserRepository extends JpaRepository<User, String> {
     nativeQuery = true)
 	Page<User> findByIdContaining(@Param("keyword") String keyword, Pageable pageable);
 
-	// 닉네임으로 검색
+	// 닉네임으로 검색(admin)
 	@Query(value = """
             SELECT * 
             FROM `user`

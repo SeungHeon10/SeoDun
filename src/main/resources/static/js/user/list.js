@@ -1,10 +1,8 @@
-import { fetchWithAuth } from "../fetchWithAuth.js";
+import { fetchWithAuth } from "/js/core/fetchWithAuth.js";
 
 const params = new URLSearchParams(window.location.search);
 const tbody = document.getElementById("list");
 const searchModePanel = document.getElementById("searchModePanel");
-const pathParts = window.location.pathname.split('/');
-const category = pathParts[3];
 let currentSize = 10; // 현재 사이즈
 let currentPage = 0; // 현재 페이지 번호
 let currentSort = "created_at"; // 현재 정렬 항목

@@ -1,7 +1,7 @@
-import { fetchWithAuth } from "/js/fetchWithAuth.js";
+import { fetchWithAuth, isAuthenticated } from "/js/core/fetchWithAuth.js";
 
 let activeTab = document.querySelector('[data-category="전체"]'); // 선택된 탭 
-let name = null;
+let nickname = null;
 
 const categoryNames = {
 	자유: "free",
@@ -211,6 +211,11 @@ async function loadReadBasedRecommendations() {
 	const readBasedRecommend = document.getElementById("readBasedRecommend");
 	const recommendTitle = document.getElementById("recommendTitle");
 
+	if (!isAuthenticated()) {
+		await loadPublic();
+		return;
+	}
+
 	try {
 		const response = await fetchWithAuth("/api/recommend/read-based");
 
@@ -221,20 +226,19 @@ async function loadReadBasedRecommendations() {
 		const boards = await response.json();
 
 		recommendTitle.innerHTML = "";
-
 		// 추천 메시지 설정
-		if (name !== null) {
-			recommendTitle.innerHTML += `🧠 <span class="fw-bold">${name}</span> 님이 읽은 글과 비슷한 게시글`;
+		if (nickname !== null) {
+			recommendTitle.innerHTML += `🧠 <span class="fw-bold">${nickname}</span> 님이 읽은 글과 비슷한 게시글`;
 		} else {
-			recommendTitle.textContent += "🔥 이번 주 이슈 게시글";
+			recommendTitle.textContent += "🌟 회원님을 위한 오늘의 스몰 큐레이션";
 		}
 
-		if (boards.length === 0) {
-			readBasedRecommend.innerHTML = "<p>아직 추천할 게시글이 없습니다.</p>";
+		if (boards.length < 2) {
+			await loadPublic();
 			return;
 		}
 
-		readBasedRecommend.innerHTML = ""; // 초기 메시지 제거
+		readBasedRecommend.innerHTML = "";
 
 		boards.forEach(board => {
 			const divEl = document.createElement("div");
@@ -284,6 +288,8 @@ async function loadTopTags() {
 
 // 로그인 사용자 정보 가져오기
 async function loadLoginUser() {
+	if (!isAuthenticated()) return;
+
 	try {
 		const res = await fetchWithAuth("/api/users/me", {
 			method: "GET",
@@ -297,8 +303,59 @@ async function loadLoginUser() {
 
 		const data = await res.json();
 
-		name = data.name;
+		nickname = data.nickname;
 	} catch (e) {
 		console.error("로그인 사용자 확인 실패:", e);
+	}
+}
+
+async function loadPublic() {
+	const readBasedRecommend = document.getElementById("readBasedRecommend");
+	const recommendTitle = document.getElementById("recommendTitle");
+
+	try {
+		const response = await fetchWithAuth("/api/recommend/public");
+
+		if (!response.ok) {
+			throw new Error(`서버 오류: ${response.status}`);
+		}
+
+		const boards = await response.json();
+
+		if (boards.length === 0) {
+			readBasedRecommend.innerHTML = "<p>아직 추천할 게시글이 없습니다.</p>";
+			return;
+		}
+
+		recommendTitle.innerHTML = "";
+		// 추천 메시지 설정
+		if (nickname !== null) {
+			recommendTitle.innerHTML += `🧠 <span class="fw-bold">${nickname}</span> 님을 위한 오늘의 스몰 큐레이션`;
+		} else {
+			recommendTitle.textContent += "🌟 회원님을 위한 오늘의 스몰 큐레이션";
+		}
+		
+		readBasedRecommend.innerHTML = "";
+
+		boards.forEach(board => {
+			const divEl = document.createElement("div");
+			divEl.innerHTML = `
+						<a href="board/detail/${categoryNames[board.category]}/${board.bno}" class="text-decoration-none text-dark">
+							<div class="post-card">
+								<div class="post-title">${board.title}</div>
+								<div class="post-preview">${board.content}</div>
+								<div class="post-meta">
+									<i class="fas fa-eye"></i>
+									<span>${board.viewCount}</span>
+								</div>
+							</div>
+						</a>
+						`;
+
+			readBasedRecommend.appendChild(divEl);
+		});
+	} catch (err) {
+		console.error("❗ 추천 API 호출 실패:", err);
+		readBasedRecommend.innerHTML = "<p class='text-danger'>추천 게시글을 불러오지 못했습니다.</p>";
 	}
 }

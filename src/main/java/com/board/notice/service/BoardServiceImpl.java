@@ -81,8 +81,8 @@ public class BoardServiceImpl implements BoardService {
 					: boardRepository.searchByTitleOrContentAndCategory(keyword, category, pageable)
 							.map(BoardResponseDTO::new); // OR 조건은 리포지토리 추가 필요
 		case "writer":
-			return allCategory ? boardRepository.findByWriterContaining(keyword, pageable).map(BoardResponseDTO::new)
-					: boardRepository.findByWriterContainingAndCategory(keyword, category, pageable)
+			return allCategory ? boardRepository.findByUserId_NicknameContainingIgnoreCase(keyword, pageable).map(BoardResponseDTO::new)
+					: boardRepository.findByUserId_NicknameContainingIgnoreCaseAndCategory(keyword, category, pageable)
 							.map(BoardResponseDTO::new);
 		default:
 			return boardRepository.findAll(pageable).map(BoardResponseDTO::new);
@@ -108,7 +108,7 @@ public class BoardServiceImpl implements BoardService {
 		case "title_content":
 			return boardRepository.searchByTitleOrContentNative(keyword, pageable).map(BoardResponseDTO::new);
 		case "writer":
-			return boardRepository.findByWriterContainingNative(keyword, pageable).map(BoardResponseDTO::new);
+			return boardRepository.findByUserNicknameContainingNative(keyword, pageable).map(BoardResponseDTO::new);
 		default:
 			return boardRepository.findAllBoardsNative(pageable).map(BoardResponseDTO::new);
 		}

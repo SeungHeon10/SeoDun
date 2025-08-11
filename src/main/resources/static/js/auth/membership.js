@@ -1,4 +1,4 @@
-import { fetchWithAuth } from "/js/fetchWithAuth.js";
+import { fetchWithAuth } from "/js/core/fetchWithAuth.js";
 
 // 아이디 중복여부
 async function fetchUserId(id) {

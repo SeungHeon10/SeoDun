@@ -21,10 +21,18 @@ public class RecommendationRestController {
 
 	private final RecommendationService recommendationService;
 
+	// 사용자 맞춤 게시글 조회
 	@GetMapping("/read-based")
 	public ResponseEntity<?> recommendByReadHistory(@AuthenticationPrincipal CustomUserDetail userDetails) {
 		String userId = (userDetails != null) ? userDetails.getUsername() : null;
 		List<BoardResponseDTO> result = recommendationService.recommendByReadHistory(userId);
+		return ResponseEntity.ok(result);
+	}
+
+	// 비로그인/데이터 없음일 때 추천 게시글 조회
+	@GetMapping("/public")
+	public ResponseEntity<?> publicRecommend() {
+		List<BoardResponseDTO> result = recommendationService.recommendPublic();
 		return ResponseEntity.ok(result);
 	}
 }

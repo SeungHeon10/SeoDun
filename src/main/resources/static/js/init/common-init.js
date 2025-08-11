@@ -1,66 +1,43 @@
-import { fetchWithAuth, setAccessToken } from "./fetchWithAuth.js";
+import { fetchWithAuth, setAccessToken, isAuthenticated } from "/js/core/fetchWithAuth.js";
 
-let userRole = null;
-let username;
-
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
 	const loginMenu = document.getElementById("loginMenu");
 	const userInfoBox = document.getElementById("userInfo");
 	const userNameSpan = document.getElementById("userName");
 	const userStats = document.getElementById("userStats");
 	const adminMenu = document.getElementById("admin-menu");
 
-	autoLogin();
+	// 기본 UI
+	if (loginMenu) loginMenu.style.display = "block";
+	if (userInfoBox) userInfoBox.style.display = "none";
+	
+	// 토큰 있을 때만 me 호출
+	if (!isAuthenticated()) return;
+	
+	try {
+		const res = await fetchWithAuth("/api/users/me", { method: "GET" });
+		if (!res.ok) throw new Error("로그인 되어있지 않음");
 
-	async function autoLogin() {
-		try {
-			const res = await fetchWithAuth("/token", {
-				method: "POST",
-				credentials: "include",
-			});
+		const user = await res.json();
 
-			if (res.ok) {
-				const data = await res.json();
-				setAccessToken(data.token);
+		// UI 업데이트
+		if (loginMenu) loginMenu.style.display = "none";
+		if (userInfoBox) userInfoBox.style.display = "flex";
+		if (userNameSpan) userNameSpan.textContent = `${user.nickname} 님`;
+		if (userStats) userStats.textContent = `게시글 ${user.postCount}개 / 댓글 ${user.commentCount}개`;
 
-				const response = await fetchWithAuth("/api/users/me", {
-					method: "GET",
-				});
-
-				if (response.ok) {
-					const user = await response.json();
-					username = user.name;
-					userRole = user.role;
-					
-					// 사용자 정보 표시
-					if (userNameSpan) userNameSpan.textContent = `${user.name} 님`;
-					if (userStats) userStats.textContent = `게시글 ${user.postCount}개 / 댓글 ${user.commentCount}개`;
-
-					if (userInfoBox) userInfoBox.style.display = "flex";
-					if (loginMenu) loginMenu.style.display = "none";
-					
-					if(userRole === "ROLE_ADMIN"){
-						adminMenu.classList.remove("d-none");
-						adminMenu.classList.add("d-block");
-					}
-				} else {
-					resetLoginUI();
-				}
-			} else {
-				throw new Error("토큰 재발급 실패");
-			}
-		} catch (e) {
-			console.error("자동 로그인 실패:", e.message);
-			resetLoginUI();
+		if (user.role === "ROLE_ADMIN" && adminMenu) {
+			adminMenu.classList.remove("d-none");
+			adminMenu.classList.add("d-block");
 		}
-	}
-
-	function resetLoginUI() {
-		if (userInfoBox) userInfoBox.style.display = "none";
+	} catch (err) {
+		// 로그인 안 되어 있으면 로그인 UI 표시
 		if (loginMenu) loginMenu.style.display = "block";
+		if (userInfoBox) userInfoBox.style.display = "none";
 		if (userNameSpan) userNameSpan.textContent = "";
 		if (userStats) userStats.textContent = "";
 	}
+
 });
 
 // 로그아웃 버튼 누를 시
@@ -83,6 +60,7 @@ document.getElementById("logoutLink").addEventListener("click", async function(e
 	}
 });
 
+// 상단바에서 검색버튼 누를 시
 document.getElementById("searchBtn").addEventListener("click", (event) => {
 	event.preventDefault();
 
@@ -92,6 +70,7 @@ document.getElementById("searchBtn").addEventListener("click", (event) => {
 	}
 });
 
+// 상단바에서 검색어 입력 후 엔터 누를 시
 document.getElementById("topSearchInput").addEventListener("keydown", async (e) => {
 	if (e.key === "Enter") {
 		e.preventDefault();

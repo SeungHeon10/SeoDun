@@ -1,4 +1,5 @@
-import { setAccessToken, fetchWithAuth } from "/js/fetchWithAuth.js";
+import { setAccessToken, fetchWithAuth } from "/js/core/fetchWithAuth.js";
+
 window.addEventListener("load", async () => {
 	try {
 		const response = await fetchWithAuth("/token", {

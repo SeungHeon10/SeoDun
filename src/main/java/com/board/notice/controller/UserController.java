@@ -23,8 +23,8 @@ public class UserController {
 		return "user/detail";
 	}
 	
-//	회원 정보 수정
-	@GetMapping("/profile/edit/{field}")
+//	회원 정보 수정(admin)
+	@GetMapping("/profile/edit/admin/{id}/{field}")
 	public String edit() {
 		return "user/edit";
 	}
@@ -33,7 +33,7 @@ public class UserController {
 //	회원 탈퇴처리 시
 	@GetMapping("/withdrawal")
 	public String withdrawal() {
-		return "withdrawalpage";
+		return "/user/withdrawalpage";
 	}
 	
 	

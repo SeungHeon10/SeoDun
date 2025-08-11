@@ -1,4 +1,4 @@
-import { fetchWithAuth, setAccessToken } from "../fetchWithAuth.js";
+import { fetchWithAuth, setAccessToken } from "/js/core/fetchWithAuth.js";
 
 const pathParts = window.location.pathname.split('/');
 const id = pathParts.pop();
@@ -81,6 +81,17 @@ function renderDetailView(detail) {
 	profileEmail.textContent = detail.email;
 	profileRole.textContent = detail.role;
 	profileCreatedAt.textContent = formatted;
+
+	const links = document.querySelectorAll('a[href^="/user/profile/edit/"]');
+	links.forEach(a => {
+		const url = new URL(a.getAttribute("href"), location.origin);
+		const field = url.pathname.split('/').pop();
+
+		a.setAttribute(
+			"href",
+			`/user/profile/edit/admin/${encodeURIComponent(detail.id)}/${encodeURIComponent(field)}`
+		);
+	});
 
 	if (detail.emailVerified) {
 		profileVerification.textContent = "✓";

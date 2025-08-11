@@ -12,20 +12,20 @@ public class LoginController {
 	@GetMapping("/login")
 	public String loginPage() {
 		
-		return "login";
+		return "/auth/login";
 	}
 	
 //	회원가입 페이지 이동
 	@GetMapping("/membership")
 	public String membershipPage() {
 		
-		return "membership";
+		return "/auth/membership";
 	}
 	
 //	소셜 추가정보 입력 페이지
 	@GetMapping("/signup-extra")
 	public String signupExtraPage() {
-		return "membership-extra";
+		return "/auth/membership-extra";
 	}
 	
 	
@@ -33,7 +33,7 @@ public class LoginController {
 	@GetMapping("/succ-member")
 	public String succMemberPage() {
 		
-		return "successmembership";
+		return "/auth/successmembership";
 	}
 	
 }

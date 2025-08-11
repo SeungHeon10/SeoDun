@@ -1,4 +1,4 @@
-import { fetchWithAuth } from "../fetchWithAuth.js";
+import { fetchWithAuth } from "/js/core/fetchWithAuth.js";
 
 const params = new URLSearchParams(location.search);
 const tbody = document.getElementById("list");
@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 		title: "제목으로 검색",
 		title_content: "제목 + 본문으로 검색",
 		content: "본문 내용으로 검색",
-		writer: "작성자 이름으로 검색"
+		writer: "닉네임으로 검색"
 	};
 
 	const categoryNames = {
@@ -231,7 +231,7 @@ function renderBoardList(boards) {
 										<p class="commentCount">[${board.commentCount}]</p>
 									</a>
 								</td>
-								<td style="text-align: center;">${board.writer}</td>
+								<td style="text-align: center;">${board.userId.nickname}</td>
 								<td style="text-align: center;">${formatDate}</td>
 								<td style="text-align: center;">${board.viewCount}</td>
 							`;
@@ -244,7 +244,7 @@ function renderBoardList(boards) {
 										<p class="commentCount">[${board.commentCount}]</p>
 									</a>
 								</td>
-								<td style="text-align: center;">${board.writer}</td>
+								<td style="text-align: center;">${board.userId.nickname}</td>
 								<td style="text-align: center;">${formatDate}</td>
 								<td style="text-align: center;">${board.viewCount}</td>
 							`;

@@ -5,8 +5,8 @@
 	<th:block th:insert="fragments/head :: head"></th:block>
 	<meta charset="UTF-8">
 	<title>상세보기</title>
-	<link href="/css/sidebar.css" rel="stylesheet">
-	<link href="/css/topbar.css" rel="stylesheet">
+	<link href="/css/fragments/sidebar.css" rel="stylesheet">
+	<link href="/css/fragments/topbar.css" rel="stylesheet">
 	<link href="/css/board/detail.css" rel="stylesheet">
 	<link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
 	<script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
@@ -115,7 +115,7 @@
 			</div>
 			<!-- 푸터 -->
 			<div th:replace="fragments/footer :: footer"></div>
-			<script type="module" src="/js/common.js"></script>
+			<script type="module" src="/js/init/common-init.js"></script>
 			<script type="module" src="/js/board/detail.js"></script>
 		</div>
 	</div>

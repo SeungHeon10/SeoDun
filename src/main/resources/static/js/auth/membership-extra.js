@@ -1,4 +1,4 @@
-import { fetchWithAuth } from "/js/fetchWithAuth.js";
+import { fetchWithAuth } from "/js/core/fetchWithAuth.js";
 
 // 이름 입력 시
 document.getElementById("name").addEventListener("input", function() {

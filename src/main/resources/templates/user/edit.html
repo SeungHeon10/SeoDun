@@ -5,8 +5,8 @@
 	<th:block th:insert="fragments/head :: head"></th:block>
 	<meta charset="UTF-8">
 	<title>회원정보</title>
-	<link href="/css/sidebar.css" rel="stylesheet">
-	<link href="/css/topbar.css" rel="stylesheet">
+	<link href="/css/fragments/sidebar.css" rel="stylesheet">
+	<link href="/css/fragments/topbar.css" rel="stylesheet">
 	<link href="/css/user/edit.css" rel="stylesheet">
 	<link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
 	<script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
@@ -21,11 +21,11 @@
 			<div th:replace="fragments/navbar :: top_bar"></div>
 			<div class="container">
 				<!-- 제목 -->
-				<h2 class="fw-bold text-center mb-5">닉네임 변경하기</h2>
+				<h2 class="fw-bold text-center mb-5" id="editTitle">닉네임 변경하기</h2>
 
 				<!-- 폼 카드 없이 깔끔 버전 -->
 				<div class="row justify-content-center">
-					<div class="col-12 col-md-8 col-lg-6">
+					<div class="col-12 col-md-8 col-lg-6" id="editContainer">
 						<div class="d-grid gap-5">
 							<div>
 								<label for="filed" class="form-label fw-semibold">닉네임</label>
@@ -39,8 +39,8 @@
 			</div>
 			<!-- 푸터 -->
 			<div th:replace="fragments/footer :: footer"></div>
-			<script type="module" src="/js/common.js"></script>
-			<!--			<script type="module" src="/js/user/detail.js"></script>-->
+			<script type="module" src="/js/init/common-init.js"></script>
+						<script type="module" src="/js/user/edit.js"></script>
 		</div>
 	</div>
 </body>

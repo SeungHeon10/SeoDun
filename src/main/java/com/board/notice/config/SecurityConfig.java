@@ -55,7 +55,8 @@ public class SecurityConfig {
 	        	    "/api/boards/**",			// 게시판 데이터
 	        	    "/api/log/dwell-time",		// 로그 데이터 전송
 	        	    "/user/**",					// 회원 페이지 이동
-	        	    "/api/users/**"                // 사용자 데이터
+	        	    "/api/users/**",            // 사용자 데이터
+	        	    "/api/recommend/public"     // 맞춤 콘텐츠 조회
 	        	).permitAll()
 	        .requestMatchers("/admin/**").hasRole("ADMIN")
 	        // 나머지 모든 요청은 로그인한 사용자만 접근 가능

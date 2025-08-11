@@ -1,4 +1,4 @@
-import { setAccessToken, fetchWithAuth } from "./fetchWithAuth.js";
+import { setAccessToken, fetchWithAuth } from "/js/core/fetchWithAuth.js";
 
 document.getElementById("login").addEventListener("click", async function(event) {
 	event.preventDefault();

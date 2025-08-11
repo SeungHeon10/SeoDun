@@ -16,6 +16,8 @@ import com.board.notice.entity.Board;
 
 @Repository
 public interface BoardRepository extends JpaRepository<Board, Integer> {
+	// admin이 붙은 쿼리문은 소프트 삭제된 항목도 모두 조회
+
 	// 전체 카테고리에서 제목 검색
 	Page<Board> findByTitleContaining(String keyword, Pageable pageable);
 
@@ -38,10 +40,11 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
 			Pageable pageable);
 
 	// 전체 카테고리에서 작성자 검색
-	Page<Board> findByWriterContaining(String keyword, Pageable pageable);
+	Page<Board> findByUserId_NicknameContainingIgnoreCase(String keyword, Pageable pageable);
 
 	// 해당 카테고리에서 작성자 검색
-	Page<Board> findByWriterContainingAndCategory(String keyword, String category, Pageable pageable);
+	Page<Board> findByUserId_NicknameContainingIgnoreCaseAndCategory(String keyword, String category,
+			Pageable pageable);
 
 	// 전체 게시글 조회(admin)
 	@Query(value = "SELECT * FROM board", countQuery = "SELECT COUNT(*) FROM board", nativeQuery = true)
@@ -60,9 +63,20 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
 	Page<Board> searchByTitleOrContentNative(@Param("keyword") String keyword, Pageable pageable);
 
 	// 전체 게시글에서 작성자 검색(admin)
-	@Query(value = "SELECT * FROM board WHERE writer LIKE CONCAT('%', :keyword, '%')", countQuery = "SELECT COUNT(*) FROM board WHERE writer LIKE CONCAT('%', :keyword, '%')", nativeQuery = true)
-	Page<Board> findByWriterContainingNative(@Param("keyword") String keyword, Pageable pageable);
+	@Query(value = """
+			SELECT b.*
+			FROM board b
+			JOIN `user` u ON u.id = b.user_id
+			WHERE u.nickname LIKE CONCAT('%', :keyword, '%')
+			""", countQuery = """
+			SELECT COUNT(*)
+			FROM board b
+			JOIN `user` u ON u.id = b.user_id
+			WHERE u.nickname LIKE CONCAT('%', :keyword, '%')
+			""", nativeQuery = true)
+	Page<Board> findByUserNicknameContainingNative(@Param("keyword") String keyword, Pageable pageable);
 
+	// 해당 게시글 상세보기(admin)
 	@Query(value = "SELECT * FROM board WHERE bno = :bno", nativeQuery = true)
 	Optional<Board> findByIdNative(@Param("bno") int bno);
 
@@ -107,11 +121,10 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
 	List<Board> findBoardsByCategoryExcluding(@Param("category") String category,
 			@Param("excludedIds") List<Integer> excludedIds, Pageable pageable);
 
-	// 최근 1주일 내 이슈성 글 Top 2
-	@Query("""
-			    SELECT b FROM Board b
-			    WHERE b.createdAt >= :startDate
-			    ORDER BY (b.viewCount * 2 + b.commentCount * 3) DESC
-			""")
-	List<Board> findHotBoardsInLastWeek(@Param("startDate") LocalDateTime startDate, Pageable pageable);
+	// 최근 7일 내 인기글 상위 2개
+	List<Board> findTop2ByCreatedAtAfterOrderByViewCountDesc(LocalDateTime since);
+
+	// 게시글 랜덤으로 조회하기
+	@Query("SELECT b FROM Board b ORDER BY FUNCTION('RAND')")
+	List<Board> findRandom(Pageable pageable);
 }

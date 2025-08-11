@@ -5,8 +5,8 @@
 	<th:block th:insert="fragments/head :: head"></th:block>
 	<meta charset="UTF-8">
 	<title>회원정보</title>
-	<link href="/css/sidebar.css" rel="stylesheet">
-	<link href="/css/topbar.css" rel="stylesheet">
+	<link href="/css/fragments/sidebar.css" rel="stylesheet">
+	<link href="/css/fragments/topbar.css" rel="stylesheet">
 	<link href="/css/user/detail.css" rel="stylesheet">
 	<link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
 	<script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
@@ -60,7 +60,8 @@
 										<div class="text-muted flex-shrink-0" style="width:120px;">비밀번호</div>
 										<div class="flex-fill fw-semibold" id="profile-password">**********</div>
 										<div class="ms-3">
-											<a href="/user/profile/edit/password" class="text-decoration-none">변경</a>
+											<a href="/user/profile/edit/password" class="text-decoration-none"
+												id="editPasswordLink">변경</a>
 										</div>
 									</div>
 								</li>
@@ -71,7 +72,8 @@
 										<div class="text-muted flex-shrink-0" style="width:120px;">이름</div>
 										<div class="flex-fill fw-semibold" id="profile-name">홍길동</div>
 										<div class="ms-3">
-											<a href="/user/profile/edit/name" class="text-decoration-none">변경</a>
+											<a href="/user/profile/edit/name" class="text-decoration-none"
+												id="editNameLink">변경</a>
 										</div>
 									</div>
 								</li>
@@ -82,7 +84,8 @@
 										<div class="text-muted flex-shrink-0" style="width:120px;">닉네임</div>
 										<div class="flex-fill fw-semibold" id="profile-nickname">길동이</div>
 										<div class="ms-3">
-											<a href="/user/profile/edit/nickname" class="text-decoration-none">변경</a>
+											<a href="/user/profile/edit/nickname" class="text-decoration-none"
+												id="editNicknameLink">변경</a>
 										</div>
 									</div>
 								</li>
@@ -93,7 +96,8 @@
 										<div class="text-muted flex-shrink-0" style="width:120px;">휴대폰</div>
 										<div class="flex-fill fw-semibold" id="profile-phone">010-1234-5678</div>
 										<div class="ms-3 d-flex gap-3">
-											<a href="/user/profile/edit/phone" class="text-decoration-none">변경</a>
+											<a href="/user/profile/edit/phone" class="text-decoration-none"
+												id="editPhoneLink">변경</a>
 										</div>
 									</div>
 								</li>
@@ -104,7 +108,8 @@
 										<div class="text-muted flex-shrink-0" style="width:120px;">이메일</div>
 										<div class="flex-fill fw-semibold" id="profile-email">hun0018@naver.com</div>
 										<div class="ms-3 d-flex gap-3">
-											<a href="/user/profile/edit/email" class="text-decoration-none">변경</a>
+											<a href="/user/profile/edit/email" class="text-decoration-none"
+												id="editEmailLink">변경</a>
 										</div>
 									</div>
 								</li>
@@ -148,7 +153,7 @@
 			</div>
 			<!-- 푸터 -->
 			<div th:replace="fragments/footer :: footer"></div>
-			<script type="module" src="/js/common.js"></script>
+			<script type="module" src="/js/init/common-init.js"></script>
 			<script type="module" src="/js/user/detail.js"></script>
 		</div>
 	</div>

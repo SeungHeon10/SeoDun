@@ -1,4 +1,4 @@
-import { fetchWithAuth } from "../fetchWithAuth.js";
+import { fetchWithAuth } from "/js/core/fetchWithAuth.js";
 
 const pathParts = window.location.pathname.split('/');
 const category = pathParts[3];

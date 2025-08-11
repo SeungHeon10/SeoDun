@@ -6,8 +6,16 @@ if (savedToken) {
 }
 
 function setAccessToken(token) {
-	accessToken = token;
-	localStorage.setItem("accessToken", token);
+	accessToken = token || null;
+	if (token) {
+		localStorage.setItem("accessToken", token);
+	} else {
+		localStorage.removeItem("accessToken");
+	}
+}
+
+function isAuthenticated() {
+	return !!accessToken;
 }
 
 async function fetchWithAuth(input, init = {}) {
@@ -68,4 +76,4 @@ async function fetchWithAuth(input, init = {}) {
 	return response;
 }
 
-export { fetchWithAuth, setAccessToken };
+export { fetchWithAuth, setAccessToken, isAuthenticated };
