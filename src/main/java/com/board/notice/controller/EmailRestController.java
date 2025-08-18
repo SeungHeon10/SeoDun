@@ -18,14 +18,14 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth/emails")
+@RequestMapping("/auth")
 @Slf4j
 public class EmailRestController {
 	private final EmailService emailService;
 	private final EmailSenderServiceImpl emailSenderService;
 
 //	이메일 인증 토큰 보내기
-	@PostMapping
+	@PostMapping("/emails")
 	public CompletableFuture<ResponseEntity<String>> sendEmail(@RequestParam("email") String email) {
 		return emailSenderService.sendVerificationEmail(email).thenApply(success -> {
 			if (success) {
@@ -39,7 +39,7 @@ public class EmailRestController {
 	}
 
 //	이메일 인증 확인
-	@PostMapping("/verify")
+	@PostMapping("/emails/verify")
 	public ResponseEntity<String> verifyToken(@RequestParam("email") String email, @RequestParam("code") String code) {
 		try {
 			emailService.confirmToken(email, code);
@@ -52,7 +52,7 @@ public class EmailRestController {
 	}
 
 //	이메일 인증 토큰 재전송
-	@PostMapping("/verification-tokens")
+	@PostMapping("/emails/verification-tokens")
 	public ResponseEntity<String> resendEmail(@RequestParam("email") String email) {
 		emailService.resendVerificationEmail(email);
 		return ResponseEntity.ok("인증 메일이 재전송 되었습니다.");

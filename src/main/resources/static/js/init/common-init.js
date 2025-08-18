@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 	const userNameSpan = document.getElementById("userName");
 	const userStats = document.getElementById("userStats");
 	const adminMenu = document.getElementById("admin-menu");
+	const mypageLink = document.getElementById("mypageLink");
 
 	// 기본 UI
 	if (loginMenu) loginMenu.style.display = "block";
@@ -25,6 +26,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 		if (userInfoBox) userInfoBox.style.display = "flex";
 		if (userNameSpan) userNameSpan.textContent = `${user.nickname} 님`;
 		if (userStats) userStats.textContent = `게시글 ${user.postCount}개 / 댓글 ${user.commentCount}개`;
+		if (mypageLink) mypageLink.href = `/user/detail/${user.id}`;
 
 		if (user.role === "ROLE_ADMIN" && adminMenu) {
 			adminMenu.classList.remove("d-none");

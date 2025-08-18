@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<th:block th:insert="fragments/head :: head"></th:block>
+	<meta charset="UTF-8">
+	<title>회원정보</title>
+	<link href="/css/fragments/sidebar.css" rel="stylesheet">
+	<link href="/css/fragments/topbar.css" rel="stylesheet">
+	<link href="/css/user/edit.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+	<script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+</head>
+
+<body>
+	<div class="wrapper">
+		<!-- 사이드바 -->
+		<div th:replace="fragments/sidebar :: left_bar"></div>
+		<div class="main">
+			<!-- 상단바 -->
+			<div th:replace="fragments/navbar :: top_bar"></div>
+			<div class="container">
+				<!-- 제목 -->
+				<h2 class="fw-bold text-center mb-5" id="editTitle">이메일 인증</h2>
+
+				<div class="row justify-content-center">
+					<div class="col-12 col-md-8 col-lg-6" id="editContainer">
+						<div class="d-grid gap-4">
+							<div class="d-flex flex-column gap-1">
+								<div class="d-flex flex-column gap-2">
+									<div class="d-flex gap-2">
+										<div class="flex-grow-1">
+											<label for="email" class="form-label fw-semibold">이메일</label>
+											<input type="email" id="email" class="form-control form-control-lg"
+												disabled />
+										</div>
+										<div class="d-flex align-items-end">
+											<button class="btn btn-outline-secondary btn-lg" id="sendEmailBtn">인증하기</button>
+										</div>
+									</div>
+									<div>
+										<p id="emailFeedback"></p>
+									</div>
+								</div>
+								<div class="d-flex flex-column gap-2">
+									<input type="text" id="verifyCode" class="form-control form-control-lg"
+										placeholder="인증코드를 입력하세요" autofocus />
+									<p id="verificationCodeFeedback"></p>
+								</div>
+							</div>
+							<button type="button" class="btn btn-dark btn-lg py-3" id="verifyCodeBtn">확인</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- 푸터 -->
+			<div th:replace="fragments/footer :: footer"></div>
+			<script type="module" src="/js/init/common-init.js"></script>
+			<script type="module" src="/js/auth/email-verify.js"></script>
+		</div>
+	</div>
+</body>
+
+</html>

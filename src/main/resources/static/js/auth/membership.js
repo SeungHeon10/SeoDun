@@ -2,7 +2,7 @@ import { fetchWithAuth } from "/js/core/fetchWithAuth.js";
 
 // 아이디 중복여부
 async function fetchUserId(id) {
-	const response = await fetchWithAuth(`/users/exists/id/${id}`);
+	const response = await fetchWithAuth(`/api/users/exists/id/${id}`);
 
 	if (!response.ok) {
 		throw new Error("서버 오류 발생");
@@ -13,7 +13,7 @@ async function fetchUserId(id) {
 
 // 이메일 중복여부
 async function fetchUserEmail(email) {
-	const response = await fetchWithAuth(`/users/exists/email/${email}`);
+	const response = await fetchWithAuth(`/api/users/exists/email/${email}`);
 
 	if (!response.ok) {
 		throw new Error("서버 오류 발생");
@@ -307,7 +307,7 @@ async function fetchUserRegister() {
 			email: email
 		}
 
-		const response = await fetchWithAuth('/users', {
+		const response = await fetchWithAuth('/api/users', {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(userDTO)

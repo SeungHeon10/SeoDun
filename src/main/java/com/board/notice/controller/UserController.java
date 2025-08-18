@@ -3,6 +3,8 @@ package com.board.notice.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @Controller
@@ -16,16 +18,29 @@ public class UserController {
 		return "user/list";
 	}
 	
-//	회원 상세정보(admin)
-	@GetMapping("/detail/admin/{id}")
+//	회원 상세정보
+	@GetMapping("/detail/{id}")
 	public String detail() {
 		
 		return "user/detail";
 	}
 	
+//	회원 상세정보(admin)
+	@GetMapping("/detail/admin/{id}")
+	public String detailForAdmin() {
+		
+		return "user/detail";
+	}
+	
+//	회원 정보 수정
+	@GetMapping("/profile/edit/{id}/{field}")
+	public String edit() {
+		return "user/edit";
+	}
+	
 //	회원 정보 수정(admin)
 	@GetMapping("/profile/edit/admin/{id}/{field}")
-	public String edit() {
+	public String editForAdmin() {
 		return "user/edit";
 	}
 	
@@ -36,5 +51,10 @@ public class UserController {
 		return "/user/withdrawalpage";
 	}
 	
+//	본인인증 페이지 이동
+	@GetMapping("/{id}/email/verify")
+	public String emailVerifyPage() {
+		return "/auth/email-verify";
+	}
 	
 }

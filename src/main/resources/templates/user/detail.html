@@ -50,7 +50,7 @@
 								<li class="list-group-item px-0 py-3 border-0">
 									<div class="d-flex align-items-center">
 										<div class="text-muted flex-shrink-0" style="width:120px;">아이디</div>
-										<div class="flex-fill fw-semibold" id="profile-id">user1234</div>
+										<div class="flex-fill fw-semibold" id="profile-id"></div>
 									</div>
 								</li>
 
@@ -60,7 +60,7 @@
 										<div class="text-muted flex-shrink-0" style="width:120px;">비밀번호</div>
 										<div class="flex-fill fw-semibold" id="profile-password">**********</div>
 										<div class="ms-3">
-											<a href="/user/profile/edit/password" class="text-decoration-none"
+											<a href="/user/profile/edit/password" class="text-decoration-none edit-link"
 												id="editPasswordLink">변경</a>
 										</div>
 									</div>
@@ -70,9 +70,9 @@
 								<li class="list-group-item px-0 py-3 border-0">
 									<div class="d-flex align-items-center">
 										<div class="text-muted flex-shrink-0" style="width:120px;">이름</div>
-										<div class="flex-fill fw-semibold" id="profile-name">홍길동</div>
+										<div class="flex-fill fw-semibold" id="profile-name"></div>
 										<div class="ms-3">
-											<a href="/user/profile/edit/name" class="text-decoration-none"
+											<a href="/user/profile/edit/name" class="text-decoration-none edit-link"
 												id="editNameLink">변경</a>
 										</div>
 									</div>
@@ -82,9 +82,9 @@
 								<li class="list-group-item px-0 py-3 border-0">
 									<div class="d-flex align-items-center">
 										<div class="text-muted flex-shrink-0" style="width:120px;">닉네임</div>
-										<div class="flex-fill fw-semibold" id="profile-nickname">길동이</div>
+										<div class="flex-fill fw-semibold" id="profile-nickname"></div>
 										<div class="ms-3">
-											<a href="/user/profile/edit/nickname" class="text-decoration-none"
+											<a href="/user/profile/edit/nickname" class="text-decoration-none edit-link"
 												id="editNicknameLink">변경</a>
 										</div>
 									</div>
@@ -94,9 +94,9 @@
 								<li class="list-group-item px-0 py-3 border-0">
 									<div class="d-flex align-items-center">
 										<div class="text-muted flex-shrink-0" style="width:120px;">휴대폰</div>
-										<div class="flex-fill fw-semibold" id="profile-phone">010-1234-5678</div>
+										<div class="flex-fill fw-semibold" id="profile-phone"></div>
 										<div class="ms-3 d-flex gap-3">
-											<a href="/user/profile/edit/phone" class="text-decoration-none"
+											<a href="/user/profile/edit/phone" class="text-decoration-none edit-link"
 												id="editPhoneLink">변경</a>
 										</div>
 									</div>
@@ -106,9 +106,9 @@
 								<li class="list-group-item px-0 py-3 border-0">
 									<div class="d-flex align-items-center">
 										<div class="text-muted flex-shrink-0" style="width:120px;">이메일</div>
-										<div class="flex-fill fw-semibold" id="profile-email">hun0018@naver.com</div>
+										<div class="flex-fill fw-semibold" id="profile-email"></div>
 										<div class="ms-3 d-flex gap-3">
-											<a href="/user/profile/edit/email" class="text-decoration-none"
+											<a href="/user/profile/edit/email" class="text-decoration-none edit-link"
 												id="editEmailLink">변경</a>
 										</div>
 									</div>
@@ -118,7 +118,11 @@
 								<li class="list-group-item px-0 py-3 border-0">
 									<div class="d-flex align-items-center">
 										<div class="text-muted flex-shrink-0" style="width:120px;">권한</div>
-										<div class="flex-fill fw-semibold" id="profile-role">ROLE_ADMIN</div>
+										<div class="flex-fill fw-semibold" id="profile-role"></div>
+										<div class="ms-3 d-flex gap-3">
+											<a href="/user/profile/edit/role" class="text-decoration-none edit-link"
+												id="editRoleLink">변경</a>
+										</div>
 									</div>
 								</li>
 
@@ -126,7 +130,7 @@
 								<li class="list-group-item px-0 py-3 border-0">
 									<div class="d-flex align-items-center">
 										<div class="text-muted flex-shrink-0" style="width:120px;">가입일</div>
-										<div class="flex-fill fw-semibold" id="profile-createdAt">2025-08-08</div>
+										<div class="flex-fill fw-semibold" id="profile-createdAt"></div>
 									</div>
 								</li>
 							</ul>
@@ -141,6 +145,9 @@
 								<div class="d-flex align-items-center gap-2">
 									<span class="fw-semibold">본인확인 완료</span>
 									<span class="badge bg-success" id="profile-verification">✓</span>
+								</div>
+								<div id="verifyButtonWrapper">
+									<button class="btn btn-outline-secondary" id="emailVerifyButton">인증하기</button>
 								</div>
 							</div>
 						</div>

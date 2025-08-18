@@ -9,6 +9,12 @@ const apiSuffix = isAdminPage ? `/api/users/admin/${id}` : `/api/users/${id}`;
 document.addEventListener("DOMContentLoaded", async () => {
 	await fetchUserDetail();
 
+	const urlParams = new URLSearchParams(window.location.search);
+	if (urlParams.get("updated") === "true") {
+		showToast("✔️ 회원님의 정보가 변경되었습니다.", "success");
+		window.history.replaceState({}, document.title, window.location.pathname);
+	}
+
 	const titleElement = document.getElementById("category-title");
 	const anchorEl = titleElement.closest("a");
 	window.history.replaceState({}, document.title, window.location.pathname);
@@ -26,22 +32,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 	}
 
 	// 상세보기에서 목록버튼 누를 시(admin)
-	document.getElementById("btn-back-to-list").addEventListener("click", async (event) => {
-		event.preventDefault();
-
+	onIf('#btn-back-to-list', 'click', function() {
 		location.href = `/user/list/admin`;
 	});
 
-	// 상세보기에서 탈퇴 버튼 누를 시
-	document.getElementById("btn-delete").addEventListener("click", async (event) => {
-		event.preventDefault();
-
-		const isConfirmed = confirm("정말 탈퇴하시겠습니까?");
-		if (!isConfirmed) return;
-
-		await fetchUserDelete();
-	});
-
+	// 본인확인 인증하기 버튼 누를 시
+	onIf('#emailVerifyButton', 'click', function() {
+		location.href = `/user/${id}/email/verify`;
+	})
 });
 
 // 사용자 정보 상세보기
@@ -59,19 +57,22 @@ async function fetchUserDetail() {
 
 // 사용자 상세정보 화면에 렌더링
 function renderDetailView(detail) {
-	const cardNickname = document.getElementById("card-nickname");
-	const cardId = document.getElementById("card-id");
-	const profileId = document.getElementById("profile-id");
-	const profileName = document.getElementById("profile-name");
-	const profileNickname = document.getElementById("profile-nickname");
-	const profilePhone = document.getElementById("profile-phone");
-	const profileEmail = document.getElementById("profile-email");
-	const profileRole = document.getElementById("profile-role");
-	const profileCreatedAt = document.getElementById("profile-createdAt");
-	const profileVerification = document.getElementById("profile-verification");
-	const userActionButtons = document.getElementById("userActionButtons");
-	const formatted = dayjs(detail.createdAt).format("YYYY-MM-DD HH:mm:ss");
+	const cardNickname = document.getElementById("card-nickname"); // 상단 카드 닉네임
+	const cardId = document.getElementById("card-id"); // 상단 카드 아이디
+	const profileId = document.getElementById("profile-id"); // 프로필 섹션 아이디
+	const profileName = document.getElementById("profile-name"); // 프로필 섹션 이름
+	const profileNickname = document.getElementById("profile-nickname"); // 프로필 섹션 닉네임
+	const profilePhone = document.getElementById("profile-phone"); // 프로필 섹션 휴대폰번호
+	const profileEmail = document.getElementById("profile-email"); // 프로필 섹션 이메일
+	const profileRole = document.getElementById("profile-role"); // 프로필 섹션 권한
+	const profileCreatedAt = document.getElementById("profile-createdAt"); // 프로필 섹션 가입일
+	const roleEditBox = document.getElementById("editRoleLink").closest("div"); // 프로필 섹션 Role 변경 div
+	const profileVerification = document.getElementById("profile-verification"); // 본인확인
+	const userActionButtons = document.getElementById("userActionButtons"); // 목록/탈퇴 버튼바
+	const verifyButtonWrapper = document.getElementById("verifyButtonWrapper"); // 본인확인 인증하기 버튼 div
+	const formatted = dayjs(detail.createdAt).format("YYYY-MM-DD HH:mm:ss"); // 날짜 포맷
 
+	// 값 넣어주기
 	cardNickname.textContent = detail.nickname;
 	cardId.textContent = detail.id;
 	profileId.textContent = detail.id;
@@ -82,25 +83,70 @@ function renderDetailView(detail) {
 	profileRole.textContent = detail.role;
 	profileCreatedAt.textContent = formatted;
 
-	const links = document.querySelectorAll('a[href^="/user/profile/edit/"]');
-	links.forEach(a => {
-		const url = new URL(a.getAttribute("href"), location.origin);
-		const field = url.pathname.split('/').pop();
+	// 탈퇴버튼 누를 시 이벤트
+	userActionButtons.addEventListener("click", async (e) => {
+		const btn = e.target.closest("#btn-delete");
+		if (!btn) return;
 
-		a.setAttribute(
-			"href",
-			`/user/profile/edit/admin/${encodeURIComponent(detail.id)}/${encodeURIComponent(field)}`
-		);
+		e.preventDefault();
+		if (!confirm("정말 탈퇴하시겠습니까?")) return;
+		await fetchUserDelete();
 	});
 
+	// 변경 버튼 링크 설정
+	const links = document.querySelectorAll('a[href^="/user/profile/edit/"]');
+	if (isAdminPage) {
+		links.forEach(a => {
+			const url = new URL(a.getAttribute("href"), location.origin);
+			const field = url.pathname.split('/').pop();
+
+			a.setAttribute(
+				"href",
+				`/user/profile/edit/admin/${encodeURIComponent(detail.id)}/${encodeURIComponent(field)}`
+			);
+		});
+	} else {
+		links.forEach(a => {
+			const url = new URL(a.getAttribute("href"), location.origin);
+			const field = url.pathname.split('/').pop();
+
+			a.setAttribute(
+				"href",
+				`/user/profile/edit/${encodeURIComponent(detail.id)}/${encodeURIComponent(field)}`
+			);
+		});
+	}
+
+	// 본인확인 완료여부에 따라 ✓/✗ 표시
 	if (detail.emailVerified) {
 		profileVerification.textContent = "✓";
+		verifyButtonWrapper.style.display = "none";
 	} else {
 		profileVerification.classList.remove("bg-success");
 		profileVerification.classList.add("bg-danger");
 		profileVerification.textContent = "✗";
+		verifyButtonWrapper.style.display = "block";
 	}
 
+	// 관리자(admin)페이지가 아닐 시 
+	if (!isAdminPage) {
+		// 목록 버튼 삭제
+		userActionButtons.innerHTML = "";
+		userActionButtons.innerHTML = `
+			<button type="button" class="btn btn-outline-secondary" id="btn-delete">탈퇴</button>
+		`
+		// 권한 변경 불가능하도록
+		roleEditBox.classList.remove("d-flex");
+		roleEditBox.classList.add("d-none");
+	} else {
+		// 권한 변경 가능하도록 변경 버튼 보여줌
+		roleEditBox.classList.remove("d-none");
+		roleEditBox.classList.add("d-flex");
+		// 본인인증은 본인만 가능하도록 
+		verifyButtonWrapper.style.display = "none";
+	}
+
+	// 비활성화된 회원일 때 UI
 	if (detail.deleted) {
 		userActionButtons.innerHTML = "";
 		userActionButtons.innerHTML = `
@@ -119,32 +165,6 @@ function renderDetailView(detail) {
 		});
 	}
 }
-
-// 사용자 정보 수정
-//async function fetchUserEdit(formData) {
-//	try {
-//		const res = await fetchWithAuth(`/api/users/${id}/edit`, {
-//			method: "POST",
-//			body: formData
-//		});
-//
-//		if (!res.ok) {
-//			const text = await res.text();
-//			const errorMsg = text?.trim() ? text : "❗ 댓글 수정에 실패했습니다. 다시 시도해주세요.";
-//			showToast(errorMsg, "error");
-//			return;
-//		}
-//
-//		const result = await res.text();
-//		showToast("✔️ " + result, "success");
-//
-//		currentMode = "view";
-//		await fetchBoardDetail();
-//	} catch (e) {
-//		showToast("❗ 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.", "error");
-//		console.error("에러:", e);
-//	}
-//}
 
 // 사용자 계정 비활성화
 async function fetchUserDelete() {
@@ -201,6 +221,12 @@ async function fetchUserRestore() {
 		showToast("❗ 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.", "error");
 		console.error("에러:", e);
 	}
+}
+
+// 요소가 있을 때만 이벤트 등록
+function onIf(selector, event, handler) {
+	const el = document.querySelector(selector);
+	if (el) el.addEventListener(event, handler);
 }
 
 // Toastify 알림 호출

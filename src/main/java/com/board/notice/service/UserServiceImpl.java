@@ -95,11 +95,47 @@ public class UserServiceImpl implements UserService {
 //	회원 수정
 	@Override
 	@Transactional
-	public void update(UserRequestDTO userDTO) {
-		User user = userRepository.findById(userDTO.getId())
-				.orElseThrow(() -> new UsernameNotFoundException("해당 회원은 존재하지 않습니다."));
-		// 회원 수정 메서드
-		user.update(userDTO);
+	public void update(String id, String field, String value) {
+		User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("해당 회원은 존재하지 않습니다."));
+
+		switch (field) {
+		case "password":
+			user.validateRawPassword(value);
+			String encoded = passwordEncoder.encode(value);
+			user.setEncodedPassword(encoded);
+			break;
+
+		case "name":
+			user.updateName(value);
+			break;
+
+		case "nickname":
+			if (userRepository.existsByNicknameAndIdNot(value, id)) {
+				throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
+			}
+			
+			user.updateNickname(value);
+			break;
+
+		case "phone":
+			user.updatePhone(value);
+			break;
+
+		case "email":
+			if (userRepository.existsByEmailAndIdNot(value, id)) {
+				throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+			}
+			
+			user.updateEmail(value);
+			break;
+			
+		case "role":
+			Role changeRole = user.fromString(value);
+			user.setRole(changeRole);
+			break;
+		default:
+			throw new IllegalArgumentException("지원하지 않는 수정 항목입니다.");
+		}
 	}
 
 //	회원 삭제
@@ -143,6 +179,26 @@ public class UserServiceImpl implements UserService {
 		} else {
 			return "사용 가능한 이메일 입니다.";
 		}
+	}
+
+//	닉네임 중복 여부
+	@Override
+	public String isDuplicationNickname(String nickname) {
+		User user = userRepository.findByNickname(nickname).orElse(null);
+
+		if (user != null) {
+			return "이미 존재하는 닉네임 입니다.";
+		} else {
+			return "사용 가능한 닉네임 입니다.";
+		}
+	}
+
+//	기존 비밀번호 확인
+	@Override
+	public boolean checkCurrentPassword(String id, String currentPassword) {
+		User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("해당 회원은 존재하지 않습니다."));
+
+		return user.getPassword() != null && passwordEncoder.matches(currentPassword, user.getPassword());
 	}
 
 }
