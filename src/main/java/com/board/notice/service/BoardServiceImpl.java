@@ -81,7 +81,9 @@ public class BoardServiceImpl implements BoardService {
 					: boardRepository.searchByTitleOrContentAndCategory(keyword, category, pageable)
 							.map(BoardResponseDTO::new); // OR 조건은 리포지토리 추가 필요
 		case "writer":
-			return allCategory ? boardRepository.findByUserId_NicknameContainingIgnoreCase(keyword, pageable).map(BoardResponseDTO::new)
+			return allCategory
+					? boardRepository.findByUserId_NicknameContainingIgnoreCase(keyword, pageable)
+							.map(BoardResponseDTO::new)
 					: boardRepository.findByUserId_NicknameContainingIgnoreCaseAndCategory(keyword, category, pageable)
 							.map(BoardResponseDTO::new);
 		default:
@@ -155,7 +157,7 @@ public class BoardServiceImpl implements BoardService {
 						PutObjectRequest.builder().bucket(bucketName).key(s3key).contentType(file.getContentType())
 								.contentDisposition("attachment").build(),
 						RequestBody.fromInputStream(inputStream, file.getSize()));
-				filePath = "https://" + bucketName + ".s3.amazonaws.com/upload/" + savedFilename;
+				filePath = "https://" + bucketName + ".s3.amazonaws.com/" + s3key;
 			}
 		}
 		// 회원 조회
@@ -184,10 +186,14 @@ public class BoardServiceImpl implements BoardService {
 		if (!board.getUserId().getId().equals(userDetails.getUsername())) {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("작성자 본인만 수정할 수 있습니다.");
 		}
-
+		System.out.println(deleteFile);
+		// 게시글 수정 메서드
+		board.update(boardRequestDTO);
+		
 		// 첨부파일 삭제 요청 처리
 		if (deleteFile) {
-			boardRequestDTO.setFilePath(null); // DB에서 파일 제거
+			board.setFilePath(null);
+	        return ResponseEntity.ok("게시글이 수정되었습니다.");
 		}
 
 		// 변경한 파일이 null이 아닐 경우에만 실행
@@ -197,16 +203,16 @@ public class BoardServiceImpl implements BoardService {
 
 			String savedFilename = uuid + "_" + Paths.get(filename).getFileName().toString();
 
-			try (InputStream is = file.getInputStream()) {
+			try (InputStream inputStream = file.getInputStream()) {
 				// S3 저장소에 저장
 				String s3key = "upload/" + savedFilename;
 				s3Client.putObject(PutObjectRequest.builder().bucket(bucketName).key(s3key)
-						.contentType(file.getContentType()).build(), RequestBody.fromInputStream(is, file.getSize()));
-				boardRequestDTO.setFilePath("https://" + bucketName + ".s3.amazonaws.com/upload/" + savedFilename);
+						.contentType(file.getContentType()).contentDisposition("attachment").build(), RequestBody.fromInputStream(inputStream, file.getSize()));
+				String url = "https://" + bucketName + ".s3.amazonaws.com/" + s3key;
+				// filePath 수정된 파일로 변경
+				board.setFilePath(url);
 			}
 		}
-		// 게시글 수정 메서드
-		board.update(boardRequestDTO);
 		return ResponseEntity.ok("게시글이 수정되었습니다.");
 	}
 
@@ -244,19 +250,19 @@ public class BoardServiceImpl implements BoardService {
 
 		// 게시글 복원 메서드
 		board.markAsRestored();
-		
+
 		List<BoardTagBackup> backups = boardTagBackupRepository.findByBoardBno(bno);
-		
-		if(!backups.isEmpty()) {
-			List<String> tagsToRestore = backups.stream()
-					.map(BoardTagBackup::getTag)
-					.collect(Collectors.toCollection(ArrayList::new));;
-			
+
+		if (!backups.isEmpty()) {
+			List<String> tagsToRestore = backups.stream().map(BoardTagBackup::getTag)
+					.collect(Collectors.toCollection(ArrayList::new));
+			;
+
 			board.setTags(tagsToRestore);
 			boardRepository.save(board);
 			boardTagBackupRepository.deleteByBoardBno(bno);
 		}
-	    
+
 		return ResponseEntity.ok("게시글이 복원되었습니다.");
 	}
 

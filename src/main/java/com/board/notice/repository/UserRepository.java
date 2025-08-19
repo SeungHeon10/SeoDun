@@ -7,9 +7,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import com.board.notice.entity.User;
 
+@Repository
 public interface UserRepository extends JpaRepository<User, String> {
 	// admin이 붙은 쿼리문은 소프트 삭제된 항목도 모두 조회
 

@@ -5,7 +5,7 @@ const bno = pathParts.pop();
 const category = pathParts[3];
 const isAdminPage = location.pathname.includes("/admin");
 const apiSuffix = isAdminPage ? `/api/boards/admin/${bno}` : `/api/boards/${bno}`;
-let name = null;
+let nickname = null;
 let isAdmin = false;
 let currentUser = null;
 let currentSize = 5; // 현재 사이즈
@@ -24,6 +24,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 	await fetchBoardDetail();
 	await fetchReplyList();
 	startDwellTracking();
+	initReplyLikeDelegate();
 
 	const categoryNames = {
 		free: "자유",
@@ -184,11 +185,13 @@ document.getElementById("btn-save-edit").addEventListener("click", async (event)
 	const tagContainer = document.getElementById("tagContainer");
 	const tags = Array.from(tagContainer.querySelectorAll(".badge"))
 		.map(tagEl => tagEl.querySelector("span")?.textContent.replace(/^#/, "").trim());
+	const deleteFile = document.getElementById("deleteFileInput");
 
 	const formData = new FormData();
 	formData.append("title", title.value);
 	formData.append("content", content);
 	formData.append("category", category.value);
+	formData.append("deleteFile", deleteFile.value);
 	tags.forEach(tag => formData.append("tags", tag));
 	if (fileInput.files.length > 0) {
 		formData.append("file", fileInput.files[0]);
@@ -301,7 +304,7 @@ function renderDetailView(detail) {
 			</div>
 			<div class="attached-file-box p-3">
 		    	<div class="file-label mb-2">첨부파일</div>
-			    <a th:href="${detail.filePath}" class="file-link" target="_blank" download>
+			    <a href="${detail.filePath}" class="file-link" target="_blank" download>
 			        <i class="bi bi-download"></i>
 			        <span>${fileName}</span>
 			    </a>
@@ -329,7 +332,7 @@ function renderDetailView(detail) {
 
 	replybtn.textContent = `댓글 ${detail.commentCount}`;
 
-	replyWriter.innerText = name;
+	replyWriter.innerText = nickname;
 
 	const writerId = `${detail.userId.id}`;
 
@@ -505,6 +508,7 @@ function renderReplyList(parentReplies, childReplies) {
 		const element = renderReplyItem(parent); // 자식 포함해서 렌더링
 		commentList.appendChild(element);
 	});
+
 }
 
 // 댓글(or 답글)을 트리 구조로 렌더링
@@ -534,7 +538,7 @@ function renderReplyItem(reply, depth = 0) {
 		divEl.innerHTML = `
 			<div class="reply-block" data-rno=${reply.rno}>
 				<div class="d-flex justify-content-between mb-3 px-2">
-					<strong>${reply.writer}</strong>
+					<strong>${reply.userId.nickname}</strong>
 					<span>${formatDate}</span>
 				</div>
 				<div class="d-flex justify-content-between align-items-start px-2 pb-3">
@@ -545,9 +549,9 @@ function renderReplyItem(reply, depth = 0) {
 				</div>
 				<div class="d-flex justify-content-end align-items-center mt-2 px-2">
 					<div class="d-flex gap-2">
-						<button type="button" class="btn btn-outline-light border btn-sm d-flex align-items-center gap-1">
+						<button type="button" class="btn btn-outline-light border btn-sm d-flex align-items-center gap-1 btn-like" data-rno="${reply.rno}" aria-pressed="false">
 							<i class="fa-regular fa-thumbs-up text-danger"></i>
-							<span class="text-danger">0</span>
+							<span class="text-danger like-count">${reply.likeCount}</span>
 						</button>
 					</div>
 				</div>
@@ -558,7 +562,7 @@ function renderReplyItem(reply, depth = 0) {
 			divEl.innerHTML = `
 					<div class="reply-block">
 						<div class="d-flex justify-content-between mb-3 px-2">
-							<strong>${reply.writer}</strong>
+							<strong>${reply.userId.nickname}</strong>
 							<span>${formatDate}</span>
 						</div>
 						<div class="d-flex justify-content-between align-items-start px-2 pb-3">
@@ -570,9 +574,9 @@ function renderReplyItem(reply, depth = 0) {
 						<div class="d-flex justify-content-between align-items-center mt-2 px-2">
 							<button type="button" class="btn btn-outline-secondary btn-reply" data-rno=${reply.rno}>답글</button>
 							<div class="d-flex gap-2">
-								<button type="button" class="btn btn-outline-light border btn-sm d-flex align-items-center gap-1">
+								<button type="button" class="btn btn-outline-light border btn-sm d-flex align-items-center gap-1 btn-like" data-rno="${reply.rno}" aria-pressed="false">
 									<i class="fa-regular fa-thumbs-up text-danger"></i>
-									<span class="text-danger">0</span>
+									<span class="text-danger like-count">${reply.likeCount}</span>
 								</button>
 							</div>
 						</div>
@@ -582,7 +586,7 @@ function renderReplyItem(reply, depth = 0) {
 			divEl.innerHTML = `
 					<div class="reply-block">
 						<div class="d-flex justify-content-between mb-3 px-2">
-							<strong>${reply.writer}</strong>
+							<strong>${reply.userId.nickname}</strong>
 							<span>${formatDate}</span>
 						</div>
 						<div class="d-flex justify-content-between align-items-start px-2 pb-3">
@@ -593,16 +597,16 @@ function renderReplyItem(reply, depth = 0) {
 						</div>
 						<div class="d-flex justify-content-end align-items-center mt-2 px-2">
 							<div class="d-flex gap-2">
-								<button type="button" class="btn btn-outline-light border btn-sm d-flex align-items-center gap-1">
+								<button type="button" class="btn btn-outline-light border btn-sm d-flex align-items-center gap-1 btn-like" data-rno="${reply.rno}" aria-pressed="false">
 									<i class="fa-regular fa-thumbs-up text-danger"></i>
-									<span class="text-danger">0</span>
+									<span class="text-danger like-count">${reply.likeCount}</span>
 								</button>
 							</div>
 						</div>
 					</div>
 				`;
 		}
-		
+
 
 	}
 
@@ -760,7 +764,7 @@ function insertReplyInputBox(rno, commentBox) {
 	divEl.innerHTML = `
 		<div class="mb-3 input-reply">
 			<label class="form-label mb-2 text-muted ms-cus"><strong class="reply-writer"
-					data-parent="${rno}">${name}</strong></label>
+					data-parent="${rno}">${nickname}</strong></label>
 			<textarea class="form-control reply-content" rows="3"
 				placeholder="댓글을 입력하세요..."></textarea>
 		</div>
@@ -955,14 +959,14 @@ async function loadLoginUser() {
 		const data = await res.json();
 
 		currentUser = data.id;
-		name = data.name;
+		nickname = data.nickname;
 		isAdmin = data.role === 'ROLE_ADMIN';
 	} catch (e) {
 		console.error("로그인 사용자 확인 실패:", e);
 	}
 }
 
-// 체류 시간 측정 시작
+// 머문 시간 측정 시작
 function startDwellTracking() {
 	enterTime = Date.now();
 	interactionCount = 0;
@@ -980,7 +984,7 @@ function trackInteraction() {
 	interactionCount++;
 }
 
-// 체류 시간 계산 후 전송
+// 머문 시간 계산 후 전송
 function sendDwellTimeLog() {
 	const leaveTime = Date.now();
 	const dwellTime = Math.round((leaveTime - enterTime) / 1000);
@@ -1006,4 +1010,40 @@ function sendDwellTimeLog() {
 			keepalive: true
 		});
 	}
+}
+
+function initReplyLikeDelegate() {
+	document.addEventListener("click", async (e) => {
+		const btn = e.target.closest(".btn-like");
+		if (!btn || !document.contains(btn)) return;
+		const countEl = btn.querySelector(".like-count");
+		const replyId = btn.dataset.rno;
+		
+		btn.disabled = true;
+		try {
+			const res = await fetchWithAuth(`/api/replies/${replyId}/like`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" }
+			});
+			if (res.status === 401) {
+				showToast?.("로그인이 필요합니다.", "error");
+				return;
+			}
+			if (!res.ok) {
+				const msg = await res.text();
+				throw new Error(msg || `서버 오류: ${res.status}`);
+			}
+			const data = await res.json();
+			// UI 반영
+			countEl.textContent = data.likeCount;
+			btn.classList.toggle("liked", data.liked);
+			btn.setAttribute("aria-pressed", data.liked ? "true" : "false");
+
+		} catch (err) {
+			console.error(err);
+			showToast?.("좋아요 처리에 실패했습니다.", "error");
+		} finally {
+			btn.disabled = false;
+		}
+	});
 }

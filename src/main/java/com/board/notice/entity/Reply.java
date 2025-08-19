@@ -42,14 +42,30 @@ public class Reply extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private User user; // 작성자 정보
-	
-//	댓글 좋아요 증가 메서드
-	public void increaselikeCount() {
-		this.likeCount += 1;
-	}
-	
+
 //	댓글 내용 수정 메서드
 	public void update(String content) {
 		this.content = content;
+	}
+
+//	댓글 좋아요 증가
+	public void incLike() {
+		this.likeCount++;
+	}
+
+//	댓글 좋아요 감소
+	public void decLike() {
+		if (this.likeCount > 0)
+			this.likeCount--;
+	}
+
+//	댓글 좋아요 카운트 조회
+	public int getLikeCount() {
+		return likeCount;
+	}
+	
+//	댓글 좋아요 수 변경
+	public void setLikeCount(int count) {
+		this.likeCount = count;
 	}
 }

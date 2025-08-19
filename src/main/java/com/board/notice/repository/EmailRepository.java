@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 
 import com.board.notice.entity.EmailToken;
 
-
 @Repository
 public interface EmailRepository extends JpaRepository<EmailToken, String>{
 	// 이메일로 EmailToken엔티티 검색

@@ -74,12 +74,17 @@ public class Board extends BaseEntity {
         this.tags = tags;
     }
     
+//  file 수정
+    public void setFilePath(String filePath) {
+    	this.filePath = filePath;
+    }
+    
 //  게시글 수정
     public void update(BoardRequestDTO boardRequestDTO) {
     	this.title = boardRequestDTO.getTitle();
     	this.content = boardRequestDTO.getContent();
     	this.category = boardRequestDTO.getCategory();
-    	this.filePath = boardRequestDTO.getFilePath();
     	this.tags = boardRequestDTO.getTags();
     }
+    
 }
