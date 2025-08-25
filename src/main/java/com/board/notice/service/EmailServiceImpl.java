@@ -40,7 +40,6 @@ public class EmailServiceImpl implements EmailService {
 			throw new IllegalStateException("인증 시간이 만료된 토큰입니다.");
 		}
 
-		
 		// 토큰 인증 확인 변경
 		emailToken.changeConfirmed();
 		// 토큰 무효화

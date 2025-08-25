@@ -2,7 +2,6 @@ package com.board.notice.service;
 
 import java.time.LocalDateTime;
 import java.util.Random;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.springframework.mail.javamail.JavaMailSender;
@@ -25,6 +24,7 @@ public class EmailSenderServiceImpl implements EmailSenderService {
 	private final JavaMailSender javaMailSender;
 
 //	이메일 인증 토큰 보내기
+	@Override
 	@Transactional
 	@Async
 	public CompletableFuture<Boolean> sendVerificationEmail(String email) {
@@ -44,7 +44,7 @@ public class EmailSenderServiceImpl implements EmailSenderService {
 
 								<p style="font-size:14px; color:#555555; margin-bottom: 50px;">
 									안녕하세요 !<br>
-									회원가입을 완료하려면 아래 버튼을 클릭해 이메일 인증을 진행해주세요.
+									회원가입을 완료하려면 아래 코드를 입력해 이메일 인증을 진행해주세요.
 								</p>
 
 								<div style="margin:30px 0; text-align:center;">
@@ -73,7 +73,28 @@ public class EmailSenderServiceImpl implements EmailSenderService {
 			helper.setText(content, true);
 
 			javaMailSender.send(message);
-			
+
+			return CompletableFuture.completedFuture(true);
+		} catch (MessagingException e) {
+			return CompletableFuture.completedFuture(false);
+		}
+	}
+
+//	비밀번호 재설정 메일 전송
+	@Transactional
+	@Async
+	public CompletableFuture<Boolean> sendPasswordResetEmail(String email, String body) {
+		try {
+			MimeMessage message = javaMailSender.createMimeMessage();
+			MimeMessageHelper helper;
+			helper = new MimeMessageHelper(message, true, "UTF-8");
+			helper.setTo(email);
+			helper.setFrom("sh120404@naver.com");
+			helper.setSubject("[SeoDun] 비밀번호 재설정 요청");
+			helper.setText(body, true);
+
+			javaMailSender.send(message);
+
 			return CompletableFuture.completedFuture(true);
 		} catch (MessagingException e) {
 			return CompletableFuture.completedFuture(false);

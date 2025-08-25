@@ -15,6 +15,19 @@ public class LoginController {
 		return "/auth/login";
 	}
 	
+//	비밀번호 찾기 페이지 이동
+	@GetMapping("/recovery/password")
+	public String recoveryPassword() {
+		
+		return "/auth/recovery-password";
+	}
+//	아이디 찾기 페이지 이동
+	@GetMapping("/recovery/id")
+	public String recoveryId() {
+		
+		return "/auth/recovery-id";
+	}
+	
 //	회원가입 페이지 이동
 	@GetMapping("/membership")
 	public String membershipPage() {
