@@ -290,7 +290,7 @@ function renderDetailView(detail) {
 		</p>
 	`;
 	contentInfo.innerHTML = `
-		<li class="list-inline-item me-0">${detail.writer}</li>
+		<li class="list-inline-item me-0">${detail.userId.nickname}</li>
 		<li class="list-inline-item me-0">댓글수 : ${detail.commentCount}</li>
 		<li class="list-inline-item me-0">조회수 : ${detail.viewCount}</li>
 		<li class="list-inline-item text-muted">${formatted}</li>

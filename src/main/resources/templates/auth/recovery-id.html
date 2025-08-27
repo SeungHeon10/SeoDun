@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
+	<th:block th:insert="fragments/head :: head"></th:block>
 	<meta charset="UTF-8">
 	<title>아이디 찾기</title>
 	<link rel="stylesheet" href="/css/auth/account-recovery.css">
@@ -30,14 +31,32 @@
 						<div class="field_control">
 							<input type="text" name="email" class="form-control field_input" placeholder="이메일 입력">
 						</div>
+						<div>
+							<button type="button" id="sendEmailBtn" class="btn btn-outline-secondary border">인증</button>
+						</div>
+					</div>
+					<div id="codeBox" class="d-flex align-items-end gap-4">
+						<div class="field_label"></div>
+						<div class="flex-grow-1">
+							<input type="text" class="form-control" id="verifyCode" placeholder="인증번호 입력">
+						</div>
+						<div>
+							<button type="button" class="btn btn-outline-secondary border"
+								id="verifyCodeBtn">확인</button>
+						</div>
+					</div>
+					<div class="d-flex gap-4">
+						<div class="field_label"></div>
+						<p id="idLookupConfirmMessage" class="mt-2"></p>
 					</div>
 					<div class="d-flex justify-content-end">
-						<button type="button" class="recovery_submit" data-action="find-password">찾기</button>
+						<button type="button" class="recovery_submit" data-action="find-id">찾기</button>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
+	<script type="module" src="/js/auth/account-recovery.js"></script>
 </body>
 
 </html>

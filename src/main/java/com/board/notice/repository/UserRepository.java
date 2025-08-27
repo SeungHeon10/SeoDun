@@ -70,5 +70,4 @@ public interface UserRepository extends JpaRepository<User, String> {
 
 	// 이메일 중복체크
 	boolean existsByEmailAndIdNot(String email, String id);
-
 }

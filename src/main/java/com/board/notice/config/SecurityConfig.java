@@ -40,7 +40,7 @@ public class SecurityConfig {
 				.authorizeHttpRequests(auth -> auth
 						// 모두 접근 허용 페이지/API
 						.requestMatchers("/", // 홈
-								"/login", "/logout", "/recovery/*", // 로그인, 로그아웃, 아이디/비밀번호 찾기
+								"/login", "/logout", "/recovery/**", "/account/**", "/api/account/**", // 로그인, 로그아웃, 아이디/비밀번호 찾기 페이지 및 api
 								"/signup-extra", "/succ-member", "/membership", // 회원가입 관련
 								"/token", // accessToken 재발급
 								"/social-login-success.html", // OAuth 로그인 완료 페이지
@@ -55,7 +55,9 @@ public class SecurityConfig {
 								"/user/**", // 회원 페이지 이동
 								"/api/users/**", // 사용자 데이터
 								"/api/recommend/public", // 맞춤 콘텐츠 조회
-								"/auth/emails")
+								"/auth/emails", // 이메일 인증
+								"/api/account" // 
+								)
 						.permitAll().requestMatchers("/admin/**").hasRole("ADMIN")
 						// 나머지 모든 요청은 로그인한 사용자만 접근 가능
 						.anyRequest().authenticated())

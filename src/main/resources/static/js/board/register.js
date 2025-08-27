@@ -3,8 +3,11 @@ import { fetchWithAuth } from "/js/core/fetchWithAuth.js";
 const pathParts = window.location.pathname.split('/');
 const category = pathParts[3];
 let editor;
+let userId;
+let writer;
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+	await loadLoginUser();
 	const categoryNames = {
 		free: "자유",
 		study: "학습",
@@ -45,31 +48,12 @@ document.getElementById("btn-save-register").addEventListener("click", async () 
 	const category = document.getElementById("categorySelect");
 	const title = document.getElementById("titleInput");
 	const content = editor.getHTML();
-	const userId = document.getElementById("userId");
 	const file = document.getElementById("fileInput");
 	const tagContainer = document.getElementById("tagContainer");
 
 	// 하나라도 빈 값이 있다면 토스트 출력하고 요청 중단
 	if (category.value === "" || title.value === "" || content.value === "") {
-		Toastify({
-			text: "❗ 입력한 정보를 다시 확인해주세요.",
-			duration: 2000,
-			close: true,
-			gravity: "bottom",
-			position: "center",
-			escapeMarkup: false,
-			style: {
-				background: "rgb(249, 226, 230)",
-				color: "rgb(83, 14, 26)",
-				fontSize: "15px",
-				borderRadius: "8px",
-				border: "none",
-				boxShadow: "none",
-				padding: "12px 18px",
-				display: "flex",
-				alignItems: "center",
-			}
-		}).showToast();
+		showToast("❗ 입력한 정보를 다시 확인해주세요.", "error");
 		return;
 	}
 
@@ -79,8 +63,8 @@ document.getElementById("btn-save-register").addEventListener("click", async () 
 	formData.append("category", category.value);
 	formData.append("title", title.value);
 	formData.append("content", content);
-	formData.append("userId", userId.value);
-	formData.append("writer", "이승헌");
+	formData.append("userId", userId);
+	formData.append("writer", writer);
 	formData.append("file", file.files[0]);
 	tags.forEach(tag => formData.append("tags", tag));
 	await fetchBoardRegister(formData);
@@ -165,6 +149,29 @@ function tagAdd() {
 			}
 		}
 	});
+}
+
+// 로그인 사용자 정보 가져오기
+async function loadLoginUser() {
+	try {
+		const res = await fetchWithAuth("/api/users/me", {
+			method: "GET",
+			credentials: "include"
+		});
+
+		if (!res.ok) {
+			const msg = await res.text();
+			throw new Error(`(${res.status}) 사용자 정보를 가져올 수 없습니다. → ${msg}`);
+		}
+
+		const user = await res.json();
+		
+		userId = user.id;
+		writer = user.name;
+		
+	} catch (e) {
+		console.error("로그인 사용자 확인 실패:", e);
+	}
 }
 
 // 에디터 초기값

@@ -81,6 +81,7 @@ public class EmailSenderServiceImpl implements EmailSenderService {
 	}
 
 //	비밀번호 재설정 메일 전송
+	@Override
 	@Transactional
 	@Async
 	public CompletableFuture<Boolean> sendPasswordResetEmail(String email, String body) {
@@ -95,6 +96,28 @@ public class EmailSenderServiceImpl implements EmailSenderService {
 
 			javaMailSender.send(message);
 
+			return CompletableFuture.completedFuture(true);
+		} catch (MessagingException e) {
+			return CompletableFuture.completedFuture(false);
+		}
+	}
+	
+//	아이디 찾기 인증코드 메일 전송
+	@Override
+	@Transactional
+	@Async
+	public CompletableFuture<Boolean> sendIdLookupCodeEmail(String email, String body) {
+		try {
+			MimeMessage message = javaMailSender.createMimeMessage();
+			MimeMessageHelper helper;
+			helper = new MimeMessageHelper(message, true, "UTF-8");
+			helper.setTo(email);
+			helper.setFrom("sh120404@naver.com");
+			helper.setSubject("[SeoDun] 아이디 찾기 이메일 인증 요청");
+			helper.setText(body, true);
+			
+			javaMailSender.send(message);
+			
 			return CompletableFuture.completedFuture(true);
 		} catch (MessagingException e) {
 			return CompletableFuture.completedFuture(false);
