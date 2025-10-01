@@ -1,0 +1,200 @@
+.container {
+	padding-left: 290px;
+	padding-bottom: 2rem;
+	padding-top: 2rem;
+	max-width: 100%;
+}
+
+.breadcrumb-header.float-start.float-lg-end {
+	background-color: white;
+	border-radius: 50px;
+	padding: 10px;
+}
+
+.breadcrumb {
+	margin-bottom: 0;
+}
+
+.row {
+	margin-bottom: 20px;
+}
+
+.card {
+	border-radius: 15px;
+}
+
+.card-title {
+	margin-bottom: 1rem;
+}
+
+.container-fluid {
+	padding-right: 0px;
+	height: auto;
+}
+
+.mg-right-520 {
+	margin-right: 520px;
+}
+
+.content-top {
+	padding-top: 0.5rem;
+	padding-bottom: 1rem;
+}
+
+.content-title {
+	font-size: 20px;
+	gap: 5px;
+}
+
+.content-meta .list-inline-item:not(:first-child)::before {
+	content: "|";
+	padding: 0 0.5rem;
+	color: #ccc;
+}
+
+.content-main {
+	display: flex;
+	flex-direction: column;
+	min-height: 350px;
+	margin-top: 25px;
+	padding-bottom: 15px;
+	border-bottom: 1px solid #dee2e6;
+}
+
+.post-body {
+	flex-grow: 1;
+}
+
+#tagContainer {
+	align-self: flex-start;
+}
+
+.form-control {
+	resize: none;
+	border: none;
+}
+
+#categorySelect {
+	padding: 10px 40px 10px 10px;
+	text-align: center;
+}
+
+textarea.form-control:focus {
+	border-color: #d8dad8 !important;
+	/* 연한 회색 테두리 */
+	box-shadow: #d8dad8 !important;
+	/* 파란 테두리 제거 */
+}
+
+.round {
+	border-radius: .7rem;
+}
+
+.input-reply {
+	border: 1px solid #d8dad8;
+	border-radius: .7rem;
+	padding: 15px;
+}
+
+.ms-cus {
+	margin-left: 13px;
+}
+
+.justify-content-center p {
+	margin-bottom: 0px;
+}
+
+.dropdown-menu-end.show {
+	inset: -3px 25px auto auto !important;
+	border-radius: 5px;
+}
+
+.bb-right {
+	border-bottom: 1px solid #d8dad8;
+}
+
+.page-link {
+	min-width: 34px;
+	text-align: center;
+}
+
+.pagination .page-item.active .page-link {
+	background-color: #212121;
+	/* 거의 검정색 */
+	border-color: #212121;
+	border-radius: 10px;
+	color: white;
+}
+
+.pagination .page-link {
+	color: #333;
+	border: none;
+	background-color: transparent;
+}
+
+.pagination .page-link:hover {
+	background-color: #f0f0f0;
+	border-radius: 8px;
+}
+
+.page-item.disabled .page-link {
+	color: #959595;
+}
+
+.edit-menu {
+	display: none;
+}
+
+.edit-title {
+	flex: 1;
+}
+
+.edit-textarea {
+	border: 1px solid #d8dad8;
+}
+
+#titleInput {
+	border: 1px solid #d8dad8;
+	font-size: 20px;
+}
+
+#tagInput {
+	border: 1px solid #d8dad8;
+}
+
+.badge {
+	font-size: 12px;
+}
+
+#fileInput {
+	border: 1px solid #d8dad8;
+}
+
+.attached-file-box {
+	border: 1px solid #dee2e6;
+	width: fit-content;
+	border-radius: 1.2rem;
+}
+
+.comment-form-disabled {
+	pointer-events: none;
+	opacity: 0.5;
+}
+
+/*스몰 휴대폰 (최대 375px) */
+@media (min-width: 0px) and (max-width: 320px) {}
+
+/*미디움 휴대폰 (최대 375px) */
+@media (min-width: 321px) and (max-width: 375px) {}
+
+/*라지 휴대폰 (최대 425px) */
+@media (min-width: 376px) and (max-width: 425px) {}
+
+/* 테블릿 전용 (최대 768px) */
+@media (min-width: 426px) and (max-width: 768px) {}
+
+/* 데스크탑 (노트북 ~ 일반 모니터) */
+@media (min-width: 1025px) and (max-width: 1440px) {}
+
+/* 초대형 모니터 (울트라 와이드/4K) */
+@media (min-width: 2560px) {}

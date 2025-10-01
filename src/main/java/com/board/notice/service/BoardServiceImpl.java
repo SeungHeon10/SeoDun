@@ -1,0 +1,327 @@
+package com.board.notice.service;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.board.notice.dto.request.BoardRequestDTO;
+import com.board.notice.dto.response.BoardResponseDTO;
+import com.board.notice.dto.response.TagCountResponseDTO;
+import com.board.notice.entity.Board;
+import com.board.notice.entity.BoardTagBackup;
+import com.board.notice.entity.User;
+import com.board.notice.repository.BoardRepository;
+import com.board.notice.repository.BoardTagBackupRepository;
+import com.board.notice.repository.UserRepository;
+import com.board.notice.security.CustomUserDetail;
+
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+
+@Service
+@RequiredArgsConstructor
+public class BoardServiceImpl implements BoardService {
+	private final BoardRepository boardRepository;
+	private final UserRepository userRepository;
+	private final BoardTagBackupRepository boardTagBackupRepository;
+	private final S3Client s3Client;
+
+	@Value("${cloud.aws.s3.bucket}")
+	private String bucketName;
+
+//	게시글 전체조회
+	@Override
+	public Page<BoardResponseDTO> list(Pageable pageable, String mode, String keyword, String category) {
+		boolean noKeyword = (keyword == null || keyword.trim().isEmpty() || "undefined".equals(keyword));
+		boolean allCategory = ("전체".equals(category));
+
+		if (noKeyword) {
+			// 검색어 없을 때
+			if (allCategory) {
+				return boardRepository.findAll(pageable).map(BoardResponseDTO::new);
+			} else {
+				return boardRepository.findAllByCategory(category, pageable).map(BoardResponseDTO::new);
+			}
+		}
+
+		// 검색어 있을 때
+		switch (mode) {
+		case "title":
+			return allCategory ? boardRepository.findByTitleContaining(keyword, pageable).map(BoardResponseDTO::new)
+					: boardRepository.findByTitleContainingAndCategory(keyword, category, pageable)
+							.map(BoardResponseDTO::new);
+		case "content":
+			return allCategory ? boardRepository.findByContentContaining(keyword, pageable).map(BoardResponseDTO::new)
+					: boardRepository.findByContentContainingAndCategory(keyword, category, pageable)
+							.map(BoardResponseDTO::new);
+		case "title_content":
+			return allCategory ? boardRepository.searchByTitleOrContent(keyword, pageable).map(BoardResponseDTO::new)
+					: boardRepository.searchByTitleOrContentAndCategory(keyword, category, pageable)
+							.map(BoardResponseDTO::new);
+		case "writer":
+			return allCategory
+					? boardRepository.findByUserId_NicknameContainingIgnoreCase(keyword, pageable)
+							.map(BoardResponseDTO::new)
+					: boardRepository.findByUserId_NicknameContainingIgnoreCaseAndCategory(keyword, category, pageable)
+							.map(BoardResponseDTO::new);
+		default:
+			return boardRepository.findAll(pageable).map(BoardResponseDTO::new);
+		}
+	}
+
+//	게시글 전체 조회(admin)
+	@Override
+	public Page<BoardResponseDTO> listForAdmin(Pageable pageable, String mode, String keyword) {
+		boolean noKeyword = (keyword == null || keyword.trim().isEmpty() || "undefined".equals(keyword));
+
+		if (noKeyword) {
+			// 검색어 없을 때
+			return boardRepository.findAllBoardsNative(pageable).map(BoardResponseDTO::new);
+		}
+
+		// 검색어 있을 때
+		switch (mode) {
+		case "title":
+			return boardRepository.findByTitleContainingNative(keyword, pageable).map(BoardResponseDTO::new);
+		case "content":
+			return boardRepository.findByContentContainingNative(keyword, pageable).map(BoardResponseDTO::new);
+		case "title_content":
+			return boardRepository.searchByTitleOrContentNative(keyword, pageable).map(BoardResponseDTO::new);
+		case "writer":
+			return boardRepository.findByUserNicknameContainingNative(keyword, pageable).map(BoardResponseDTO::new);
+		default:
+			return boardRepository.findAllBoardsNative(pageable).map(BoardResponseDTO::new);
+		}
+	}
+
+//	게시글 상세보기
+	@Override
+	@Transactional
+	public BoardResponseDTO detail(int bno) {
+		Board board = boardRepository.findById(bno)
+				.orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
+		// 조회수 증가 메서드
+		board.increaseViewCount();
+
+		return new BoardResponseDTO(board);
+	}
+
+//	게시글 상세보기(admin)
+	@Override
+	public BoardResponseDTO detailForAdmin(int bno) {
+		Board board = boardRepository.findByIdNative(bno)
+				.orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
+
+		return new BoardResponseDTO(board);
+	}
+
+//	게시글 등록하기
+	@Override
+	@Transactional
+	public void register(BoardRequestDTO boardRequestDTO, MultipartFile file) throws IOException {
+		String filePath = null;
+
+		if (file != null) {
+			String filename = file.getOriginalFilename();
+			String uuid = UUID.randomUUID().toString();
+
+			String savedFilename = uuid + "_" + Paths.get(filename).getFileName().toString();
+
+			try (InputStream inputStream = file.getInputStream()) {
+				String s3key = "upload/" + savedFilename;
+				s3Client.putObject(
+						PutObjectRequest.builder().bucket(bucketName).key(s3key).contentType(file.getContentType())
+								.contentDisposition("attachment").build(),
+						RequestBody.fromInputStream(inputStream, file.getSize()));
+				filePath = "https://" + bucketName + ".s3.amazonaws.com/" + s3key;
+			}
+		}
+		// 회원 조회
+		User user = userRepository.findById(boardRequestDTO.getUserId())
+				.orElseThrow(() -> new UsernameNotFoundException("해당 회원은 존재하지 않습니다."));
+
+		String safeHtml = Jsoup.clean(boardRequestDTO.getContent(), Safelist.basicWithImages());
+
+		// 게시글 등록
+		Board board = Board.builder().title(boardRequestDTO.getTitle()).content(safeHtml)
+				.category(boardRequestDTO.getCategory()).writer(boardRequestDTO.getWriter()).filePath(filePath)
+				.tags(boardRequestDTO.getTags()).userId(user).build();
+		boardRepository.save(board);
+	}
+
+//	게시글 수정하기
+	@Override
+	@Transactional
+	public ResponseEntity<?> update(BoardRequestDTO boardRequestDTO, MultipartFile file, boolean deleteFile,
+			CustomUserDetail userDetails) throws IOException {
+		// 수정할 게시글 찾기
+		Board board = boardRepository.findById(boardRequestDTO.getBno())
+				.orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
+
+		if (!board.getUserId().getId().equals(userDetails.getUsername())) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("작성자 본인만 수정할 수 있습니다.");
+		}
+
+		// 게시글 수정 메서드
+		board.update(boardRequestDTO);
+		
+		// 첨부파일 삭제 요청 처리
+		if (deleteFile) {
+			board.setFilePath(null);
+	        return ResponseEntity.ok("게시글이 수정되었습니다.");
+		}
+
+		// 변경한 파일이 null이 아닐 경우에만 실행
+		if (file != null && !file.isEmpty()) {
+			String filename = file.getOriginalFilename();
+			String uuid = UUID.randomUUID().toString();
+
+			String savedFilename = uuid + "_" + Paths.get(filename).getFileName().toString();
+
+			try (InputStream inputStream = file.getInputStream()) {
+				// S3 저장소에 저장
+				String s3key = "upload/" + savedFilename;
+				s3Client.putObject(PutObjectRequest.builder().bucket(bucketName).key(s3key)
+						.contentType(file.getContentType()).contentDisposition("attachment").build(), RequestBody.fromInputStream(inputStream, file.getSize()));
+				String url = "https://" + bucketName + ".s3.amazonaws.com/" + s3key;
+				// filePath 수정된 파일로 변경
+				board.setFilePath(url);
+			}
+		}
+		return ResponseEntity.ok("게시글이 수정되었습니다.");
+	}
+
+//	게시글 삭제하기
+	@Override
+	@Transactional
+	public ResponseEntity<?> delete(int bno, CustomUserDetail userDetails) {
+		Board board = boardRepository.findById(bno)
+				.orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
+
+		if (!board.getUserId().getId().equals(userDetails.getUsername())) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("작성자 본인만 삭제할 수 있습니다.");
+		}
+
+		List<String> tags = new ArrayList<>(board.getTags());
+		for (String tag : tags) {
+			BoardTagBackup backup = BoardTagBackup.builder().boardBno(bno).tag(tag).build();
+			boardTagBackupRepository.save(backup);
+		}
+
+		// 게시글 소프트 삭제 메서드
+		board.markAsDeleted();
+		board.getTags().clear();
+		return ResponseEntity.ok("게시글이 삭제되었습니다.");
+	}
+
+//	게시글 복원하기
+	@Override
+	@Transactional
+	public ResponseEntity<?> restore(int bno) {
+		Board board = boardRepository.findByIdNative(bno)
+				.orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
+
+		// 게시글 복원 메서드
+		board.markAsRestored();
+
+		List<BoardTagBackup> backups = boardTagBackupRepository.findByBoardBno(bno);
+
+		if (!backups.isEmpty()) {
+			List<String> tagsToRestore = backups.stream().map(BoardTagBackup::getTag)
+					.collect(Collectors.toCollection(ArrayList::new));
+			;
+
+			board.setTags(tagsToRestore);
+			boardRepository.save(board);
+			boardTagBackupRepository.deleteByBoardBno(bno);
+		}
+
+		return ResponseEntity.ok("게시글이 복원되었습니다.");
+	}
+
+//	인기글 검색
+	@Override
+	public List<BoardResponseDTO> popularBoards() {
+		List<Board> boards = boardRepository.findTop3ByOrderByViewCountDesc();
+
+		return boards.stream().map(BoardResponseDTO::new).toList();
+	}
+
+//	카테고리별 6개의 게시글 조회
+	@Override
+	public List<BoardResponseDTO> loadBoardsByCategory(String category) {
+		List<Board> boards = boardRepository.findTop6ByCategoryOrderByCreatedAtDesc(category);
+
+		return boards.stream().map(BoardResponseDTO::new).toList();
+	}
+
+//	6개의 전체 게시글 조회
+	@Override
+	public List<BoardResponseDTO> loadBoardsByAll() {
+		List<Board> boards = boardRepository.findTop6ByOrderByCreatedAtDesc();
+
+		return boards.stream().map(BoardResponseDTO::new).toList();
+	}
+
+//	최신글 조회
+	@Override
+	public List<BoardResponseDTO> recentBoards() {
+		List<Board> boards = boardRepository.findTop2ByOrderByCreatedAtDesc();
+
+		return boards.stream().map(BoardResponseDTO::new).toList();
+	}
+
+//	이미지 s3 업로드 
+	@Override
+	public String uploadImage(MultipartFile image) throws IOException {
+		String filename = image.getOriginalFilename();
+		String extension = filename.substring(filename.lastIndexOf("."));
+		String uuid = UUID.randomUUID().toString();
+		String newFilename = uuid + extension;
+		String key = "image/" + newFilename;
+
+		try (InputStream inputStream = image.getInputStream()) {
+			s3Client.putObject(
+					PutObjectRequest.builder().bucket(bucketName).key(key).contentType(image.getContentType()).build(),
+					RequestBody.fromInputStream(inputStream, image.getSize()));
+		}
+
+		String url = "https://" + bucketName + ".s3.amazonaws.com/" + key;
+		return url;
+	}
+
+//	사용자의 게시글 수 가져오기
+	@Override
+	public long getUserPostCount(String userId) {
+
+		return boardRepository.countByUserId_Id(userId);
+	}
+
+//	인기 태그 가져오기
+	@Override
+	public List<TagCountResponseDTO> getTop6Tags() {
+		Pageable topsix = PageRequest.of(0, 6);
+		return boardRepository.findTopTags(topsix);
+	}
+
+}

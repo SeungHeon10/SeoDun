@@ -1,0 +1,50 @@
+.container {
+	padding-left: 290px;
+	padding-bottom: 2rem;
+	padding-top: 2rem;
+	max-width: 100%;
+}
+
+.row {
+	margin-bottom: 20px;
+}
+
+.card {
+	max-height: 95%;
+	border-radius: 15px;
+}
+
+.infoCard {
+	background-color: rgba(114, 124, 114, 0.2);
+	border-radius: 15px;
+}
+
+.card-body {
+	padding: 2.25rem 7.8125rem;
+}
+.profile{
+	font-size: 1rem;
+	border-radius: 15px;
+}
+
+.edit-link{
+	color: #6c757d;
+}
+
+/*스몰 휴대폰 (최대 375px) */
+@media (min-width: 0px) and (max-width: 320px) {}
+
+/*미디움 휴대폰 (최대 375px) */
+@media (min-width: 321px) and (max-width: 375px) {}
+
+/*라지 휴대폰 (최대 425px) */
+@media (min-width: 376px) and (max-width: 425px) {}
+
+/* 테블릿 전용 (최대 768px) */
+@media (min-width: 426px) and (max-width: 768px) {}
+
+/* 데스크탑 (노트북 ~ 일반 모니터) */
+@media (min-width: 1025px) and (max-width: 1440px) {}
+
+/* 초대형 모니터 (울트라 와이드/4K) */
+@media (min-width: 2560px) {}

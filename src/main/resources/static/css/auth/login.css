@@ -1,0 +1,88 @@
+@charset "UTF-8";
+
+.mainview {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: calc(100vh - 150px);
+	flex-direction: column;
+}
+
+.title {
+	color: rgba(114, 124, 114, 1);
+	font-size: 30px;
+}
+
+.inputid {
+	margin-bottom: 10px;
+}
+
+.loginbox {
+	border: 2px solid rgba(114, 124, 114, 0.3);
+	padding: 50px 90px 50px;
+	border-radius: 10px;
+}
+
+.input {
+	height: 50px;
+	width: 300px;
+	border-radius: 10px;
+	border: 2px solid rgba(0, 0, 0, 0.3);
+	margin: 5px;
+	font-size: 20px;
+}
+
+.input::placeholder {
+	font-size: 15px;
+}
+
+.loginbutton {
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+}
+
+.login {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: white;
+	width: 300px;
+	height: 50px;
+	margin-top: 45px;
+	background-color: rgba(114, 124, 114, 1);
+	border-radius: 8px;
+	border: 2px solid rgba(0, 0, 0, 0.1);
+	font-size: 17px;
+	text-decoration: none;
+}
+
+.menu {
+	margin-top: 40px;
+	display: flex;
+	flex-direction: row;
+	gap: 70px;
+}
+
+.find {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.find a {
+	text-decoration: none;
+	color: rgba(114, 124, 114, 1);
+}
+
+.seodun {
+	text-decoration: none;
+	color: rgba(114, 124, 114, 1);
+}
+
+.remember_box {
+	margin-top: 10px;
+	color: rgba(114, 124, 114, 1);
+}

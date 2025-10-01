@@ -1,0 +1,102 @@
+<!-- Template originally from AdminKit.io under MIT License -->
+<!-- Modified and customized by Seunghun Lee for personal project -->
+
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+	<th:block th:insert="fragments/head :: head"></th:block>
+	<meta charset="UTF-8">
+	<title>SeoDun</title>
+	<link href="/css/index.css" rel="stylesheet">
+	<link href="/css/fragments/sidebar.css" rel="stylesheet">
+	<link href="/css/fragments/topbar.css" rel="stylesheet">
+</head>
+
+<body>
+	<div class="wrapper">
+		<!-- 왼쪽 사이드바-->
+		<div th:replace="fragments/sidebar :: left_bar"></div>
+
+		<div class="main">
+			<!-- 상단바-->
+			<div th:replace="fragments/navbar :: top_bar"></div>
+			<!-- 메인 컨텐트-->
+			<div class="main-content">
+				<div class="container-fluid">
+					<div class="row gx-3">
+						<!-- 왼쪽 열 -->
+						<div class="col-lg-6 d-flex flex-column gap-5" data-gap-target>
+							<div class="board-box">
+								<div class="mb-2 section-title">게시판</div>
+								<div class="round-box">
+									<div class="d-flex back-cus">
+										<button
+											class="btn btn-light rounded-pill px-4 back-color-light30 border-none category-btn"
+											data-category="전체">전체</button>
+										<button
+											class="btn btn-light rounded-pill px-4 back-color-light30 border-none category-btn"
+											data-category="자유">자유</button>
+										<button
+											class="btn btn-light rounded-pill px-4 back-color-light30 border-none category-btn"
+											data-category="학습">학습</button>
+										<button
+											class="btn btn-light rounded-pill px-4 back-color-light30 border-none category-btn"
+											data-category="질문답변">질문답변</button>
+										<button
+											class="btn btn-light rounded-pill px-4 back-color-light30 border-none category-btn"
+											data-category="정보공유">정보공유</button>
+									</div>
+									<div>
+										<ul class="list-group list-group-flush rounded" id="boardList">
+
+										</ul>
+									</div>
+								</div>
+							</div>
+
+							<div class="board-box">
+								<div class="mb-2 section-title">🔥 화제의 인기글</div>
+								<div class="round-box" id="popularBox">
+
+								</div>
+							</div>
+
+							<div class="board-box-tag">
+								<div class="mb-2 section-title">👑 트렌드 키워드/태그</div>
+								<div class="d-flex flex-wrap justify-content-center p-4 round-box-tag" id="topTags">
+								</div>
+							</div>
+						</div>
+
+						<!-- 오른쪽 열 -->
+						<div class="col-lg-6 d-flex flex-column gap-4">
+							<div class="board-box-right">
+								<div class="mb-2 section-title">따끈따끈 최신 게시글</div>
+								<div class="round-box-right" id="recentBoard">
+
+								</div>
+							</div>
+
+							<div class="board-box-right">
+								<div class="mb-2 section-title" id="recommendTitle">사용자 맞춤 콘텐츠 추천</div>
+								<div class="round-box-right" id="readBasedRecommend">
+
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- 푸터-->
+			<div th:replace="fragments/footer :: footer"></div>
+		</div>
+	</div>
+
+	<script src="js/app.js"></script>
+	<script type="module" src="/js/init/common-init.js"></script>
+	<script type="module" src="/js/utils/toggleMenu.js"></script>
+	<script type="module" src="/js/index.js"></script>
+</body>
+
+</html>

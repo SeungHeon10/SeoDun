@@ -1,0 +1,102 @@
+.container {
+	padding-left: 290px;
+	padding-bottom: 2rem;
+	padding-top: 2rem;
+	max-width: 100%;
+}
+
+.row {
+	margin-bottom: 20px;
+}
+
+.card {
+	border-radius: 15px;
+}
+
+.content-top {
+	padding-top: 0.5rem;
+	padding-bottom: 1rem;
+}
+
+.content-title {
+	font-size: 20px;
+	gap: 5px;
+}
+
+.content-main {
+	min-height: 350px;
+	margin-top: 20px;
+	padding-bottom: 50px;
+	border-bottom: 1px solid #dee2e6;
+}
+
+.form-control {
+	resize: none;
+	border: none;
+}
+
+#categorySelect {
+	padding: 10px 40px 10px 10px;
+	text-align: center;
+}
+
+textarea.form-control:focus {
+	border-color: #d8dad8 !important;
+	/* 연한 회색 테두리 */
+	box-shadow: #d8dad8 !important;
+	/* 파란 테두리 제거 */
+}
+
+.register-title {
+	flex: 1;
+}
+
+.register-textarea {
+	border: 1px solid #d8dad8;
+}
+
+#titleInput {
+	border: 1px solid #d8dad8;
+	font-size: 20px;
+}
+
+.form-select {
+	max-width: 108px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+#tagInput {
+	border: 1px solid #d8dad8;
+}
+
+.badge {
+	font-size: 12px;
+}
+
+#fileInput {
+	border: 1px solid #d8dad8;
+}
+
+.btn-close {
+	padding: 0;
+	line-height: 1;
+}
+
+/*스몰 휴대폰 (최대 375px) */
+@media (min-width: 0px) and (max-width: 320px) {}
+
+/*미디움 휴대폰 (최대 375px) */
+@media (min-width: 321px) and (max-width: 375px) {}
+
+/*라지 휴대폰 (최대 425px) */
+@media (min-width: 376px) and (max-width: 425px) {}
+
+/* 테블릿 전용 (최대 768px) */
+@media (min-width: 426px) and (max-width: 768px) {}
+
+/* 데스크탑 (노트북 ~ 일반 모니터) */
+@media (min-width: 1025px) and (max-width: 1440px) {}
+
+/* 초대형 모니터 (울트라 와이드/4K) */
+@media (min-width: 2560px) {}

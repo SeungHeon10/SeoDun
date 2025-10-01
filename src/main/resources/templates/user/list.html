@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<th:block th:insert="fragments/head :: head"></th:block>
+	<meta charset="UTF-8">
+	<title>회원 관리</title>
+	<link href="/css/fragments/sidebar.css" rel="stylesheet">
+	<link href="/css/fragments/topbar.css" rel="stylesheet">
+	<link href="/css/board/list.css" rel="stylesheet">
+</head>
+
+<body>
+	<div class="wrapper">
+		<!-- 사이드바 -->
+		<div th:replace="fragments/sidebar :: left_bar"></div>
+		<div class="main">
+			<!-- 상단바 -->
+			<div th:replace="fragments/navbar :: top_bar"></div>
+			<div class="container">
+				<div class="page-heading">
+					<div class="page-title">
+						<div class="row">
+							<div class="col-12 col-md-6 order-md-1 order-last">
+								<h3 id="category-title">회원 관리</h3>
+							</div>
+						</div>
+						<div class="topOption">
+							<div class="dataCount">
+								<p class="count"><strong id="count-number"></strong> 명의 사용자</p>
+							</div>
+							<div class="option">
+
+							</div>
+							<div class="option">
+								<div class="search-bar">
+									<a href="#" id="search-menu"><i class="bi bi-list search-icon-left"></i></a>
+									<input type="text" placeholder="검색어를 입력하세요" class="search-input" id="searchInput">
+									<a href="#" id="search-btn"><i class="bi bi-search search-icon-right"></i></a>
+								</div>
+								<!-- 검색 메뉴 박스 -->
+								<div class="search-mode-panel" id="searchModePanel">
+									<div class="panel-header"><i class="bi bi-search me-2"></i> 검색 범위</div>
+									<hr class="search-mode-hr" />
+									<ul class="search-mode-list">
+										<li class="mode-item active" data-mode="name">
+											<span>이름</span>
+										</li>
+										<li class="mode-item" data-mode="id">
+											<span>아이디</span>
+										</li>
+										<li class="mode-item" data-mode="nickname">
+											<span>닉네임</span>
+										</li>
+									</ul>
+								</div>
+
+								<button class="btn btn-outline-secondary dropdown-toggle" type="button"
+									id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+									정렬 기준
+								</button>
+								<ul class="dropdown-menu" aria-labelledby="sortDropdown">
+									<li><a class="dropdown-item active text-success" href="#" data-sort="created_at"
+											data-direction="desc">가입일순</a></li>
+									<li><a class="dropdown-item" href="#" data-sort="name"
+											data-direction="desc">이름순</a></li>
+									<li><a class="dropdown-item" href="#" data-sort="role"
+											data-direction="desc">권한순</a></li>
+								</ul>
+								<button class="btn btn-outline-secondary dropdown-toggle" type="button"
+									id="pageSizeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+									10개씩
+								</button>
+								<ul class="dropdown-menu" aria-labelledby="pageSizeDropdown">
+									<li><a class="dropdown-item" href="#" data-value="5">5개씩</a></li>
+									<li><a class="dropdown-item active text-success" href="#" data-value="10">10개씩</a>
+									</li>
+									<li><a class="dropdown-item" href="#" data-value="15">15개씩</a>
+									</li>
+									<li><a class="dropdown-item" href="#" data-value="20">20개씩</a></li>
+									<li><a class="dropdown-item" href="#" data-value="30">30개씩</a></li>
+									<li><a class="dropdown-item" href="#" data-value="40">40개씩</a></li>
+									<li><a class="dropdown-item" href="#" data-value="50">50개씩</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<section class="section">
+						<div class="card">
+							<div class="card-body">
+								<table class="table" id="table1">
+									<colgroup>
+										<col> <!-- 아이디 -->
+										<col> <!-- 이름 -->
+										<col> <!-- 닉네임 -->
+										<col> <!-- 이메일 -->
+										<col style="width: 10%;"> <!-- 가입일 -->
+										<col style="width: 10%;"> <!-- 권한 -->
+									</colgroup>
+									<thead>
+										<tr>
+											<th class="text-center">아이디</th>
+											<th class="text-center">이름</th>
+											<th class="text-center">닉네임</th>
+											<th class="text-center">이메일</th>
+											<th class="text-center">가입일</th>
+											<th class="text-center">권한</th>
+										</tr>
+									</thead>
+									<tbody id="list">
+
+									</tbody>
+								</table>
+							</div>
+							<div class="Pagination_div">
+								<ul class="pagination justify-content-center" id="pagination">
+									<!-- 페이지 버튼들이 JS로 동적으로 들어감 -->
+								</ul>
+							</div>
+						</div>
+					</section>
+				</div>
+			</div>
+			<!-- 푸터 -->
+			<div th:replace="fragments/footer :: footer"></div>
+		</div>
+	</div>
+	<script type="module" src="/js/user/list.js"></script>
+	<script type="module" src="/js/init/common-init.js"></script>
+</body>
+
+</html>

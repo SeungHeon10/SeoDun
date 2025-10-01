@@ -1,0 +1,52 @@
+.container {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: center;
+}
+
+.account-recovery-header {
+	margin-top: 40px;
+	color: rgba(114, 124, 114, 1);
+}
+
+.recoveryBox {
+	width: 50rem;
+	margin-top: 30px;
+	border: 1px solid rgba(114, 124, 114, 0.3);
+	border-radius: 8px;
+
+}
+
+.recovery-method {
+	margin: 40px;
+}
+
+.sub-title{
+	font-size: 16px;
+}
+
+.field {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 15px;
+}
+
+.field_control{
+	flex: 1;
+}
+
+.field_label{
+	width: 50px;
+}
+
+.recovery_submit {
+	width: 10rem;
+	background: rgba(114, 124, 114, 1);
+	color: white;
+	border: none;
+	border-radius: 8px;
+	padding: 7px 40px;
+	margin-top: 35px;
+}

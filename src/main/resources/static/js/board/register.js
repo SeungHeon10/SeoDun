@@ -1,0 +1,201 @@
+import { fetchWithAuth } from "/js/core/fetchWithAuth.js";
+
+const pathParts = window.location.pathname.split('/');
+const category = pathParts[3];
+let editor;
+let userId;
+let writer;
+
+document.addEventListener("DOMContentLoaded", async () => {
+	await loadLoginUser();
+	const categoryNames = {
+		free: "자유",
+		study: "학습",
+		qna: "질문답변",
+		share: "정보공유",
+	};
+
+	if (category) {
+		const select = document.getElementById("categorySelect");
+		if (select && Array.from(select.options).some(
+			option => option.value === categoryNames[category])) {
+			select.value = categoryNames[category];
+			window.history.replaceState({}, document.title, window.location.pathname);
+		}
+	}
+
+	const titleElement = document.getElementById("category-title");
+	const anchorEl = titleElement.closest("a");
+
+	if (category && categoryNames[category]) {
+		titleElement.textContent = categoryNames[category];
+		if (anchorEl) {
+			anchorEl.href = `/board/list/${category}`;
+		}
+	} else {
+		titleElement.textContent = "전체글보기";
+		if (anchorEl) {
+			anchorEl.href = `/board/list/all`;
+		}
+	}
+
+	tagAdd();
+	editerInit();
+});
+
+// 등록버튼 누를 시
+document.getElementById("btn-save-register").addEventListener("click", async () => {
+	const category = document.getElementById("categorySelect");
+	const title = document.getElementById("titleInput");
+	const content = editor.getHTML();
+	const file = document.getElementById("fileInput");
+	const tagContainer = document.getElementById("tagContainer");
+
+	// 하나라도 빈 값이 있다면 토스트 출력하고 요청 중단
+	if (category.value === "" || title.value === "" || content.value === "") {
+		showToast("❗ 입력한 정보를 다시 확인해주세요.", "error");
+		return;
+	}
+
+	const formData = new FormData();
+	const tags = Array.from(tagContainer.querySelectorAll(".badge"))
+		.map(tagEl => tagEl.querySelector("span")?.textContent.replace(/^#/, "").trim());
+	formData.append("category", category.value);
+	formData.append("title", title.value);
+	formData.append("content", content);
+	formData.append("userId", userId);
+	formData.append("writer", writer);
+	formData.append("file", file.files[0]);
+	tags.forEach(tag => formData.append("tags", tag));
+	await fetchBoardRegister(formData);
+});
+
+// 게시글 등록하기
+async function fetchBoardRegister(formData) {
+	try {
+		const res = await fetchWithAuth("/api/boards", {
+			method: "POST",
+			body: formData
+		});
+
+		if (!res.ok) {
+			showToast("❗ 게시글 등록에 실패했습니다. 다시 시도해주세요.", "error");
+			return;
+		}
+
+		location.href = `/board/list/${category}?register=true`;
+	} catch (e) {
+		showToast("❗ 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.", "error");
+		console.error("에러:", e);
+	}
+}
+
+// Toastify 알림 호출
+function showToast(message, type) {
+	Toastify({
+		text: message,
+		duration: 2000,
+		gravity: "bottom",
+		position: "center",
+		close: true,
+		escapeMarkup: false,
+		style: {
+			background: type === "success" ? "#d4edda" : "rgb(249, 226, 230)",
+			color: type === "success" ? "#155724" : "rgb(83, 14, 26)",
+			fontSize: "15px",
+			borderRadius: "8px",
+			border: "none",
+			boxShadow: "none",
+			padding: "12px 18px",
+			display: "flex",
+			alignItems: "center",
+			whiteSpace: "nowrap"
+		}
+	}).showToast();
+}
+
+// 태그 추가
+function tagAdd() {
+	const tagInput = document.getElementById("tagInput");
+	const tagContainer = document.getElementById("tagContainer");
+
+	tagInput.addEventListener("keypress", function(e) {
+		if (e.key === "Enter") {
+			e.preventDefault();
+			const value = tagInput.value.trim();
+
+			if (value) {
+				const tagEl = document.createElement("span");
+				tagEl.className = "badge bg-secondary me-1 mb-1 d-inline-flex align-items-center";
+
+				// 태그 텍스트
+				const tagText = document.createElement("span");
+				tagText.textContent = "#" + value;
+				tagEl.appendChild(tagText);
+
+				// 삭제 버튼
+				const closeBtn = document.createElement("button");
+				closeBtn.type = "button";
+				closeBtn.className = "btn-close btn-close-white ms-2";
+				closeBtn.style.fontSize = "0.6rem";
+				closeBtn.setAttribute("aria-label", "Remove");
+				closeBtn.onclick = () => tagEl.remove();
+
+				tagEl.appendChild(closeBtn);
+				tagContainer.appendChild(tagEl);
+				tagInput.value = "";
+			} else {
+				showToast("❗ 태그를 입력 후 다시 시도해주세요.", "error");
+			}
+		}
+	});
+}
+
+// 로그인 사용자 정보 가져오기
+async function loadLoginUser() {
+	try {
+		const res = await fetchWithAuth("/api/users/me", {
+			method: "GET",
+			credentials: "include"
+		});
+
+		if (!res.ok) {
+			const msg = await res.text();
+			throw new Error(`(${res.status}) 사용자 정보를 가져올 수 없습니다. → ${msg}`);
+		}
+
+		const user = await res.json();
+		
+		userId = user.id;
+		writer = user.name;
+		
+	} catch (e) {
+		console.error("로그인 사용자 확인 실패:", e);
+	}
+}
+
+// 에디터 초기값
+function editerInit() {
+	editor = new toastui.Editor({
+		el: document.querySelector('#editor'),
+		height: '500px',
+		initialEditType: 'wysiwyg',
+		previewStyle: 'vertical',
+		hooks: {
+			addImageBlobHook: (blob, callback) => {
+				// 이미지 업로드 → 서버 전송
+				const formData = new FormData();
+				formData.append("image", blob);
+
+				fetchWithAuth('/api/boards/upload/image', {
+					method: 'POST',
+					body: formData
+				})
+					.then(res => res.text())
+					.then(imageUrl => {
+						callback(imageUrl, '업로드된 이미지');
+					});
+			}
+		}
+	});
+}

@@ -1,0 +1,547 @@
+html,
+body {
+	height: 100%;
+	margin: 0;
+}
+
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
+.main {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+.container {
+	flex: 1;
+	padding-left: 290px;
+	padding-bottom: 2rem;
+	padding-top: 2rem;
+	max-width: 100%;
+}
+
+.page-heading {
+	max-height: 100%;
+}
+
+.section {
+	max-height: 94%;
+	margin-top: 12px;
+}
+
+.card {
+	max-height: 95%;
+	border-radius: 15px;
+}
+
+.card-body {
+	display: flex;
+	justify-content: center;
+}
+
+.page-title {
+	margin-bottom: 7px;
+}
+
+.breadcrumb-header.float-start.float-lg-end {
+	background-color: white;
+	border-radius: 50px;
+	padding: 10px;
+}
+
+.breadcrumb {
+	margin-bottom: 0;
+}
+
+.col-12.col-md-6.order-md-1.order-last {
+	display: flex;
+	align-items: center;
+}
+
+.count {
+	margin-bottom: 0px;
+	margin-top: 23px;
+}
+
+.topOption {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 12px;
+}
+
+.btn.btn-outline-secondary.dropdown-toggle {
+	background-color: white !important;
+	color: #495057 !important;
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	height: 44px;
+	padding: 7px 17px;
+}
+
+.btn.btn-outline-secondary.dropdown-toggle:hover {
+	background-color: #f8f9fa !important;
+	color: black !important;
+	border-color: #adb5bd;
+}
+
+.btn.btn-outline-secondary.dropdown-toggle:focus {
+	background-color: #f8f9fa !important;
+	color: black !important;
+	box-shadow: none;
+}
+
+.btn.btn-outline-secondary.dropdown-toggle.show {
+	background-color: white !important;
+	color: black !important;
+	border-color: #adb5bd;
+}
+
+.dropdown-item.active.text-success {
+	background-color: #adb5bd !important;
+	color: white !important;
+}
+
+.board-title-link {
+	color: rgba(0, 0, 0, 0.8);
+	align-items: center;
+	gap: 4px;
+}
+
+.board-title-link:hover {
+	color: black;
+	text-decoration: underline;
+}
+
+.commentCount {
+	color: red;
+	margin-bottom: 0px;
+}
+
+.option {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.search-bar {
+	position: relative;
+	display: flex;
+	align-items: center;
+	background-color: white;
+	border-radius: 999px;
+	padding: 8px 16px;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+	width: 300px;
+	gap: 8px;
+	border: none;
+}
+
+.search-bar i {
+	color: #555;
+	font-size: 1.2rem;
+}
+
+.search-input {
+	flex: 1;
+	width: 30%;
+	border: none;
+	outline: none;
+	font-size: 1rem;
+	background-color: transparent;
+}
+
+.toggle-filter-btn {
+	font-size: 1.4rem;
+	cursor: pointer;
+	color: #333;
+}
+
+.search-mode-hr {
+	margin: 0px;
+}
+
+.search-mode-panel {
+	position: absolute;
+	top: 145px;
+	right: 555px;
+	width: 220px;
+	background: white;
+	border-radius: 12px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	font-family: 'Inter', sans-serif;
+	z-index: 100;
+	padding: 12px 0;
+	opacity: 0;
+	visibility: hidden;
+	transform: translateY(-10px);
+	transition: all 0.25s ease;
+}
+
+/* 열릴 때 */
+.search-mode-panel.show {
+	opacity: 1;
+	visibility: visible;
+	transform: translateY(0);
+}
+
+.panel-header {
+	font-weight: bold;
+	font-size: 14px;
+	padding: 10px 16px;
+	color: #444;
+}
+
+.search-mode-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.mode-item {
+	padding: 10px 16px;
+	cursor: pointer;
+	font-size: 14px;
+	transition: background 0.2s;
+}
+
+.mode-item:hover {
+	background: #f5f5f5;
+}
+
+.mode-item.active {
+	background: #adb5bd;
+	color: white;
+	font-weight: bold;
+}
+
+.page-link {
+	min-width: 34px;
+	text-align: center;
+}
+
+.pagination .page-item.active .page-link {
+	background-color: #212121;
+	border-color: #212121;
+	border-radius: 10px;
+	color: white;
+}
+
+.pagination .page-link {
+	color: #333;
+	border: none;
+	background-color: transparent;
+}
+
+.pagination .page-link:hover {
+	background-color: #f0f0f0;
+	border-radius: 8px;
+}
+
+.page-item.disabled .page-link {
+	color: #959595;
+}
+
+.deleted-row {
+	background-color: #f0f0f0;
+	color: #999;
+}
+
+/*스몰 휴대폰 (최대 375px) */
+@media (min-width: 0px) and (max-width: 320px) {
+	.container {
+		padding-left: 1.75rem;
+	}
+	
+	#category-title {
+		font-size: 12px;
+	}
+	
+	.page-title{
+		margin-bottom: 0px;
+	}
+
+	.count {
+		font-size: 9px;
+		margin-top: 18px;
+	}
+	
+	.option {
+		gap: 5px;
+	}
+
+	.search-bar {
+		width: 100px;
+		height: 23px;
+		padding: 8px 10px;
+	}
+
+	.search-bar i {
+		font-size: 0.7rem;
+	}
+
+	.search-input {
+		font-size: 0.6rem;
+	}
+
+	.search-mode-panel {
+		right: 450px;
+		width: 190px;
+		padding: 10px 0;
+	}
+
+	.btn.btn-outline-secondary.dropdown-toggle {
+		background-color: white !important;
+		color: #495057 !important;
+		border: 1px solid rgba(0, 0, 0, 0.1);
+		padding: 2px 5px;
+		height: 23px;
+		font-size: 9px;
+	}
+
+	.section {
+		margin-top: 0px;
+	}
+	
+	.card-body{
+		padding: 0.25rem;
+	}
+
+	.table {
+		font-size: 9px;
+	}
+
+	.board-thead {
+		white-space: nowrap;
+	}
+
+	.board-title-link {
+		display: inline-block;
+		max-width: 100px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	#writeBtn {
+		font-size: 9px;
+	}
+
+	.page-link {
+		font-size: 9px;
+	}
+}
+
+/*미디움 휴대폰 (최대 375px) */
+@media (min-width: 321px) and (max-width: 375px) {
+	.container {
+		padding-left: 1.75rem;
+	}
+
+	#category-title {
+		font-size: 14px;
+	}
+
+	.count {
+		font-size: 9px;
+		margin-top: 18px;
+	}
+	
+	.option {
+		gap: 5px;
+	}
+
+	.search-bar {
+		width: 120px;
+		height: 30px;
+	}
+
+	.search-bar i {
+		font-size: 0.9rem;
+	}
+
+	.search-input {
+		font-size: 0.7rem;
+	}
+
+	.search-mode-panel {
+		right: 450px;
+		width: 190px;
+		padding: 10px 0;
+	}
+
+	.btn.btn-outline-secondary.dropdown-toggle {
+		background-color: white !important;
+		color: #495057 !important;
+		border: 1px solid rgba(0, 0, 0, 0.1);
+		padding: 2px 5px;
+		height: 30px;
+		font-size: 9px;
+	}
+
+	.section {
+		margin-top: 0px;
+	}
+
+	.table {
+		font-size: 9px;
+	}
+
+	.board-thead {
+		white-space: nowrap;
+	}
+
+	.board-title-link {
+		display: inline-block;
+		max-width: 100px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	#writeBtn {
+		font-size: 9px;
+	}
+
+	.page-link {
+		font-size: 10px;
+	}
+}
+
+/*라지 휴대폰 (최대 425px) */
+@media (min-width: 376px) and (max-width: 425px) {
+	.container {
+		padding-left: 1.75rem;
+	}
+
+	#category-title {
+		font-size: 17.5px;
+	}
+
+	.count {
+		font-size: 10px;
+		margin-top: 18px;
+	}
+
+	.option {
+		gap: 5px;
+	}
+
+	.search-bar {
+		width: 150px;
+		height: 30px;
+	}
+
+	.search-bar i {
+		font-size: 0.9rem;
+	}
+
+	.search-input {
+		font-size: 0.7rem;
+	}
+
+	.search-mode-panel {
+		right: 450px;
+		width: 190px;
+		padding: 10px 0;
+	}
+
+	.btn.btn-outline-secondary.dropdown-toggle {
+		background-color: white !important;
+		color: #495057 !important;
+		border: 1px solid rgba(0, 0, 0, 0.1);
+		padding: 2px 5px;
+		height: 30px;
+		font-size: 10px;
+	}
+
+	.section {
+		margin-top: 0px;
+	}
+
+	.table {
+		font-size: 10px;
+	}
+
+	.board-thead {
+		white-space: nowrap;
+	}
+
+	.board-title-link {
+		display: inline-block;
+		max-width: 100px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	#writeBtn {
+		font-size: 10px;
+	}
+
+	.page-link {
+		font-size: 10px;
+	}
+}
+
+/* 테블릿 전용 (최대 768px) */
+@media (min-width: 426px) and (max-width: 768px) {
+	.container {
+		padding-left: 1.75rem;
+	}
+
+}
+
+/* 테블릿 전용 (최대 768px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+	.count {
+		font-size: 13px;
+	}
+
+	.search-bar {
+		width: 230px;
+	}
+
+	.search-input {
+		font-size: 0.9rem;
+	}
+
+	.search-mode-panel {
+		right: 430px;
+		width: 200px;
+		padding: 10px 0;
+	}
+
+	.btn.btn-outline-secondary.dropdown-toggle {
+		background-color: white !important;
+		color: #495057 !important;
+		border: 1px solid rgba(0, 0, 0, 0.1);
+		padding: 2px 9px;
+		font-size: 12px;
+	}
+
+	.table {
+		font-size: 13px;
+	}
+
+	#writeBtn {
+		font-size: 13px;
+	}
+
+	.page-link {
+		font-size: 13px;
+	}
+
+}
+
+/* 데스크탑 (노트북 ~ 일반 모니터) */
+@media (min-width: 1025px) and (max-width: 1440px) {
+	.container {
+		padding-top: 6rem;
+	}
+}
+
+/* 초대형 모니터 (울트라 와이드/4K) */
+@media (min-width: 2560px) {}
