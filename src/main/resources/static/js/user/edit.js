@@ -190,7 +190,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 // 회원 상세정보
 async function fetchUserDetail() {
-	const apiSuffix = isAdminPage ? `/api/users/admin/${id}` : `/api/users/${id}`;
+	const apiSuffix = isAdminPage ? `/api/users/admin/${id}` : `/api/users/username/${id}`;
 	try {
 		const res = await fetchWithAuth(apiSuffix);
 		if (!res.ok) throw new Error("서버 오류 발생");
@@ -459,7 +459,7 @@ async function checkNicknameAvailability() {
 
 	// 형식 검사
 	const okFormat = regex.test(nickname);
-	isInvalidNickname.textContent = okFormat ? '' : '이메일 형식에 맞게 입력 가능합니다.';
+	isInvalidNickname.textContent = okFormat ? '' : '닉네임 형식에 맞게 입력 가능합니다.';
 	if (!okFormat) return false;
 
 	// 서버 중복 검사

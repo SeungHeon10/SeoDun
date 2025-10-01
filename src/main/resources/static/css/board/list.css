@@ -38,6 +38,11 @@ body {
 	border-radius: 15px;
 }
 
+.card-body {
+	display: flex;
+	justify-content: center;
+}
+
 .page-title {
 	margin-bottom: 7px;
 }
@@ -72,15 +77,14 @@ body {
 	background-color: white !important;
 	color: #495057 !important;
 	border: 1px solid rgba(0, 0, 0, 0.1);
+	height: 44px;
 	padding: 7px 17px;
 }
 
 .btn.btn-outline-secondary.dropdown-toggle:hover {
 	background-color: #f8f9fa !important;
-	/* 살짝 연한 회색으로 피드백 */
 	color: black !important;
 	border-color: #adb5bd;
-	/* hover 테두리 약간 어둡게 */
 }
 
 .btn.btn-outline-secondary.dropdown-toggle:focus {
@@ -102,7 +106,6 @@ body {
 
 .board-title-link {
 	color: rgba(0, 0, 0, 0.8);
-	display: flex;
 	align-items: center;
 	gap: 4px;
 }
@@ -119,6 +122,7 @@ body {
 
 .option {
 	display: flex;
+	align-items: center;
 	gap: 10px;
 }
 
@@ -142,6 +146,7 @@ body {
 
 .search-input {
 	flex: 1;
+	width: 30%;
 	border: none;
 	outline: none;
 	font-size: 1rem;
@@ -219,7 +224,6 @@ body {
 
 .pagination .page-item.active .page-link {
 	background-color: #212121;
-	/* 거의 검정색 */
 	border-color: #212121;
 	border-radius: 10px;
 	color: white;
@@ -244,3 +248,300 @@ body {
 	background-color: #f0f0f0;
 	color: #999;
 }
+
+/*스몰 휴대폰 (최대 375px) */
+@media (min-width: 0px) and (max-width: 320px) {
+	.container {
+		padding-left: 1.75rem;
+	}
+	
+	#category-title {
+		font-size: 12px;
+	}
+	
+	.page-title{
+		margin-bottom: 0px;
+	}
+
+	.count {
+		font-size: 9px;
+		margin-top: 18px;
+	}
+	
+	.option {
+		gap: 5px;
+	}
+
+	.search-bar {
+		width: 100px;
+		height: 23px;
+		padding: 8px 10px;
+	}
+
+	.search-bar i {
+		font-size: 0.7rem;
+	}
+
+	.search-input {
+		font-size: 0.6rem;
+	}
+
+	.search-mode-panel {
+		right: 450px;
+		width: 190px;
+		padding: 10px 0;
+	}
+
+	.btn.btn-outline-secondary.dropdown-toggle {
+		background-color: white !important;
+		color: #495057 !important;
+		border: 1px solid rgba(0, 0, 0, 0.1);
+		padding: 2px 5px;
+		height: 23px;
+		font-size: 9px;
+	}
+
+	.section {
+		margin-top: 0px;
+	}
+	
+	.card-body{
+		padding: 0.25rem;
+	}
+
+	.table {
+		font-size: 9px;
+	}
+
+	.board-thead {
+		white-space: nowrap;
+	}
+
+	.board-title-link {
+		display: inline-block;
+		max-width: 100px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	#writeBtn {
+		font-size: 9px;
+	}
+
+	.page-link {
+		font-size: 9px;
+	}
+}
+
+/*미디움 휴대폰 (최대 375px) */
+@media (min-width: 321px) and (max-width: 375px) {
+	.container {
+		padding-left: 1.75rem;
+	}
+
+	#category-title {
+		font-size: 14px;
+	}
+
+	.count {
+		font-size: 9px;
+		margin-top: 18px;
+	}
+	
+	.option {
+		gap: 5px;
+	}
+
+	.search-bar {
+		width: 120px;
+		height: 30px;
+	}
+
+	.search-bar i {
+		font-size: 0.9rem;
+	}
+
+	.search-input {
+		font-size: 0.7rem;
+	}
+
+	.search-mode-panel {
+		right: 450px;
+		width: 190px;
+		padding: 10px 0;
+	}
+
+	.btn.btn-outline-secondary.dropdown-toggle {
+		background-color: white !important;
+		color: #495057 !important;
+		border: 1px solid rgba(0, 0, 0, 0.1);
+		padding: 2px 5px;
+		height: 30px;
+		font-size: 9px;
+	}
+
+	.section {
+		margin-top: 0px;
+	}
+
+	.table {
+		font-size: 9px;
+	}
+
+	.board-thead {
+		white-space: nowrap;
+	}
+
+	.board-title-link {
+		display: inline-block;
+		max-width: 100px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	#writeBtn {
+		font-size: 9px;
+	}
+
+	.page-link {
+		font-size: 10px;
+	}
+}
+
+/*라지 휴대폰 (최대 425px) */
+@media (min-width: 376px) and (max-width: 425px) {
+	.container {
+		padding-left: 1.75rem;
+	}
+
+	#category-title {
+		font-size: 17.5px;
+	}
+
+	.count {
+		font-size: 10px;
+		margin-top: 18px;
+	}
+
+	.option {
+		gap: 5px;
+	}
+
+	.search-bar {
+		width: 150px;
+		height: 30px;
+	}
+
+	.search-bar i {
+		font-size: 0.9rem;
+	}
+
+	.search-input {
+		font-size: 0.7rem;
+	}
+
+	.search-mode-panel {
+		right: 450px;
+		width: 190px;
+		padding: 10px 0;
+	}
+
+	.btn.btn-outline-secondary.dropdown-toggle {
+		background-color: white !important;
+		color: #495057 !important;
+		border: 1px solid rgba(0, 0, 0, 0.1);
+		padding: 2px 5px;
+		height: 30px;
+		font-size: 10px;
+	}
+
+	.section {
+		margin-top: 0px;
+	}
+
+	.table {
+		font-size: 10px;
+	}
+
+	.board-thead {
+		white-space: nowrap;
+	}
+
+	.board-title-link {
+		display: inline-block;
+		max-width: 100px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	#writeBtn {
+		font-size: 10px;
+	}
+
+	.page-link {
+		font-size: 10px;
+	}
+}
+
+/* 테블릿 전용 (최대 768px) */
+@media (min-width: 426px) and (max-width: 768px) {
+	.container {
+		padding-left: 1.75rem;
+	}
+
+}
+
+/* 테블릿 전용 (최대 768px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+	.count {
+		font-size: 13px;
+	}
+
+	.search-bar {
+		width: 230px;
+	}
+
+	.search-input {
+		font-size: 0.9rem;
+	}
+
+	.search-mode-panel {
+		right: 430px;
+		width: 200px;
+		padding: 10px 0;
+	}
+
+	.btn.btn-outline-secondary.dropdown-toggle {
+		background-color: white !important;
+		color: #495057 !important;
+		border: 1px solid rgba(0, 0, 0, 0.1);
+		padding: 2px 9px;
+		font-size: 12px;
+	}
+
+	.table {
+		font-size: 13px;
+	}
+
+	#writeBtn {
+		font-size: 13px;
+	}
+
+	.page-link {
+		font-size: 13px;
+	}
+
+}
+
+/* 데스크탑 (노트북 ~ 일반 모니터) */
+@media (min-width: 1025px) and (max-width: 1440px) {
+	.container {
+		padding-top: 6rem;
+	}
+}
+
+/* 초대형 모니터 (울트라 와이드/4K) */
+@media (min-width: 2560px) {}

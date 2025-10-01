@@ -11,6 +11,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +29,9 @@ import com.board.notice.service.RefreshTokenService;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class LoginRestController {
@@ -56,7 +59,7 @@ public class LoginRestController {
 				String refreshToken = jwtUtil.createRefreshToken(user.getUsername(),
 						jwtUtil.extractRole(user.getAuthorities()));
 
-				cookie = ResponseCookie.from("refreshToken", refreshToken).httpOnly(true).secure(false) // 배포시
+				cookie = ResponseCookie.from("refreshToken", refreshToken).httpOnly(true).secure(true) // 배포시
 																										// true로
 																										// 변경
 						.path("/").maxAge(Duration.ofDays(7)).build();
@@ -92,20 +95,30 @@ public class LoginRestController {
 			@CookieValue(name = "refreshToken", required = false) String refreshToken,
 			@RequestHeader(name = "Authorization", required = false) String accessTokenHeader) {
 
-		if (refreshToken != null && accessTokenHeader != null && accessTokenHeader.startsWith("Bearer ")) {
-			String accessToken = accessTokenHeader.substring(7);
-			String id = jwtUtil.getId(accessToken);
-			refreshTokenService.delete(id);
+		try {
+			if (refreshToken != null) {
+			      try { refreshTokenService.deleteByToken(refreshToken); } catch (Exception ignore) {}
+			}
+			
+			if (refreshToken != null && accessTokenHeader != null && accessTokenHeader.startsWith("Bearer ")) {
+				String accessToken = accessTokenHeader.substring(7);
+
+				try {
+					String id = jwtUtil.getId(accessToken);
+					refreshTokenService.deleteByUserId(id); // 존재 안 해도 예외 던지지 않게 처리
+				} catch (Exception e) {
+					// 로그만 남기고 계속 진행
+					log.error("Logout: unexpected error while clearing tokens", e);
+				}
+			}
+		} finally {
+			ResponseCookie delete = ResponseCookie.from("refreshToken", "").httpOnly(true).secure(true) // HTTPS면 true
+					.path("/").maxAge(0).build();
+			response.addHeader(HttpHeaders.SET_COOKIE, delete.toString());
+			SecurityContextHolder.clearContext();
 		}
-
-		// 쿠키 삭제
-		ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "").httpOnly(true).secure(false).path("/")
-				.maxAge(0) // 즉시 만료
-				.build();
-
-		response.addHeader("Set-Cookie", deleteCookie.toString());
-
-		return ResponseEntity.ok().build();
+		
+		return ResponseEntity.noContent().build();
 	}
 
 //	사용자 인증 확인

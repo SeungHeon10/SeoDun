@@ -50,6 +50,16 @@ hr {
 	box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
 
+.board-box-tag {
+	background-color: #ffffff;
+	border: 1px solid #dee2e6;
+	border-radius: 1rem;
+	padding: 1.2rem;
+	min-height: 285px;
+	max-width: 700px;
+	box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
 .main-content {
 	padding-left: 265px;
 	padding-bottom: 2rem;
@@ -106,6 +116,12 @@ hr {
 	border-radius: 15px;
 	background-color: var(--main-color-light-10);
 	min-height: 170px;
+}
+
+.round-box-tag {
+	border-radius: 15px;
+	background-color: var(--main-color-light-10);
+	min-height: 210px;
 }
 
 .mg-right-520 {
@@ -461,4 +477,40 @@ hr {
 	.footer-msg {
 		margin-left: 60px;
 	}
+}
+
+@media (min-width: 2560px) {
+
+	.board-box,
+	.board-box-right {
+		padding: 1rem;
+		max-width: 900px;
+		min-height: auto;
+	}
+
+	.round-box,
+	.round-box-right {
+		min-height: 430px;
+	}
+
+	.section-title {
+		font-size: 1.2rem;
+	}
+
+	.category-btn {
+		font-size: 1.2rem;
+	}
+
+	.board-title-link {
+		font-size: 1.4rem;
+	}
+
+	.post-title {
+		font-size: 1.5rem;
+	}
+
+	.post-preview {
+		font-size: 1.4rem;
+	}
+
 }

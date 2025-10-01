@@ -3,9 +3,6 @@ package com.board.notice.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
-
 
 @Controller
 @RequestMapping(value = "/user")
@@ -48,13 +45,13 @@ public class UserController {
 //	회원 탈퇴처리 시
 	@GetMapping("/withdrawal")
 	public String withdrawal() {
-		return "/user/withdrawalpage";
+		return "user/withdrawalpage";
 	}
 	
 //	본인인증 페이지 이동
 	@GetMapping("/{id}/email/verify")
 	public String emailVerifyPage() {
-		return "/auth/email-verify";
+		return "auth/email-verify";
 	}
 	
 }

@@ -73,7 +73,7 @@ public class UserServiceImpl implements UserService {
 	@Transactional
 	public void register(UserRequestDTO userDTO) {
 		User user = User.builder().id(userDTO.getId()).password(passwordEncoder.encode(userDTO.getPassword()))
-				.name(userDTO.getName()).pno(userDTO.getPno()).email(userDTO.getEmail()).role(Role.ROLE_USER).build();
+				.name(userDTO.getName()).nickname(userDTO.getNickname()).pno(userDTO.getPno()).email(userDTO.getEmail()).emailVerified(userDTO.isEmailVerified()).role(Role.ROLE_USER).build();
 
 		userRepository.save(user);
 	}

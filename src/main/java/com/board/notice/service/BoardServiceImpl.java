@@ -11,8 +11,6 @@ import java.util.stream.Collectors;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -79,7 +77,7 @@ public class BoardServiceImpl implements BoardService {
 		case "title_content":
 			return allCategory ? boardRepository.searchByTitleOrContent(keyword, pageable).map(BoardResponseDTO::new)
 					: boardRepository.searchByTitleOrContentAndCategory(keyword, category, pageable)
-							.map(BoardResponseDTO::new); // OR 조건은 리포지토리 추가 필요
+							.map(BoardResponseDTO::new);
 		case "writer":
 			return allCategory
 					? boardRepository.findByUserId_NicknameContainingIgnoreCase(keyword, pageable)
@@ -119,7 +117,6 @@ public class BoardServiceImpl implements BoardService {
 //	게시글 상세보기
 	@Override
 	@Transactional
-	@CacheEvict(value = { "top6Boards", "popularBoards" }, allEntries = true)
 	public BoardResponseDTO detail(int bno) {
 		Board board = boardRepository.findById(bno)
 				.orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
@@ -141,7 +138,6 @@ public class BoardServiceImpl implements BoardService {
 //	게시글 등록하기
 	@Override
 	@Transactional
-	@CacheEvict(value = { "top6Boards", "popularBoards" }, allEntries = true)
 	public void register(BoardRequestDTO boardRequestDTO, MultipartFile file) throws IOException {
 		String filePath = null;
 
@@ -176,7 +172,6 @@ public class BoardServiceImpl implements BoardService {
 //	게시글 수정하기
 	@Override
 	@Transactional
-	@CacheEvict(value = { "top6Boards", "popularBoards" }, allEntries = true)
 	public ResponseEntity<?> update(BoardRequestDTO boardRequestDTO, MultipartFile file, boolean deleteFile,
 			CustomUserDetail userDetails) throws IOException {
 		// 수정할 게시글 찾기
@@ -186,7 +181,7 @@ public class BoardServiceImpl implements BoardService {
 		if (!board.getUserId().getId().equals(userDetails.getUsername())) {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("작성자 본인만 수정할 수 있습니다.");
 		}
-		System.out.println(deleteFile);
+
 		// 게시글 수정 메서드
 		board.update(boardRequestDTO);
 		
@@ -219,7 +214,6 @@ public class BoardServiceImpl implements BoardService {
 //	게시글 삭제하기
 	@Override
 	@Transactional
-	@CacheEvict(value = { "top6Boards", "popularBoards" }, allEntries = true)
 	public ResponseEntity<?> delete(int bno, CustomUserDetail userDetails) {
 		Board board = boardRepository.findById(bno)
 				.orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
@@ -243,7 +237,6 @@ public class BoardServiceImpl implements BoardService {
 //	게시글 복원하기
 	@Override
 	@Transactional
-	@CacheEvict(value = { "top6Boards", "popularBoards" }, allEntries = true)
 	public ResponseEntity<?> restore(int bno) {
 		Board board = boardRepository.findByIdNative(bno)
 				.orElseThrow(() -> new EntityNotFoundException("해당 게시글은 존재하지 않습니다."));
@@ -268,7 +261,6 @@ public class BoardServiceImpl implements BoardService {
 
 //	인기글 검색
 	@Override
-	@Cacheable(value = "popularBoards", key = "'popular'", unless = "#result == null")
 	public List<BoardResponseDTO> popularBoards() {
 		List<Board> boards = boardRepository.findTop3ByOrderByViewCountDesc();
 
@@ -277,7 +269,6 @@ public class BoardServiceImpl implements BoardService {
 
 //	카테고리별 6개의 게시글 조회
 	@Override
-	@Cacheable(value = "top6Boards", key = "#p0", unless = "#result == null")
 	public List<BoardResponseDTO> loadBoardsByCategory(String category) {
 		List<Board> boards = boardRepository.findTop6ByCategoryOrderByCreatedAtDesc(category);
 
@@ -286,7 +277,6 @@ public class BoardServiceImpl implements BoardService {
 
 //	6개의 전체 게시글 조회
 	@Override
-	@Cacheable(value = "top6Boards", key = "'all'", unless = "#result == null")
 	public List<BoardResponseDTO> loadBoardsByAll() {
 		List<Board> boards = boardRepository.findTop6ByOrderByCreatedAtDesc();
 

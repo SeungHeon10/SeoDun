@@ -18,5 +18,5 @@ public class UserRequestDTO {
 	private String password;
 	private String pno;
 	private String email;
-	
+	private boolean emailVerified;
 }

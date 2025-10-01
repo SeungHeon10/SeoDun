@@ -166,6 +166,12 @@ document.getElementById("btn-delete").addEventListener("click", async (event) =>
 	await fetchBoardDelete();
 });
 
+// 상세보기에서 댓글 버튼 클릭 시 댓글 박스로 이동
+document.getElementById('reply').addEventListener('click', (e) => {
+	e.preventDefault();
+	scrollToComments();
+});
+
 // 수정모드에서 목록 버튼 누를 시
 document.getElementById("btn-back-to-detail").addEventListener("click", async (event) => {
 	event.preventDefault();
@@ -385,7 +391,7 @@ function renderEditView(detail) {
 		<div class="mb-0">
 			<select class="form-select" id="categorySelect">
 				<option value="자유" ${detail.category == '자유' ? 'selected' : ''}>자유</option>
-				<option value="공지" ${detail.category == '공지' ? 'selected' : ''}>공지</option>
+				<option value="학습" ${detail.category == '학습' ? 'selected' : ''}>학습</option>
 				<option value="질문답변" ${detail.category == '질문답변' ? 'selected' : ''}>질문답변</option>
 				<option value="정보공유" ${detail.category == '정보공유' ? 'selected' : ''}>정보공유</option>
 			</select>
@@ -1012,13 +1018,14 @@ function sendDwellTimeLog() {
 	}
 }
 
+// 좋아요 버튼 누를 시
 function initReplyLikeDelegate() {
 	document.addEventListener("click", async (e) => {
 		const btn = e.target.closest(".btn-like");
 		if (!btn || !document.contains(btn)) return;
 		const countEl = btn.querySelector(".like-count");
 		const replyId = btn.dataset.rno;
-		
+
 		btn.disabled = true;
 		try {
 			const res = await fetchWithAuth(`/api/replies/${replyId}/like`, {
@@ -1026,7 +1033,7 @@ function initReplyLikeDelegate() {
 				headers: { "Content-Type": "application/json" }
 			});
 			if (res.status === 401) {
-				showToast?.("로그인이 필요합니다.", "error");
+				showToast("로그인이 필요합니다.", "error");
 				return;
 			}
 			if (!res.ok) {
@@ -1041,9 +1048,17 @@ function initReplyLikeDelegate() {
 
 		} catch (err) {
 			console.error(err);
-			showToast?.("좋아요 처리에 실패했습니다.", "error");
+			showToast("좋아요 처리에 실패했습니다.", "error");
 		} finally {
 			btn.disabled = false;
 		}
 	});
+}
+
+// 댓글 버튼 누르면 댓글박스로 스크롤
+function scrollToComments() {
+	const target = document.querySelector('.reply-box');
+	if (!target) return;
+
+	target.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }

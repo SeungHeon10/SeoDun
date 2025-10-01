@@ -51,7 +51,7 @@ public class UserRestController {
 	}
 
 //	회원 상세보기
-	@GetMapping("/{id}")
+	@GetMapping("/username/{id}")
 	public ResponseEntity<UserResponseDTO> detail(@PathVariable("id") String id) {
 		UserResponseDTO userResponseDTO = userService.detail(id);
 

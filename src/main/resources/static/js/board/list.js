@@ -146,21 +146,48 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 		await fetchBoardList(currentSize, currentPage, currentSort, currentDirection, currentSearchMode, currentKeyword);
 	});
-});
 
-// 검색 메뉴 버튼 누를 시
-document.getElementById("search-menu").addEventListener("click", (event) => {
-	event.preventDefault();
+	// 검색 메뉴 버튼 누를 시
+	document.getElementById("search-menu").addEventListener("click", (event) => {
+		event.preventDefault();
 
-	searchModePanel.classList.toggle("show");
+		searchModePanel.classList.toggle("show");
 
-	document.addEventListener("click", (e) => {
-		// 클릭 대상이 toggle 버튼이나 패널 내부가 아니면 닫기
-		if (!searchModePanel.contains(e.target) && !document.getElementById("search-menu").contains(e.target)) {
-			searchModePanel.classList.remove("show");
+		document.addEventListener("click", (e) => {
+			// 클릭 대상이 toggle 버튼이나 패널 내부가 아니면 닫기
+			if (!searchModePanel.contains(e.target) && !document.getElementById("search-menu").contains(e.target)) {
+				searchModePanel.classList.remove("show");
+			}
+		});
+	});
+
+	// 제목 클릭해 상세보기 진입 시 로그인 여부 체크
+	document.addEventListener('click', async (e) => {
+		const a = e.target.closest('a.board-title-link');
+		if (!a) return;
+		e.preventDefault();
+
+		try {
+			const res = await fetchWithAuth('/api/users/me', {
+				skipRefresh: true,
+			});
+
+			if (res.status === 200) {
+				location.href = a.href;
+			} else if (res.status === 401) {
+				alert('로그인이 필요합니다.');
+				const loginUrl = '/login';
+				location.href = loginUrl;
+			} else {
+				showToast(`일시적 오류가 발생했습니다. (${res.status})`, 'error');
+			}
+		} catch (err) {
+			showToast('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.', 'error');
 		}
 	});
+
 });
+
 
 async function fetchBoardList(size = currentSize, page = 0, sort = currentSort, direction = currentDirection, mode = "title", keyword = "") {
 	// 서버에 pageSize 전달하여 fetch
@@ -228,7 +255,7 @@ function renderBoardList(boards) {
 								<td>
 									<a href="/board/detail/${category}/${board.bno}" class="board-title-link">
 										${board.title}${iconHTML}
-										<p class="commentCount">[${board.commentCount}]</p>
+										<span class="commentCount">[${board.commentCount}]</span>
 									</a>
 								</td>
 								<td style="text-align: center;">${board.userId.nickname}</td>
@@ -241,7 +268,7 @@ function renderBoardList(boards) {
 								<td>
 									<a href="/board/detail/admin/${board.bno}" class="board-title-link">
 										${board.title}${iconHTML}
-										<p class="commentCount">[${board.commentCount}]</p>
+										<span class="commentCount">[${board.commentCount}]</span>
 									</a>
 								</td>
 								<td style="text-align: center;">${board.userId.nickname}</td>
@@ -305,15 +332,33 @@ function handleWriteButtonClick() {
 	const writeBtn = document.getElementById("writeBtn");
 
 	if (writeBtn) {
-		writeBtn.addEventListener("click", () => {
+		writeBtn.addEventListener("click", async () => {
 			const pathParts = window.location.pathname.split('/');
 			const category = pathParts[3]; // /board/list/{category}
+			let writeUrl = "/";
+			const loginUrl = '/login';
 
 			if (category) {
-				location.href = `/board/register/${category}`;
+				writeUrl = `/board/register/${category}`;
 			} else {
-				location.href = `/board/register`;
+				writeUrl = `/board/register`;
 			}
+
+			try {
+				const res = await fetchWithAuth('/api/users/me', { skipRefresh: true });
+
+				if (res.status === 200) {
+					location.href = writeUrl;
+				} else if (res.status === 401) {
+					alert('로그인이 필요합니다.');
+					location.href = loginUrl;
+				} else {
+					showToast(`일시적 오류가 발생했습니다. (${res.status})`, 'error');
+				}
+			} catch (e) {
+				showToast('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.', "error");
+			}
+
 		});
 	}
 }

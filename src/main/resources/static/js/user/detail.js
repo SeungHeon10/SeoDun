@@ -2,11 +2,11 @@ import { fetchWithAuth, setAccessToken } from "/js/core/fetchWithAuth.js";
 
 const pathParts = window.location.pathname.split('/');
 const id = pathParts.pop();
-const isAdminPage = location.pathname.includes("/admin");
-const apiSuffix = isAdminPage ? `/api/users/admin/${id}` : `/api/users/${id}`;
+let isAdmin = false;
 
 // 페이지 로드 시
 document.addEventListener("DOMContentLoaded", async () => {
+	await fetchLoginUser();
 	await fetchUserDetail();
 
 	const urlParams = new URLSearchParams(window.location.search);
@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 	const anchorEl = titleElement.closest("a");
 	window.history.replaceState({}, document.title, window.location.pathname);
 
-	if (!isAdminPage) {
+	if (!isAdmin) {
 		titleElement.textContent = "내정보";
 		if (anchorEl) {
 			anchorEl.href = `/user/detail/${id}`;
@@ -42,8 +42,26 @@ document.addEventListener("DOMContentLoaded", async () => {
 	})
 });
 
+// 로그인한 회원 정보
+async function fetchLoginUser() {
+	try {
+		const res = await fetchWithAuth('/api/users/me', { skipRefresh: true });
+		if (!res.ok) throw new Error("서버 오류 발생");
+
+		const user = await res.json();
+
+		if (user.role === "ROLE_ADMIN") {
+			isAdmin = true;
+		}
+	} catch (e) {
+		console.error("에러:", e.message);
+	}
+}
+
 // 사용자 정보 상세보기
 async function fetchUserDetail() {
+	const apiSuffix = isAdmin ? `/api/users/admin/${id}` : `/api/users/username/${id}`;
+
 	try {
 		const res = await fetchWithAuth(apiSuffix);
 		if (!res.ok) throw new Error("서버 오류 발생");
@@ -95,7 +113,7 @@ function renderDetailView(detail) {
 
 	// 변경 버튼 링크 설정
 	const links = document.querySelectorAll('a[href^="/user/profile/edit/"]');
-	if (isAdminPage) {
+	if (isAdmin) {
 		links.forEach(a => {
 			const url = new URL(a.getAttribute("href"), location.origin);
 			const field = url.pathname.split('/').pop();
@@ -129,7 +147,7 @@ function renderDetailView(detail) {
 	}
 
 	// 관리자(admin)페이지가 아닐 시 
-	if (!isAdminPage) {
+	if (!isAdmin) {
 		// 목록 버튼 삭제
 		userActionButtons.innerHTML = "";
 		userActionButtons.innerHTML = `
@@ -180,7 +198,7 @@ async function fetchUserDelete() {
 			return;
 		}
 
-		if (isAdminPage) {
+		if (isAdmin) {
 			location.href = "/user/list/admin?deleted=true";
 		} else {
 			const logout = await fetchWithAuth("/logout", {

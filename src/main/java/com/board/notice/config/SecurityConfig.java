@@ -50,15 +50,12 @@ public class SecurityConfig {
 
 								// 공개된 페이지
 								"/board/**", // 게시판 페이지 이동
-								"/api/boards/**", // 게시판 데이터
-								"/api/log/dwell-time", // 로그 데이터 전송
+								"/api/boards", // 게시판 데이터
 								"/user/**", // 회원 페이지 이동
-								"/api/users/**", // 사용자 데이터
-								"/api/recommend/public", // 맞춤 콘텐츠 조회
-								"/auth/emails", // 이메일 인증
-								"/api/account" // 
+								"/api/recommend/public/**", // 맞춤 콘텐츠 조회
+								"/auth/emails/**" // 이메일 인증
 								)
-						.permitAll().requestMatchers("/admin/**").hasRole("ADMIN")
+						.permitAll()
 						// 나머지 모든 요청은 로그인한 사용자만 접근 가능
 						.anyRequest().authenticated())
 

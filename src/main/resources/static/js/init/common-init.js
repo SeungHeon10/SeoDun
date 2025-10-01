@@ -46,9 +46,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 document.getElementById("logoutLink").addEventListener("click", async function(event) {
 	event.preventDefault();
 	try {
-		const res = await fetchWithAuth("/logout", {
-			method: "POST"
-		});
+		const res = await fetch("/logout", { method: "POST", credentials: "include" });
 
 		if (!res.ok) {
 			throw new Error("서버 오류 발생");

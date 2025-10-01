@@ -22,7 +22,7 @@ import lombok.ToString;
 @Where(clause = "is_deleted = false")
 public class EmailToken extends BaseEntity{
 	@Id
-	private String token; // uuid 형식의 키
+	private String token; // 토큰 값
 	@Column(nullable = false)
 	private String email; // 인증받을 사용자 이메일
 	@Column(nullable = false)

@@ -1,25 +1,63 @@
 import { fetchWithAuth } from "/js/core/fetchWithAuth.js";
 
+// CheckDone = 중복체크를 했는지 / Taken은 중복여부
+let dupState = {
+	idCheckDone: false,
+	idTaken: false,
+	nicknameCheckDone: false,
+	nicknameTaken: false,
+	emailCheckDone: false,
+	emailTaken: false
+};
+
 // 아이디 중복여부
 async function fetchUserId(id) {
-	const response = await fetchWithAuth(`/api/users/exists/id/${id}`);
+	try {
+		const response = await fetchWithAuth(`/api/users/exists/id/${id}`);
 
-	if (!response.ok) {
-		throw new Error("서버 오류 발생");
+		if (!response.ok) {
+			throw new Error("서버 오류 발생");
+		}
+
+		return response.json();
+	} catch (e) {
+		showToast(e.message || `확인 중 오류가 발생했습니다.`, error);
 	}
 
-	return response.json();
 }
 
 // 이메일 중복여부
 async function fetchUserEmail(email) {
-	const response = await fetchWithAuth(`/api/users/exists/email/${email}`);
+	try {
+		const response = await fetchWithAuth(`/api/users/exists/email/${email}`);
 
-	if (!response.ok) {
-		throw new Error("서버 오류 발생");
+		if (!response.ok) {
+			throw new Error("서버 오류 발생");
+		}
+
+		return response.text();
+	} catch (e) {
+		showToast(e.message || `확인 중 오류가 발생했습니다.`, error);
 	}
+}
 
-	return response.text();
+// 닉네임 중복여부
+async function fetchNickname(nickname) {
+	// 서버 중복 검사
+	try {
+		const response = await fetchWithAuth(`/api/users/exists/nickname/${nickname}`);
+
+		if (!response.ok) {
+			throw new Error("서버 오류 발생");
+		}
+
+		return response.text();
+	} catch {
+		isDuplicationNickname.textContent = '확인 중 오류가 발생했습니다.';
+		isDuplicationEmail.classList.add('text-danger');
+		isDuplicationEmail.classList.remove('text-success');
+		return false;
+	}
 }
 
 // 아이디 입력 시 
@@ -36,6 +74,9 @@ document.getElementById("id").addEventListener("input", async function() {
 		isDuplicationId.textContent = "";
 		isInvalidId.textContent = "";
 		vaildId.textContent = "";
+		// 상태 초기화
+		dupState.idCheckDone = false;
+		dupState.idTaken = false;
 		return;
 	}
 
@@ -47,11 +88,18 @@ document.getElementById("id").addEventListener("input", async function() {
 	if (!isValid) {
 		vaildId.textContent = "";
 		isDuplicationId.textContent = "";
+
+		dupState.idCheckDone = false;
+		dupState.idTaken = false;
 		return;
 	}
 
 	// 중복 검사
 	const isDuplicate = await fetchUserId(id);
+
+	dupState.idCheckDone = true;
+	dupState.idTaken = !isDuplicate;
+
 	if (isDuplicate) {
 		vaildId.textContent = "사용 가능한 아이디입니다.";
 		vaildId.style.color = "green";
@@ -118,6 +166,50 @@ document.getElementById("name").addEventListener("input", function() {
 	isInvalidName.textContent = isValid ? "" : "이름은 1자이상 20자이내의 문자로만 입력 가능합니다.";
 });
 
+// 닉네임 입력 시
+document.getElementById("nickname").addEventListener("input", async function() {
+	const nickname = this.value.trim();
+	const isInvalidNickname = document.getElementById('isInvalidNickname');
+	const isDuplicationNickname = document.getElementById('isDuplicationNickname');
+	const regex = /^[\p{L}\p{N}]{2,12}$/u;
+
+	// 빈 값
+	if (nickname === '') {
+		isInvalidNickname.textContent = '';
+		isDuplicationNickname.textContent = '';
+		// 상태 초기화
+		dupState.nicknameCheckDone = false;
+		dupState.nicknameTaken = false;
+		return;
+	}
+
+	// 형식 검사
+	const okFormat = regex.test(nickname);
+	isInvalidNickname.textContent = okFormat ? '' : '닉네임 형식에 맞게 입력 가능합니다.';
+	if (!okFormat) {
+		dupState.nicknameCheckDone = false;
+		dupState.nicknameTaken = false;
+		return;
+	}
+
+	// 서버에서 중복검사
+	const message = await fetchNickname(nickname);
+
+	const available = message.includes('가능한');
+
+	dupState.nicknameCheckDone = true;
+	dupState.nicknameTaken = !available;
+
+	isDuplicationNickname.textContent = message;
+	if (available) {
+		isDuplicationNickname.classList.remove('text-danger');
+		isDuplicationNickname.classList.add('text-success');
+	} else {
+		isDuplicationNickname.classList.add('text-danger');
+		isDuplicationNickname.classList.remove('text-success');
+	}
+});
+
 // 번호 입력 시
 document.getElementById("phone").addEventListener("input", function() {
 	const phone = this.value.replace(/[^0-9]/g, "");
@@ -160,6 +252,9 @@ document.getElementsByName("email")[0].addEventListener("input", async function(
 	// 빈 값일 경우: 모든 메시지 초기화 후 종료
 	if (email === "") {
 		isInvalidEmail.textContent = "";
+		// 상태 초기화
+		dupState.emailCheckDone = false;
+		dupState.emailTaken = false;
 		return;
 	}
 
@@ -170,14 +265,20 @@ document.getElementsByName("email")[0].addEventListener("input", async function(
 	// 유효하지 않으면 중복검사 x
 	if (!isValid) {
 		isDuplicationEmail.textContent = "";
+		dupState.emailCheckDone = false;
+		dupState.emailTaken = false;
 		return;
 	}
 
 	const message = await fetchUserEmail(email);
+	const available = message.includes("가능");
+
+	dupState.emailCheckDone = true;
+	dupState.emailTaken = !available;
 
 	isDuplicationEmail.textContent = message;
 
-	if (message.includes("가능한")) {
+	if (available) {
 		isDuplicationEmail.style.color = "green";
 	} else {
 		isDuplicationEmail.style.color = "red";
@@ -191,6 +292,8 @@ document.getElementById("sendEmailBtn").addEventListener("click", async function
 	const dupCheckEl = document.getElementById("isDuplicationEmail");
 	const feedbackEl = document.getElementById("emailFeedback");
 	const codeBox = document.getElementById("codeBox");
+	const verifyCodeInput = document.getElementById("verifyCode");
+	const verifyCodeBtn = document.getElementById("verifyCodeBtn");
 
 	if (!email) {
 		showToast("❗ 이메일을 입력해주세요.", "error");
@@ -230,6 +333,9 @@ document.getElementById("sendEmailBtn").addEventListener("click", async function
 		feedbackEl.textContent = message;
 		feedbackEl.classList.remove("text-danger", "text-success");
 		feedbackEl.classList.add(message.includes("실패") ? "text-danger" : "text-success");
+
+		verifyCodeBtn.disabled = false;
+		verifyCodeInput.readOnly = false;
 
 	} catch (error) {
 		console.error("전송 오류:", error);
@@ -273,38 +379,112 @@ document.getElementById("verifyCodeBtn").addEventListener("click", async () => {
 
 // 회원 등록 (가입하기)
 async function fetchUserRegister() {
+	const idEl = document.getElementById("id");
 	const idError = document.getElementById("isInvalidId").textContent.trim();
-	const duplicateError = document.getElementById("isDuplicationId").textContent.trim();
+
+	const pwEl = document.getElementById('password');
+	const pw2El = document.getElementById('passwordConfirm');
 	const pwError = document.getElementById("isInvalidPw").textContent.trim();
 	const pwMismatch = document.getElementById("isPasswordMismatch").textContent.trim();
+
+	const emailEl = document.getElementById("email");
 	const emailError = document.getElementById("isInvalidEmail").textContent.trim();
+
+	const nameEl = document.getElementById('name');
 	const nameError = document.getElementById("isInvalidName").textContent.trim();
+
+	const nickEl = document.getElementById("nickname");
+	const nicknameError = document.getElementById('isInvalidNickname').textContent.trim();
+
+	const phoneEl = document.getElementById('phone');
 	const phoneError = document.getElementById("isInvalidPhone").textContent.trim();
 
-	// 하나라도 메시지가 있다면 토스트 출력하고 요청 중단
-	if (idError || duplicateError || pwError || pwMismatch || emailError || nameError || phoneError) {
-		showToast("❗ 입력한 정보를 다시 확인해주세요.", "error");
+	// 필드별 형식오류 처리
+	if (idError) {
+		showToast("❗ 아이디 형식이 올바르지 않습니다.", "error");
+		idEl.focus();
 		return;
 	}
-	
+	if (pwError) {
+		showToast("❗ 비밀번호 형식이 올바르지 않습니다.", "error");
+		pwEl.focus();
+		return;
+	}
+	if (pwMismatch) {
+		showToast("❗ 비밀번호가 서로 일치하지 않습니다.", "error");
+		pw2El.focus();
+		return;
+	}
+	if (emailError) {
+		showToast("❗ 이메일 형식이 올바르지 않습니다.", "error");
+		emailEl.focus();
+		return;
+	}
+	if (nameError) {
+		showToast("❗ 이름을 올바르게 입력해 주세요.", "error");
+		nameEl.focus();
+		return;
+	}
+	if (nicknameError) {
+		showToast("❗ 닉네임 형식이 올바르지 않습니다.", "error");
+		nickEl.focus();
+		return;
+	}
+	if (phoneError) {
+		showToast("❗ 휴대폰 번호 형식이 올바르지 않습니다.", "error");
+		phoneEl.focus();
+		return;
+	}
+
+	// 중복확인 미실시 처리
+	if (!dupState.idCheckDone) {
+		showToast("❗ 아이디 중복확인을 완료해주세요.", "error");
+		idEl.focus();
+		return;
+	}
+	if (!dupState.nicknameCheckDone) {
+		showToast("❗ 닉네임 중복확인을 완료해주세요.", "error");
+		nickEl.focus();
+		return;
+	}
+	if (!dupState.emailCheckDone) {
+		showToast("❗ 이메일 중복확인을 완료해주세요.", "error");
+		emailEl.focus();
+		return;
+	}
+
+	// 중복된 값 사용 처리
+	if (dupState.idTaken) {
+		showToast("❗ 이미 사용 중인 아이디입니다.", "error");
+		idEl.focus();
+		return;
+	}
+	if (dupState.nicknameTaken) {
+		showToast("❗ 이미 사용 중인 닉네임입니다.", "error");
+		nickEl.focus();
+		return;
+	}
+	if (dupState.emailTaken) {
+		showToast("❗ 이미 사용 중인 이메일입니다.", "error");
+		emailEl.focus();
+		return;
+	}
+
+	// 이메일 인증 미실시 처리
 	if (!window.emailVerified) {
-	    showToast("이메일 인증을 먼저 완료해주세요.", "error");
-	    return;
+		showToast("이메일 인증을 먼저 완료해주세요.", "error");
+		return;
 	}
 
 	try {
-		const id = document.getElementById("id").value;
-		const password = document.getElementById("password").value;
-		const name = document.getElementById("name").value;
-		const phone = document.getElementById("phone").value;
-		const email = document.getElementById("email").value;
-
 		let userDTO = {
-			id: id,
-			password: password,
-			name: name,
-			pno: phone,
-			email: email
+			id: idEl.value,
+			password: pwEl.value,
+			name: nameEl.value,
+			nickname: nickEl.value,
+			pno: phoneEl.value,
+			email: emailEl.value,
+			emailVerified: window.emailVerified
 		}
 
 		const response = await fetchWithAuth('/api/users', {

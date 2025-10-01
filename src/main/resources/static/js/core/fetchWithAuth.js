@@ -37,10 +37,12 @@ async function fetchWithAuth(input, init = {}) {
 		credentials: "include"
 	};
 
+	const skipRefresh = init.skipRefresh === true;
+
 	let response = await fetch(input, authInit);
 
-	// AccessToken 만료 → RefreshToken으로 재요청
-	if (response.status === 401) {
+	// ★ 수정: 401이어도 skipRefresh면 재발급 안 함
+	if (response.status === 401 && !skipRefresh) {
 		const refreshRes = await fetch("/token", {
 			method: "POST",
 			credentials: "include"
@@ -51,7 +53,6 @@ async function fetchWithAuth(input, init = {}) {
 			const newToken = data.token;
 			setAccessToken(newToken);
 
-			// 새 토큰으로 재시도
 			const retryHeaders = {
 				...(init.headers || {}),
 				Authorization: `Bearer ${newToken}`
@@ -69,7 +70,7 @@ async function fetchWithAuth(input, init = {}) {
 
 			response = await fetch(input, retryInit);
 		} else {
-			throw new Error("서버 오류 발생");
+			return response;
 		}
 	}
 

@@ -21,6 +21,30 @@ document.addEventListener("DOMContentLoaded", async function() {
 	await recentBoards();
 	await loadTopTags();
 	await loadReadBasedRecommendations();
+
+	document.addEventListener('click', async (e) => {
+		const a = e.target.closest('a.board-title-link');
+		if (!a) return;
+		e.preventDefault();
+
+		try {
+			const res = await fetchWithAuth('/api/users/me', {
+				skipRefresh: true,
+			});
+
+			if (res.status === 200) {
+				location.href = a.href;
+			} else if (res.status === 401) {
+				alert('로그인이 필요합니다.');
+				const loginUrl = '/login';
+				location.href = loginUrl;
+			} else {
+				showToast(`일시적 오류가 발생했습니다. (${res.status})`, 'error');
+			}
+		} catch (err) {
+			showToast('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.', 'error');
+		}
+	});
 });
 
 // 해상도 체크 
@@ -54,7 +78,7 @@ async function popularBoard() {
 		boards.forEach(board => {
 			const divEl = document.createElement("div");
 			divEl.innerHTML = `
-			<a href="board/detail/${categoryNames[board.category]}/${board.bno}" class="text-decoration-none text-dark">
+			<a href="board/detail/${categoryNames[board.category]}/${board.bno}" class="text-decoration-none text-dark board-title-link">
 				<div class="post-card">
 					<div class="post-title">${board.title}</div>
 					<div class="post-preview">${board.content}</div>
@@ -113,7 +137,7 @@ function loadBoardsByCategory() {
 					);
 
 					li.innerHTML = `
-						<a href="board/detail/${categoryNames[board.category]}/${board.bno}" class="text-decoration-none text-dark">
+						<a href="board/detail/${categoryNames[board.category]}/${board.bno}" class="text-decoration-none text-dark board-title-link">
 						${board.title} ${iconHTML} [${board.commentCount}]
 						</a>
 						<span class="badge bg-secondary rounded-pill back-color-light30">${board.viewCount}</span>
@@ -159,7 +183,7 @@ async function loadInitialBoards() {
 			);
 
 			li.innerHTML = `
-				<a href="board/detail/${categoryNames[board.category]}/${board.bno}" class="text-decoration-none text-dark">
+				<a href="board/detail/${categoryNames[board.category]}/${board.bno}" class="text-decoration-none text-dark board-title-link">
 				${board.title} ${iconHTML} [${board.commentCount}]
 				</a>
 				<span class="badge bg-secondary rounded-pill back-color-light30">${board.viewCount}</span>
@@ -187,7 +211,7 @@ async function recentBoards() {
 		boards.forEach(board => {
 			const divEl = document.createElement("div");
 			divEl.innerHTML = `
-						<a href="board/detail/${categoryNames[board.category]}/${board.bno}" class="text-decoration-none text-dark">
+						<a href="board/detail/${categoryNames[board.category]}/${board.bno}" class="text-decoration-none text-dark board-title-link">
 							<div class="post-card">
 								<div class="post-title">${board.title}</div>
 								<div class="post-preview">${board.content}</div>
@@ -243,7 +267,7 @@ async function loadReadBasedRecommendations() {
 		boards.forEach(board => {
 			const divEl = document.createElement("div");
 			divEl.innerHTML = `
-						<a href="board/detail/${categoryNames[board.category]}/${board.bno}" class="text-decoration-none text-dark">
+						<a href="board/detail/${categoryNames[board.category]}/${board.bno}" class="text-decoration-none text-dark board-title-link">
 							<div class="post-card">
 								<div class="post-title">${board.title}</div>
 								<div class="post-preview">${board.content}</div>
@@ -334,13 +358,13 @@ async function loadPublic() {
 		} else {
 			recommendTitle.textContent += "🌟 회원님을 위한 오늘의 스몰 큐레이션";
 		}
-		
+
 		readBasedRecommend.innerHTML = "";
 
 		boards.forEach(board => {
 			const divEl = document.createElement("div");
 			divEl.innerHTML = `
-						<a href="board/detail/${categoryNames[board.category]}/${board.bno}" class="text-decoration-none text-dark">
+						<a href="board/detail/${categoryNames[board.category]}/${board.bno}" class="text-decoration-none text-dark board-title-link">
 							<div class="post-card">
 								<div class="post-title">${board.title}</div>
 								<div class="post-preview">${board.content}</div>

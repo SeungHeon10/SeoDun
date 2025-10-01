@@ -119,7 +119,7 @@ public class AccountRecoveryServiceImpl implements AccountRecoveryService {
 				.expiryDate(LocalDateTime.now().plusMinutes(10)).build();
 		emailRepository.save(emailToken);
 
-		String link = "http://localhost:8080/account/password/reset?token=" + token;
+		String link = "http://seodun-prod.eba-5wgz7twx.ap-northeast-2.elasticbeanstalk.com/account/password/reset?token=" + token;
 		String body = String.format(
 				"""
 						<div

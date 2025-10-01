@@ -9,12 +9,13 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class RefreshTokenServiceImpl implements RefreshTokenService{
+public class RefreshTokenServiceImpl implements RefreshTokenService {
 	private final RedisTemplate<String, String> redisTemplate;
-	
+
 	@Override
 	public void saveRefreshToken(String id, String refreshToken, Duration duration) {
 		redisTemplate.opsForValue().set("refresh:" + id, refreshToken, duration);
+		redisTemplate.opsForValue().set("rt:" + refreshToken, id, duration);
 	}
 
 	@Override
@@ -24,8 +25,13 @@ public class RefreshTokenServiceImpl implements RefreshTokenService{
 	}
 
 	@Override
-	public void delete(String id) {
-		redisTemplate.delete("refresh" + id);
+	public void deleteByUserId(String id) {
+		redisTemplate.delete("refresh:" + id);
+	}
+
+	@Override
+	public void deleteByToken(String token) {
+		redisTemplate.delete("rt:" + token);
 	}
 
 }
