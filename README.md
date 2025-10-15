@@ -18,7 +18,7 @@ SeoDun은 사용자들이 자유롭게 글을 작성하고 의견을 나눌 수 
 
 ---
 
-## 🏗️ 시스템 구조 (System Architecture)
+## 🌐 시스템 구조 (System Architecture)
 
 ![시스템 구조](https://github.com/user-attachments/assets/c59e192f-6441-4cbf-bb1b-85ddc0889eeb)
 
@@ -26,27 +26,27 @@ SeoDun은 사용자들이 자유롭게 글을 작성하고 의견을 나눌 수 
 
 ## 🖥️ 주요 화면 (Main Screens)
 
-# 로그인 및 회원가입
+### 로그인 및 회원가입
 
 ![로그인 및 회원가입](https://github.com/user-attachments/assets/7351d8eb-09c0-481d-9bd1-a218da6a9693)
 
-# 게시글 목록
+### 게시글 목록
 
-![게시글 목록]()
+![게시글 목록](https://github.com/user-attachments/assets/f73d7ab1-ed59-4452-be35-aae0099719da)
 
-# 게시글 작성
+### 게시글 작성
 
 ![게시글 작성](https://github.com/user-attachments/assets/c3bdaa86-5f04-44de-ad8d-5cc91447081c)
 
-# 게시글 상세보기
+### 게시글 상세보기
 
 ![게시글 상세1](https://github.com/user-attachments/assets/a67816d0-3a9b-47dc-b10a-a439abd46485)
 ![게시글 상세2](https://github.com/user-attachments/assets/e15d540e-d6c6-4ea9-9c87-80efd8e9db9c)
 
-# 게시글 수정
+### 게시글 수정
 
 ![게시글 수정](https://github.com/user-attachments/assets/d89c826e-3202-442b-bf00-ffe019e62f72)
 
-# 회원정보
+### 회원정보
 
 ![회원정보](https://github.com/user-attachments/assets/aefdc776-f660-46b7-b9e7-d4bad39b4a2c)
